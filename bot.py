@@ -6,6 +6,8 @@ from threading import Thread
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from flask import Flask, jsonify
 
 import database as db
@@ -13,7 +15,6 @@ from config import BOT_TOKEN, ADMIN_ID, PORT
 
 flask_app = Flask(__name__, static_folder='static')
 
-# ===== Flask роуты =====
 @flask_app.route("/")
 def home():
     return "✅ NumBot работает!"
@@ -32,25 +33,24 @@ def get_user(user_id):
     balance = db.get_balance(user_id)
     return jsonify({"balance": balance})
 
-@flask_app.route("/api/shop/<int:user_id>")
-def get_shop(user_id):
-    for _ in range(5):
-        db.add_number_to_shop()
-    items = db.get_shop_numbers(5)
-    result = []
-    for item in items:
-        result.append({
-            "id": item[0],
-            "number": item[1],
-            "rarity": item[2],
-            "price": item[3]
-        })
-    return jsonify(result)
-
-@flask_app.route("/api/buy/<int:user_id>/<int:item_id>", methods=["POST"])
-def buy_number_api(user_id, item_id):
-    success, msg = db.buy_number(user_id, item_id)
-    return jsonify({"success": success, "message": msg})
+@flask_app.route("/api/open_case/<int:user_id>", methods=["POST"])
+def open_case_api(user_id):
+    balance = db.get_balance(user_id)
+    case_price = 500
+    
+    if balance < case_price:
+        return jsonify({"success": False, "message": f"Недостаточно средств! Нужно {case_price}₽"})
+    
+    db.add_balance(user_id, -case_price)
+    number, country, rarity, price = db.open_case(user_id)
+    
+    return jsonify({
+        "success": True,
+        "number": number,
+        "country": country,
+        "rarity": rarity,
+        "price": price
+    })
 
 @flask_app.route("/api/inventory/<int:user_id>")
 def get_inventory(user_id):
@@ -59,7 +59,8 @@ def get_inventory(user_id):
     for item in items:
         result.append({
             "id": item[0],
-            "number": item[2],
+            "number": item[1],
+            "country": item[2],
             "rarity": item[3],
             "buy_price": item[4]
         })
@@ -80,7 +81,6 @@ def get_bonus_api(user_id):
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT)
 
-# ===== Telegram бот =====
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
@@ -88,13 +88,16 @@ dp = Dispatcher()
 async def cmd_start(message: Message):
     db.get_or_create_user(message.from_user.id, message.from_user.username)
     
+    hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎮 Играть", web_app=WebAppInfo(url=f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')}/app"))]
+        [InlineKeyboardButton(text="🎮 Играть", web_app=WebAppInfo(url=f"https://{hostname}/app"))]
     ])
     
     await message.answer(
         f"🚗 <b>Добро пожаловать в Numbers Bot!</b>\n\n"
-        f"Нажми кнопку ниже, чтобы начать игру!",
+        f"Открывай кейсы и выбивай редкие номера!\n"
+        f"🇷🇺 Россия | 🇧🇾 Беларусь | 🇺🇦 Украина | 🇰🇿 Казахстан\n\n"
+        f"Нажми кнопку ниже, чтобы начать!",
         parse_mode="HTML",
         reply_markup=keyboard
     )
