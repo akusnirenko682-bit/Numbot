@@ -6,12 +6,7 @@
     <title>Numbers Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -19,44 +14,31 @@
             min-height: 100vh;
             padding: 20px;
         }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            color: #ffd700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2em; color: #ffd700; }
         .balance-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        
-        .balance-card h2 {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .balance-card .amount {
-            font-size: 2.5em;
+        .balance-card h2 { font-size: 0.9em; opacity: 0.9; margin-bottom: 10px; }
+        .balance-card .amount { font-size: 2.5em; font-weight: bold; }
+        .case-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            font-size: 1.3em;
             font-weight: bold;
-        }
-        
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            color: white;
+            cursor: pointer;
             margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
         }
-        
+        .case-btn:active { transform: scale(0.98); }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-btn {
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.2);
@@ -64,58 +46,10 @@
             padding: 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
         }
-        
-        .menu-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-5px);
-        }
-        
-        .menu-btn .icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        
-        .menu-btn .label {
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .shop-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .shop-item .number {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        
-        .shop-item .price {
-            color: #ffd700;
-            font-weight: bold;
-        }
-        
-        .buy-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
+        .menu-btn .icon { font-size: 2em; margin-bottom: 10px; }
+        .menu-btn .label { font-size: 0.9em; font-weight: 600; }
+        .hidden { display: none; }
         .back-btn {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -124,8 +58,32 @@
             border-radius: 10px;
             cursor: pointer;
             margin-bottom: 20px;
-            font-size: 1em;
         }
+        .item-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-card .number { font-weight: bold; font-size: 1.1em; }
+        .item-card .country { font-size: 0.8em; opacity: 0.7; }
+        .item-card .price { color: #ffd700; font-weight: bold; }
+        .sell-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .rarity-Обычный { border-left: 4px solid #9e9e9e; }
+        .rarity-Необычный { border-left: 4px solid #4CAF50; }
+        .rarity-Редкий { border-left: 4px solid #2196F3; }
+        .rarity-Эпический { border-left: 4px solid #9C27B0; }
+        .rarity-Легендарный { border-left: 4px solid #FFD700; }
     </style>
 </head>
 <body>
@@ -139,11 +97,11 @@
             <div class="amount" id="balance">0 ₽</div>
         </div>
         
+        <button class="case-btn" onclick="openCase()">
+            🎁 Открыть кейс (500₽)
+        </button>
+        
         <div class="menu-grid">
-            <div class="menu-btn" onclick="showShop()">
-                <div class="icon">🛒</div>
-                <div class="label">Магазин</div>
-            </div>
             <div class="menu-btn" onclick="showInventory()">
                 <div class="icon">🎒</div>
                 <div class="label">Инвентарь</div>
@@ -152,17 +110,7 @@
                 <div class="icon">🎁</div>
                 <div class="label">Бонус</div>
             </div>
-            <div class="menu-btn" onclick="showHelp()">
-                <div class="icon">ℹ️</div>
-                <div class="label">Помощь</div>
-            </div>
         </div>
-    </div>
-    
-    <div id="shop-screen" class="hidden">
-        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
-        <h2 style="margin-bottom: 20px;">🛒 Магазин номеров</h2>
-        <div id="shop-list"></div>
     </div>
     
     <div id="inventory-screen" class="hidden">
@@ -176,7 +124,6 @@
         tg.expand();
         
         const userId = tg.initDataUnsafe?.user?.id;
-        const username = tg.initDataUnsafe?.user?.username;
         
         async function loadData() {
             try {
@@ -184,61 +131,42 @@
                 const data = await response.json();
                 document.getElementById('balance').textContent = `${data.balance} ₽`;
             } catch (e) {
-                console.error('Error loading data:', e);
+                console.error('Error:', e);
             }
         }
         
         function showMain() {
             document.getElementById('main-screen').classList.remove('hidden');
-            document.getElementById('shop-screen').classList.add('hidden');
             document.getElementById('inventory-screen').classList.add('hidden');
             loadData();
         }
         
-        async function showShop() {
-            document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('shop-screen').classList.remove('hidden');
-            
+        async function openCase() {
             try {
-                const response = await fetch(`/api/shop/${userId}`);
-                const items = await response.json();
-                
-                const list = document.getElementById('shop-list');
-                list.innerHTML = '';
-                
-                items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'shop-item';
-                    div.innerHTML = `
-                        <div>
-                            <div class="number">${item.number}</div>
-                            <div style="font-size: 0.8em; opacity: 0.7;">${item.rarity}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="price">${item.price} ₽</div>
-                            <button class="buy-btn" onclick="buyNumber(${item.id})">Купить</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (e) {
-                console.error('Error loading shop:', e);
-            }
-        }
-        
-        async function buyNumber(itemId) {
-            try {
-                const response = await fetch(`/api/buy/${userId}/${itemId}`, { method: 'POST' });
+                const response = await fetch(`/api/open_case/${userId}`, { method: 'POST' });
                 const result = await response.json();
                 
                 if (result.success) {
-                    tg.showAlert(`✅ ${result.message}`);
-                    showShop();
+                    const flags = {
+                        'Россия': '🇷🇺',
+                        'Беларусь': '🇧🇾',
+                        'Украина': '🇺🇦',
+                        'Казахстан': '🇰🇿'
+                    };
+                    
+                    tg.showAlert(
+                        `🎉 Выбит номер!\n\n` +
+                        `${flags[result.country] || ''} ${result.number}\n` +
+                        `Страна: ${result.country}\n` +
+                        `Редкость: ${result.rarity}\n` +
+                        `Стоимость: ${result.price}₽`
+                    );
+                    loadData();
                 } else {
                     tg.showAlert(`❌ ${result.message}`);
                 }
             } catch (e) {
-                console.error('Error buying:', e);
+                console.error('Error:', e);
             }
         }
         
@@ -254,28 +182,35 @@
                 list.innerHTML = '';
                 
                 if (items.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Инвентарь пуст</p>';
+                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Инвентарь пуст. Открой кейс!</p>';
                     return;
                 }
+                
+                const flags = {
+                    'Россия': '🇷🇺',
+                    'Беларусь': '🇧🇾',
+                    'Украина': '🇺🇦',
+                    'Казахстан': '🇰🇿'
+                };
                 
                 items.forEach(item => {
                     const sellPrice = Math.floor(item.buy_price * 0.8);
                     const div = document.createElement('div');
-                    div.className = 'shop-item';
+                    div.className = `item-card rarity-${item.rarity}`;
                     div.innerHTML = `
                         <div>
-                            <div class="number">${item.number}</div>
-                            <div style="font-size: 0.8em; opacity: 0.7;">${item.rarity}</div>
+                            <div class="number">${flags[item.country] || ''} ${item.number}</div>
+                            <div class="country">${item.country} • ${item.rarity}</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div class="price">${sellPrice} ₽</div>
-                            <button class="buy-btn" style="background: #f44336;" onclick="sellNumber(${item.id})">Продать</button>
+                            <button class="sell-btn" onclick="sellNumber(${item.id})">Продать</button>
                         </div>
                     `;
                     list.appendChild(div);
                 });
             } catch (e) {
-                console.error('Error loading inventory:', e);
+                console.error('Error:', e);
             }
         }
         
@@ -291,7 +226,7 @@
                     tg.showAlert(`❌ ${result.message}`);
                 }
             } catch (e) {
-                console.error('Error selling:', e);
+                console.error('Error:', e);
             }
         }
         
@@ -302,15 +237,10 @@
                 tg.showAlert(`🎁 ${result.message}`);
                 loadData();
             } catch (e) {
-                console.error('Error getting bonus:', e);
+                console.error('Error:', e);
             }
         }
         
-        function showHelp() {
-            tg.showAlert('ℹ️ Покупай номера в магазине, продавай их дороже, собирай коллекцию!');
-        }
-        
-        // Загрузка данных при старте
         loadData();
     </script>
 </body>
