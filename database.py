@@ -14,17 +14,11 @@ def init_db():
         balance REAL DEFAULT 1000.0,
         created_at TEXT
     )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS shop_numbers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        number TEXT UNIQUE,
-        rarity TEXT,
-        price REAL,
-        is_sold INTEGER DEFAULT 0
-    )''')
     c.execute('''CREATE TABLE IF NOT EXISTS inventory (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         number TEXT,
+        country TEXT,
         rarity TEXT,
         buy_price REAL,
         buy_date TEXT,
@@ -73,7 +67,10 @@ def set_balance(user_id, amount):
     conn.close()
 
 
-def generate_number():
+# ===== ГЕНЕРАЦИЯ НОМЕРОВ РАЗНЫХ СТРАН =====
+
+def generate_russian_number():
+    """Россия: А123БВ77"""
     letters = "АВЕКМНОРСТУХ"
     digits = "0123456789"
     letter1 = random.choice(letters)
@@ -84,72 +81,105 @@ def generate_number():
     return f"{letter1}{digits_part}{letter2}{letter3}{region:02d}"
 
 
-def get_rarity(number):
+def generate_belarus_number():
+    """Беларусь: 1234АВ-5"""
+    letters = "АВЕКМНОРСТУХ"
+    digits = "0123456789"
+    digits_part = "".join(random.choices(digits, k=4))
+    letter1 = random.choice(letters)
+    letter2 = random.choice(letters)
+    region = random.randint(1, 7)
+    return f"{digits_part}{letter1}{letter2}-{region}"
+
+
+def generate_ukraine_number():
+    """Украина: АА1234ВВ"""
+    letters = "АВЕКМНОРСТУХІ"
+    digits = "0123456789"
+    letter1 = random.choice(letters)
+    letter2 = random.choice(letters)
+    digits_part = "".join(random.choices(digits, k=4))
+    letter3 = random.choice(letters)
+    letter4 = random.choice(letters)
+    return f"{letter1}{letter2}{digits_part}{letter3}{letter4}"
+
+
+def generate_kazakhstan_number():
+    """Казахстан: А123ВСМ"""
+    letters = "АВЕКМНОРСТУХ"
+    digits = "0123456789"
+    letter1 = random.choice(letters)
+    digits_part = "".join(random.choices(digits, k=3))
+    letter2 = random.choice(letters)
+    letter3 = random.choice(letters)
+    letter4 = random.choice(letters)
+    return f"{letter1}{digits_part}{letter2}{letter3}{letter4}"
+
+
+def generate_random_number():
+    """Случайный номер из любой страны"""
+    countries = ["Россия", "Беларусь", "Украина", "Казахстан"]
+    country = random.choice(countries)
+    
+    if country == "Россия":
+        number = generate_russian_number()
+    elif country == "Беларусь":
+        number = generate_belarus_number()
+    elif country == "Украина":
+        number = generate_ukraine_number()
+    else:
+        number = generate_kazakhstan_number()
+    
+    return country, number
+
+
+def get_rarity(country, number):
+    """Определяет редкость номера"""
     digits = "".join(c for c in number if c.isdigit())
     letters = "".join(c for c in number if c.isalpha())
+    
     rarity = "Обычный"
-    price = random.randint(100, 500)
-    if digits[0] == digits[1] == digits[2]:
+    price = random.randint(100, 300)
+    
+    # Красивые цифры
+    if len(digits) >= 3 and digits[0] == digits[1] == digits[2]:
         rarity = "Редкий"
         price = random.randint(1000, 3000)
-    elif digits[0] == digits[1] or digits[1] == digits[2]:
+    elif len(digits) >= 2 and (digits[0] == digits[1] or digits[-1] == digits[-2]):
         rarity = "Необычный"
         price = random.randint(500, 1000)
-    if digits == digits[::-1]:
+    
+    # Зеркальные цифры
+    if len(digits) >= 3 and digits == digits[::-1]:
         rarity = "Эпический"
         price = random.randint(3000, 8000)
-    if digits[0] == digits[1] == digits[2] and len(letters) >= 3 and letters[0] == letters[1] == letters[2]:
+    
+    # Все одинаковые цифры
+    if len(digits) >= 3 and len(set(digits)) == 1:
         rarity = "Легендарный"
         price = random.randint(10000, 50000)
+    
+    # Все одинаковые буквы
+    if len(letters) >= 3 and len(set(letters)) == 1:
+        rarity = "Легендарный"
+        price = random.randint(15000, 60000)
+    
     return rarity, price
 
 
-def add_number_to_shop():
+def open_case(user_id):
+    """Открыть кейс и получить случайный номер"""
+    country, number = generate_random_number()
+    rarity, price = get_rarity(country, number)
+    
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    while True:
-        number = generate_number()
-        c.execute("SELECT id FROM shop_numbers WHERE number = ?", (number,))
-        if not c.fetchone():
-            break
-    rarity, price = get_rarity(number)
-    c.execute("INSERT INTO shop_numbers (number, rarity, price) VALUES (?, ?, ?)",
-              (number, rarity, price))
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (?, ?, ?, ?, ?, ?)",
+              (user_id, number, country, rarity, price, datetime.now().isoformat()))
     conn.commit()
     conn.close()
-    return number, rarity, price
-
-
-def get_shop_numbers(limit=10):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT * FROM shop_numbers WHERE is_sold = 0 ORDER BY RANDOM() LIMIT ?", (limit,))
-    result = c.fetchall()
-    conn.close()
-    return result
-
-
-def buy_number(user_id, number_id):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT * FROM shop_numbers WHERE id = ? AND is_sold = 0", (number_id,))
-    num = c.fetchone()
-    if not num:
-        conn.close()
-        return False, "Номер уже продан!"
-    _, number, rarity, price, _ = num
-    c.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
-    balance = c.fetchone()[0]
-    if balance < price:
-        conn.close()
-        return False, f"Недостаточно средств! Нужно {price}₽, у тебя {balance}₽"
-    c.execute("UPDATE users SET balance = balance - ? WHERE user_id = ?", (price, user_id))
-    c.execute("UPDATE shop_numbers SET is_sold = 1 WHERE id = ?", (number_id,))
-    c.execute("INSERT INTO inventory (user_id, number, rarity, buy_price, buy_date) VALUES (?, ?, ?, ?, ?)",
-              (user_id, number, rarity, price, datetime.now().isoformat()))
-    conn.commit()
-    conn.close()
-    return True, f"Куплен номер {number} ({rarity}) за {price}₽!"
+    
+    return number, country, rarity, price
 
 
 def get_user_inventory(user_id):
@@ -169,16 +199,16 @@ def sell_number(user_id, inventory_id):
     if not item:
         conn.close()
         return False, "Этот номер тебе не принадлежит!"
-    _, _, number, rarity, buy_price, _ = item
+    _, _, number, country, rarity, buy_price, _ = item
     sell_price = int(buy_price * 0.8)
     c.execute("DELETE FROM inventory WHERE id = ?", (inventory_id,))
     c.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (sell_price, user_id))
     conn.commit()
     conn.close()
-    return True, f"Номер {number} продан за {sell_price}₽!"
+    return True, f"Номер {number} ({country}) продан за {sell_price}₽!"
 
 
-# --- АДМИН-ФУНКЦИИ ---
+# ===== АДМИН-ФУНКЦИИ =====
 
 def get_all_users():
     conn = sqlite3.connect(DB_NAME)
@@ -203,11 +233,11 @@ def get_user_info(user_id):
     return None, 0
 
 
-def give_number_to_user(user_id, number, rarity, price):
+def give_number_to_user(user_id, number, country, rarity, price):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute("INSERT INTO inventory (user_id, number, rarity, buy_price, buy_date) VALUES (?, ?, ?, ?, ?)",
-              (user_id, number, rarity, price, datetime.now().isoformat()))
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (?, ?, ?, ?, ?, ?)",
+              (user_id, number, country, rarity, price, datetime.now().isoformat()))
     conn.commit()
     conn.close()
 
