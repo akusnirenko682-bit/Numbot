@@ -1,703 +1,853 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Numbers Bot</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 {
-            font-size: 2.2em;
-            background: linear-gradient(90deg, #ffd700, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .balance-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
-        }
-        .balance-card h2 { font-size: 0.9em; opacity: 0.9; margin-bottom: 10px; }
-        .balance-card .amount { font-size: 2.5em; font-weight: bold; }
-        .section-title {
-            font-size: 1.2em;
-            margin: 25px 0 15px;
-            padding-left: 10px;
-            border-left: 4px solid #ffd700;
-        }
-        .countries-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .country-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 15px;
-            padding: 20px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .country-btn:active { transform: scale(0.95); }
-        .country-btn .flag { font-size: 2.5em; margin-bottom: 8px; }
-        .country-btn .name { font-size: 0.9em; font-weight: 600; }
-        .country-btn .price { font-size: 0.75em; opacity: 0.7; margin-top: 5px; }
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .menu-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .menu-btn .icon { font-size: 2em; margin-bottom: 8px; }
-        .menu-btn .label { font-size: 0.9em; font-weight: 600; }
-        .menu-btn.admin-btn {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            border-color: #ff416c;
-        }
-        .hidden { display: none; }
-        .back-btn {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            font-size: 1em;
-        }
-        .item-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .item-card .number { font-weight: bold; font-size: 1.1em; }
-        .item-card .country { font-size: 0.8em; opacity: 0.7; }
-        .item-card .price { color: #ffd700; font-weight: bold; }
-        .sell-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .buy-btn {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .rarity-Обычный { border-left: 4px solid #9e9e9e; }
-        .rarity-Необычный { border-left: 4px solid #4CAF50; }
-        .rarity-Редкий { border-left: 4px solid #2196F3; }
-        .rarity-Эпический { border-left: 4px solid #9C27B0; }
-        .rarity-Легендарный { border-left: 4px solid #FFD700; background: rgba(255, 215, 0, 0.1); }
-        .top-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .top-item .rank {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-right: 12px;
-            min-width: 30px;
-        }
-        .top-item .name { flex: 1; }
-        .top-item .value { color: #ffd700; font-weight: bold; }
-        
-        /* Админ-панель стили */
-        .admin-section {
-            background: rgba(255, 65, 108, 0.1);
-            border: 1px solid rgba(255, 65, 108, 0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .admin-section h3 {
-            color: #ff416c;
-            margin-bottom: 12px;
-            font-size: 1.1em;
-        }
-        .admin-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1em;
-        }
-        .admin-input::placeholder { color: rgba(255,255,255,0.5); }
-        .admin-btn-action {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            margin-bottom: 8px;
-        }
-        .user-row {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .user-row .uid { font-size: 0.8em; opacity: 0.6; }
-        .user-row .uname { font-weight: bold; }
-        .user-row .ubal { color: #ffd700; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-        }
-        .stat-card .stat-value { font-size: 1.5em; font-weight: bold; color: #ffd700; }
-        .stat-card .stat-label { font-size: 0.8em; opacity: 0.7; margin-top: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numbers Bot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0e1a;
+    color: white;
+    min-height: 100vh;
+    padding: 15px;
+}
+.balance-bar {
+    background: linear-gradient(90deg, #1e3a5f, #2d4a6f);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.balance-bar .label { font-size: 0.85em; opacity: 0.8; }
+.balance-bar .amount { font-size: 1.3em; font-weight: bold; color: #ffd700; }
+
+/* Главный блок-генератор */
+.main-card {
+    background: linear-gradient(180deg, #1a2a4a 0%, #0d1525 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.main-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(100,150,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+.main-card .big-plate {
+    background: white;
+    color: black;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 2em;
+    font-weight: bold;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 15px auto;
+    width: fit-content;
+    border: 3px solid #333;
+    letter-spacing: 2px;
+}
+.main-card .card-label {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    margin-top: 10px;
+}
+.main-card .card-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Сетка карточек */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Карточка-блок */
+.block-card {
+    background: linear-gradient(180deg, #1a2a4a 0%, #0d1525 100%);
+    border-radius: 14px;
+    padding: 15px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: transform 0.2s;
+}
+.block-card:active { transform: scale(0.97); }
+.block-card .icon {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+    text-align: center;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.block-card .title {
+    font-size: 0.75em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+.block-card .badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,215,0,0.2);
+    color: #ffd700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+.block-card.full { grid-column: 1 / -1; min-height: 130px; }
+.block-card.admin { background: linear-gradient(180deg, #4a1a2a 0%, #250d15 100%); border-color: rgba(255,65,108,0.3); }
+
+/* Скрытые экраны */
+.hidden { display: none !important; }
+.screen { padding-bottom: 20px; }
+.back-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+h2 { margin-bottom: 15px; font-size: 1.3em; }
+
+/* Карточка номера */
+.item-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.item-card .number { font-weight: bold; font-size: 1em; }
+.item-card .meta { font-size: 0.75em; opacity: 0.6; margin-top: 3px; }
+.item-card .price { color: #ffd700; font-weight: bold; }
+.rarity-Обычный { border-left: 3px solid #9e9e9e; }
+.rarity-Необычный { border-left: 3px solid #4CAF50; }
+.rarity-Редкий { border-left: 3px solid #2196F3; }
+.rarity-Эпический { border-left: 3px solid #9C27B0; }
+.rarity-Легендарный { border-left: 3px solid #FFD700; background: rgba(255,215,0,0.1); }
+
+.btn {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.85em;
+}
+.btn-pink { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.btn-red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+.btn-blue { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+.modal {
+    background: linear-gradient(180deg, #1a2a4a 0%, #0d1525 100%);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.modal h3 { margin-bottom: 15px; text-align: center; }
+.modal .big-plate {
+    background: white;
+    color: black;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 1.8em;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin: 15px auto;
+    width: fit-content;
+    border: 3px solid #333;
+    letter-spacing: 2px;
+}
+.modal .rarity-label {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.modal .btn { width: 100%; padding: 12px; font-size: 1em; }
+
+/* Страны */
+.countries-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.country-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+.country-btn:active { transform: scale(0.95); }
+.country-btn .flag { font-size: 2em; }
+.country-btn .name { font-size: 0.85em; margin-top: 5px; }
+.country-btn .price { font-size: 0.75em; color: #ffd700; margin-top: 3px; }
+
+/* Задания */
+.task-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+.task-card .task-name { font-weight: bold; margin-bottom: 5px; }
+.task-card .task-progress {
+    background: rgba(0,0,0,0.3);
+    height: 8px;
+    border-radius: 4px;
+    margin: 8px 0;
+    overflow: hidden;
+}
+.task-card .task-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    transition: width 0.3s;
+}
+.task-card .task-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.task-card .reward { color: #ffd700; font-size: 0.85em; }
+
+/* Анимация открытия */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px) rotate(-2deg); }
+    75% { transform: translateX(10px) rotate(2deg); }
+}
+.shaking { animation: shake 0.5s infinite; }
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+    50% { box-shadow: 0 0 40px rgba(255,215,0,0.9); }
+}
+.glow { animation: glow 1s infinite; }
+</style>
 </head>
 <body>
-    <!-- ГЛАВНЫЙ ЭКРАН -->
-    <div id="main-screen">
-        <div class="header"><h1>🚗 Numbers Bot</h1></div>
-        <div class="balance-card">
-            <h2>💰 Твой баланс</h2>
-            <div class="amount" id="balance">0 ₽</div>
+
+<!-- ГЛАВНЫЙ ЭКРАН -->
+<div id="screen-main" class="screen">
+    <div class="balance-bar">
+        <span class="label">💰 Баланс</span>
+        <span class="amount" id="balance">0 ₽</span>
+    </div>
+
+    <!-- ГЕНЕРАТОР -->
+    <div class="main-card" onclick="showScreen('screen-generator')">
+        <div class="big-plate" id="last-number">А777АА77</div>
+        <div class="card-title">🎯 ГЕНЕРАТОР</div>
+        <div class="card-label">Получи новый номер</div>
+    </div>
+
+    <!-- ЗАДАНИЯ -->
+    <div class="main-card" onclick="showScreen('screen-tasks')">
+        <div class="icon" style="font-size: 3em;">📋</div>
+        <div class="card-title">ЕЖЕДНЕВНЫЕ ЗАДАНИЯ</div>
+        <div class="card-label" id="tasks-summary">Выполни задания и получи награды</div>
+    </div>
+
+    <!-- АУКЦИОН -->
+    <div class="main-card" onclick="showScreen('screen-auction')">
+        <div class="icon" style="font-size: 3em;">🏎️</div>
+        <div class="card-title">АУКЦИОН</div>
+        <div class="card-label" id="auction-timer">Текущие торги</div>
+    </div>
+
+    <!-- КОЛЛЕКЦИЯ + СЕЙФ -->
+    <div class="grid-2">
+        <div class="block-card" onclick="showScreen('screen-inventory')">
+            <div class="icon">🎒</div>
+            <div class="title">КОЛЛЕКЦИЯ</div>
         </div>
-        <div class="section-title">🎯 Пункт выдачи</div>
-        <div class="countries-grid">
-            <div class="country-btn" onclick="issueNumber('ru')">
-                <div class="flag">🇷🇺</div>
-                <div class="name">Россия</div>
-                <div class="price">500 ₽</div>
-            </div>
-            <div class="country-btn" onclick="issueNumber('by')">
-                <div class="flag">🇧🇾</div>
-                <div class="name">Беларусь</div>
-                <div class="price">500 ₽</div>
-            </div>
-            <div class="country-btn" onclick="issueNumber('ua')">
-                <div class="flag">🇺🇦</div>
-                <div class="name">Украина</div>
-                <div class="price">500 ₽</div>
-            </div>
-            <div class="country-btn" onclick="issueNumber('kz')">
-                <div class="flag">🇰🇿</div>
-                <div class="name">Казахстан</div>
-                <div class="price">500 ₽</div>
-            </div>
-        </div>
-        <div class="section-title">📋 Меню</div>
-        <div class="menu-grid">
-            <div class="menu-btn" onclick="showInventory()">
-                <div class="icon">🎒</div>
-                <div class="label">Инвентарь</div>
-            </div>
-            <div class="menu-btn" onclick="showMarket()">
-                <div class="icon">🏪</div>
-                <div class="label">Рынок</div>
-            </div>
-            <div class="menu-btn" onclick="showTops()">
-                <div class="icon">🏆</div>
-                <div class="label">Топы</div>
-            </div>
-            <div class="menu-btn" onclick="getBonus()">
-                <div class="icon">🎁</div>
-                <div class="label">Бонус</div>
-            </div>
-        </div>
-        <!-- КНОПКА АДМИНА (скрыта по умолчанию) -->
-        <div id="admin-menu-btn" class="hidden">
-            <div class="section-title">🔐 Управление</div>
-            <div class="menu-grid">
-                <div class="menu-btn admin-btn" onclick="showAdmin()">
-                    <div class="icon">⚙️</div>
-                    <div class="label">Админ-панель</div>
-                </div>
-            </div>
+        <div class="block-card" onclick="showScreen('screen-safe')">
+            <div class="icon">🔒</div>
+            <div class="title">СЕЙФ</div>
         </div>
     </div>
 
-    <!-- ИНВЕНТАРЬ -->
-    <div id="inventory-screen" class="hidden">
-        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
-        <h2 style="margin-bottom: 20px;">🎒 Твой инвентарь</h2>
-        <div id="inventory-list"></div>
-    </div>
-
-    <!-- РЫНОК -->
-    <div id="market-screen" class="hidden">
-        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
-        <h2 style="margin-bottom: 20px;">🏪 Рынок</h2>
-        <div id="market-list"></div>
-    </div>
-
-    <!-- ТОПЫ -->
-    <div id="top-screen" class="hidden">
-        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
-        <h2 style="margin-bottom: 20px;">🏆 Топ игроков</h2>
-        <h3 style="margin: 15px 0 10px; color: #ffd700;">💰 Топ по деньгам</h3>
-        <div id="top-balance-list"></div>
-        <h3 style="margin: 20px 0 10px; color: #9C27B0;">👑 Топ по редким номерам</h3>
-        <div id="top-rare-list"></div>
-    </div>
-
-    <!-- АДМИН-ПАНЕЛЬ -->
-    <div id="admin-screen" class="hidden">
-        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
-        <h2 style="margin-bottom: 20px;">⚙️ Админ-панель</h2>
-        
-        <!-- Статистика -->
-        <div class="admin-section">
-            <h3>📊 Статистика бота</h3>
-            <div class="stats-grid" id="admin-stats"></div>
+    <!-- РЫНОК + КЕЙСЫ -->
+    <div class="grid-2">
+        <div class="block-card" onclick="showScreen('screen-market')">
+            <div class="icon">🏪</div>
+            <div class="title">РЫНОК</div>
         </div>
-        
-        <!-- Список пользователей -->
-        <div class="admin-section">
-            <h3>👥 Пользователи</h3>
-            <div id="admin-users-list"></div>
-        </div>
-        
-        <!-- Выдать деньги -->
-        <div class="admin-section">
-            <h3>💰 Выдать деньги</h3>
-            <input type="number" class="admin-input" id="give-money-user" placeholder="ID пользователя">
-            <input type="number" class="admin-input" id="give-money-amount" placeholder="Сумма">
-            <button class="admin-btn-action" onclick="adminGiveMoney()">Выдать</button>
-        </div>
-        
-        <!-- Установить баланс -->
-        <div class="admin-section">
-            <h3>⚖️ Установить баланс</h3>
-            <input type="number" class="admin-input" id="set-bal-user" placeholder="ID пользователя">
-            <input type="number" class="admin-input" id="set-bal-amount" placeholder="Новый баланс">
-            <button class="admin-btn-action" onclick="adminSetBalance()">Установить</button>
-        </div>
-        
-        <!-- Выдать номер -->
-        <div class="admin-section">
-            <h3>🚗 Выдать номер</h3>
-            <input type="number" class="admin-input" id="give-num-user" placeholder="ID пользователя">
-            <input type="text" class="admin-input" id="give-num-number" placeholder="Номер (А777АА77)">
-            <select class="admin-input" id="give-num-country">
-                <option value="Россия">🇷🇺 Россия</option>
-                <option value="Беларусь">🇧🇾 Беларусь</option>
-                <option value="Украина">🇺🇦 Украина</option>
-                <option value="Казахстан">🇰🇿 Казахстан</option>
-            </select>
-            <select class="admin-input" id="give-num-rarity">
-                <option value="Обычный">⚪ Обычный</option>
-                <option value="Необычный">🟢 Необычный</option>
-                <option value="Редкий">🔵 Редкий</option>
-                <option value="Эпический">🟣 Эпический</option>
-                <option value="Легендарный">🟡 Легендарный</option>
-            </select>
-            <input type="number" class="admin-input" id="give-num-price" placeholder="Цена" value="500">
-            <button class="admin-btn-action" onclick="adminGiveNumber()">Выдать номер</button>
-        </div>
-        
-        <!-- Рассылка -->
-        <div class="admin-section">
-            <h3>📢 Рассылка всем</h3>
-            <textarea class="admin-input" id="broadcast-text" placeholder="Текст рассылки" rows="3"></textarea>
-            <button class="admin-btn-action" onclick="adminBroadcast()">Отправить рассылку</button>
+        <div class="block-card" onclick="showScreen('screen-tops')">
+            <div class="icon">🏆</div>
+            <div class="title">ТОПЫ</div>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        const userId = tg.initDataUnsafe?.user?.id;
-        const flags = {'Россия': '🇷🇺', 'Беларусь': '🇧🇾', 'Украина': '🇺🇦', 'Казахстан': '🇰🇿'};
-        let isAdmin = false;
+    <!-- УЛУЧШЕНИЯ + АВТОПРОДАЖА -->
+    <div class="grid-2">
+        <div class="block-card" onclick="showScreen('screen-upgrades')">
+            <div class="icon">⚡</div>
+            <div class="title">УЛУЧШЕНИЯ</div>
+        </div>
+        <div class="block-card" onclick="autoSell()">
+            <div class="icon">💸</div>
+            <div class="title">АВТОПРОДАЖА</div>
+        </div>
+    </div>
 
-        async function loadData() {
-            try {
-                const response = await fetch(`/api/user/${userId}`);
-                const data = await response.json();
-                document.getElementById('balance').textContent = `${data.balance} ₽`;
-            } catch (e) { console.error(e); }
-        }
+    <!-- БОНУС -->
+    <div class="main-card" onclick="getBonus()">
+        <div class="icon" style="font-size: 3em;">🎁</div>
+        <div class="card-title">ЕЖЕДНЕВНЫЙ БОНУС</div>
+        <div class="card-label">Раз в 24 часа</div>
+    </div>
 
-        async function checkAdmin() {
-            try {
-                const response = await fetch(`/api/is_admin/${userId}`);
-                const data = await response.json();
-                isAdmin = data.is_admin;
-                if (isAdmin) {
-                    document.getElementById('admin-menu-btn').classList.remove('hidden');
-                }
-            } catch (e) { console.error(e); }
-        }
+    <!-- АДМИН -->
+    <div id="admin-btn-container" class="hidden">
+        <div class="block-card full admin" onclick="showScreen('screen-admin')">
+            <div class="icon">⚙️</div>
+            <div class="title">АДМИН-ПАНЕЛЬ</div>
+        </div>
+    </div>
+</div>
 
-        function showMain() {
-            document.getElementById('main-screen').classList.remove('hidden');
-            document.getElementById('inventory-screen').classList.add('hidden');
-            document.getElementById('market-screen').classList.add('hidden');
-            document.getElementById('top-screen').classList.add('hidden');
-            document.getElementById('admin-screen').classList.add('hidden');
+<!-- ГЕНЕРАТОР -->
+<div id="screen-generator" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🎯 Выбери страну</h2>
+    <div class="countries-grid">
+        <div class="country-btn" onclick="issueNumber('ru')">
+            <div class="flag">🇷🇺</div>
+            <div class="name">Россия</div>
+            <div class="price" id="price-ru">500 ₽</div>
+        </div>
+        <div class="country-btn" onclick="issueNumber('by')">
+            <div class="flag">🇧🇾</div>
+            <div class="name">Беларусь</div>
+            <div class="price" id="price-by">500 ₽</div>
+        </div>
+        <div class="country-btn" onclick="issueNumber('ua')">
+            <div class="flag">🇺🇦</div>
+            <div class="name">Украина</div>
+            <div class="price" id="price-ua">500 ₽</div>
+        </div>
+        <div class="country-btn" onclick="issueNumber('kz')">
+            <div class="flag">🇰🇿</div>
+            <div class="name">Казахстан</div>
+            <div class="price" id="price-kz">500 ₽</div>
+        </div>
+    </div>
+</div>
+
+<!-- ИНВЕНТАРЬ -->
+<div id="screen-inventory" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🎒 Твоя коллекция</h2>
+    <div id="inventory-list"></div>
+</div>
+
+<!-- ЗАДАНИЯ -->
+<div id="screen-tasks" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>📋 Ежедневные задания</h2>
+    <div id="tasks-list"></div>
+</div>
+
+<!-- АУКЦИОН -->
+<div id="screen-auction" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🏎️ Аукцион</h2>
+    <div id="auction-list"></div>
+</div>
+
+<!-- РЫНОК -->
+<div id="screen-market" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🏪 Рынок</h2>
+    <div id="market-list"></div>
+</div>
+
+<!-- СЕЙФ -->
+<div id="screen-safe" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🔒 Сейф</h2>
+    <div class="main-card">
+        <div class="card-label">В сейфе</div>
+        <div class="card-title" style="font-size: 2em; color: #ffd700;" id="safe-amount">0 ₽</div>
+        <div class="card-label" id="safe-interest">Проценты: +0 ₽</div>
+    </div>
+    <p style="opacity: 0.7; font-size: 0.85em; margin-bottom: 15px;">0.5% в час за хранение</p>
+    <div class="countries-grid">
+        <div class="country-btn" onclick="depositSafe()"><div class="name">💰 Внести</div></div>
+        <div class="country-btn" onclick="withdrawSafe()"><div class="name">📤 Забрать</div></div>
+    </div>
+</div>
+
+<!-- УЛУЧШЕНИЯ -->
+<div id="screen-upgrades" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>⚡ Улучшения</h2>
+    <div id="upgrades-list"></div>
+</div>
+
+<!-- ТОПЫ -->
+<div id="screen-tops" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>🏆 Топы</h2>
+    <h3 style="color: #ffd700; margin: 15px 0 10px;">💰 По деньгам</h3>
+    <div id="top-balance-list"></div>
+    <h3 style="color: #9C27B0; margin: 20px 0 10px;">👑 По редким</h3>
+    <div id="top-rare-list"></div>
+</div>
+
+<!-- АДМИН -->
+<div id="screen-admin" class="screen hidden">
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <h2>⚙️ Админ-панель</h2>
+    <div class="main-card">
+        <div class="card-title">💰 Выдать деньги</div>
+        <input type="number" class="admin-input" id="adm-give-id" placeholder="ID" style="width:100%; padding:10px; margin:10px 0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:white;">
+        <input type="number" id="adm-give-amount" placeholder="Сумма" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:white;">
+        <button class="btn btn-blue" onclick="admGiveMoney()" style="width:100%;">Выдать</button>
+    </div>
+    <div class="main-card">
+        <div class="card-title">🚗 Выдать номер</div>
+        <input type="number" id="adm-num-id" placeholder="ID" style="width:100%; padding:10px; margin:10px 0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:white;">
+        <input type="text" id="adm-num-number" placeholder="А777АА77" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:white;">
+        <button class="btn btn-blue" onclick="admGiveNumber()" style="width:100%;">Выдать номер</button>
+    </div>
+    <div class="main-card">
+        <div class="card-title">👥 Пользователи</div>
+        <div id="adm-users-list" style="margin-top:10px;"></div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ОТКРЫТИЯ -->
+<div id="open-modal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3 id="modal-title">Открываем...</h3>
+        <div class="big-plate" id="modal-number">??????</div>
+        <div class="rarity-label" id="modal-rarity"></div>
+        <div class="card-label" id="modal-country"></div>
+        <button class="btn" onclick="closeModal()" style="margin-top:15px;">ОК</button>
+    </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+const userId = tg.initDataUnsafe?.user?.id;
+const username = tg.initDataUnsafe?.user?.username;
+const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
+let issuePrice = 500;
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    if (id === 'screen-main') loadData();
+    if (id === 'screen-inventory') loadInventory();
+    if (id === 'screen-tasks') loadTasks();
+    if (id === 'screen-market') loadMarket();
+    if (id === 'screen-auction') loadAuctions();
+    if (id === 'screen-safe') loadSafe();
+    if (id === 'screen-upgrades') loadUpgrades();
+    if (id === 'screen-tops') loadTops();
+    if (id === 'screen-admin') loadAdmin();
+}
+
+async function loadData() {
+    try {
+        const r = await fetch(`/api/user/${userId}?username=${username||''}`);
+        const d = await r.json();
+        document.getElementById('balance').textContent = `${Math.floor(d.balance)} ₽`;
+        issuePrice = d.issue_price;
+        ['ru','by','ua','kz'].forEach(c => {
+            const el = document.getElementById('price-'+c);
+            if (el) el.textContent = `${issuePrice} ₽`;
+        });
+        if (d.is_admin) document.getElementById('admin-btn-container').classList.remove('hidden');
+    } catch(e) { console.error(e); }
+}
+
+async function issueNumber(country) {
+    const modal = document.getElementById('open-modal');
+    modal.classList.remove('hidden');
+    document.getElementById('modal-title').textContent = 'Открываем...';
+    document.getElementById('modal-number').textContent = '??????';
+    document.getElementById('modal-rarity').textContent = '';
+    document.getElementById('modal-country').textContent = '';
+    document.getElementById('modal-number').classList.add('shaking');
+    
+    try {
+        const r = await fetch(`/api/issue/${userId}/${country}`, { method: 'POST' });
+        const d = await r.json();
+        await new Promise(res => setTimeout(res, 1200));
+        document.getElementById('modal-number').classList.remove('shaking');
+        if (d.success) {
+            document.getElementById('modal-title').textContent = '🎉 Выбит номер!';
+            document.getElementById('modal-number').textContent = d.number;
+            document.getElementById('modal-rarity').textContent = d.rarity;
+            document.getElementById('modal-country').textContent = `${flags[d.country]} ${d.country} • ${d.price}₽`;
+            if (d.rarity === 'Легендарный') document.getElementById('modal-number').classList.add('glow');
+            document.getElementById('last-number').textContent = d.number;
             loadData();
+        } else {
+            document.getElementById('modal-title').textContent = '❌ Ошибка';
+            document.getElementById('modal-number').textContent = d.message;
         }
+    } catch(e) {
+        document.getElementById('modal-title').textContent = '❌ Ошибка сети';
+    }
+}
 
-        async function issueNumber(country) {
-            try {
-                const response = await fetch(`/api/issue/${userId}/${country}`, { method: 'POST' });
-                const result = await response.json();
-                if (result.success) {
-                    tg.showAlert(`🎉 Выбит номер!\n\n${flags[result.country] || ''} ${result.number}\nСтрана: ${result.country}\nРедкость: ${result.rarity}\nСтоимость: ${result.price}₽`);
-                    loadData();
-                } else {
-                    tg.showAlert(`❌ ${result.message}`);
-                }
-            } catch (e) { console.error(e); }
-        }
+function closeModal() {
+    document.getElementById('open-modal').classList.add('hidden');
+    document.getElementById('modal-number').classList.remove('glow');
+}
 
-        async function showInventory() {
-            document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('inventory-screen').classList.remove('hidden');
-            try {
-                const response = await fetch(`/api/inventory/${userId}`);
-                const items = await response.json();
-                const list = document.getElementById('inventory-list');
-                list.innerHTML = '';
-                if (items.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Инвентарь пуст. Выбери страну выше!</p>';
-                    return;
-                }
-                items.forEach(item => {
-                    const sellPrice = Math.floor(item.buy_price * 0.8);
-                    const div = document.createElement('div');
-                    div.className = `item-card rarity-${item.rarity}`;
-                    div.innerHTML = `
-                        <div>
-                            <div class="number">${flags[item.country] || ''} ${item.number}</div>
-                            <div class="country">${item.country} • ${item.rarity}</div>
-                        </div>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                            <button class="sell-btn" onclick="sellNumber(${item.id})">Продать ${sellPrice}₽</button>
-                            <button class="buy-btn" onclick="listOnMarket(${item.id})">На рынок</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
-        }
+async function loadInventory() {
+    const r = await fetch(`/api/inventory/${userId}`);
+    const items = await r.json();
+    const list = document.getElementById('inventory-list');
+    list.innerHTML = '';
+    if (items.length === 0) {
+        list.innerHTML = '<p style="opacity:0.7;text-align:center;">Пусто. Открой номер!</p>';
+        return;
+    }
+    items.forEach(i => {
+        const sp = Math.floor(i.buy_price * 0.8);
+        const d = document.createElement('div');
+        d.className = `item-card rarity-${i.rarity}`;
+        d.innerHTML = `
+            <div>
+                <div class="number">${flags[i.country]||''} ${i.number}</div>
+                <div class="meta">${i.country} • ${i.rarity}</div>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-pink" onclick="sellNumber(${i.id})">${sp}₽</button>
+                <button class="btn" onclick="listMarket(${i.id})">🏪</button>
+                <button class="btn btn-blue" onclick="auctionLot(${i.id})">🏎️</button>
+            </div>`;
+        list.appendChild(d);
+    });
+}
 
-        async function sellNumber(itemId) {
-            try {
-                const response = await fetch(`/api/sell/${userId}/${itemId}`, { method: 'POST' });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                showInventory();
-            } catch (e) { console.error(e); }
-        }
+async function sellNumber(id) {
+    const r = await fetch(`/api/sell/${userId}/${id}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadInventory();
+    loadData();
+}
 
-        async function listOnMarket(itemId) {
-            const price = prompt('Введите цену продажи (₽):');
-            if (!price || isNaN(price) || price <= 0) return;
-            try {
-                const response = await fetch(`/api/market/sell/${userId}/${itemId}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({price: parseFloat(price)})
-                });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                showInventory();
-            } catch (e) { console.error(e); }
-        }
+async function autoSell() {
+    if (!confirm('Продать все обычные номера?')) return;
+    const r = await fetch(`/api/auto_sell/${userId}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadData();
+}
 
-        async function showMarket() {
-            document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('market-screen').classList.remove('hidden');
-            try {
-                const response = await fetch('/api/market');
-                const items = await response.json();
-                const list = document.getElementById('market-list');
-                list.innerHTML = '';
-                if (items.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Рынок пуст.</p>';
-                    return;
-                }
-                items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = `item-card rarity-${item.rarity}`;
-                    div.innerHTML = `
-                        <div>
-                            <div class="number">${flags[item.country] || ''} ${item.number}</div>
-                            <div class="country">${item.country} • ${item.rarity}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="price">${item.price} ₽</div>
-                            <button class="buy-btn" onclick="buyFromMarket(${item.id})">Купить</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
-        }
+async function listMarket(id) {
+    const p = prompt('Цена продажи:');
+    if (!p || isNaN(p) || p <= 0) return;
+    const r = await fetch(`/api/market/sell/${userId}/${id}`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({price: parseFloat(p)})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadInventory();
+}
 
-        async function buyFromMarket(listingId) {
-            try {
-                const response = await fetch(`/api/market/buy/${userId}/${listingId}`, { method: 'POST' });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                showMarket();
-            } catch (e) { console.error(e); }
-        }
+async function auctionLot(id) {
+    const p = prompt('Минимальная цена:');
+    if (!p || isNaN(p) || p <= 0) return;
+    const r = await fetch(`/api/auctions/create/${userId}/${id}`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({min_price: parseFloat(p)})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadInventory();
+}
 
-        async function showTops() {
-            document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('top-screen').classList.remove('hidden');
-            try {
-                const response = await fetch('/api/top/balance');
-                const users = await response.json();
-                const list = document.getElementById('top-balance-list');
-                list.innerHTML = '';
-                if (users.length === 0) {
-                    list.innerHTML = '<p style="opacity: 0.7;">Пока пусто</p>';
-                } else {
-                    users.forEach(u => {
-                        const div = document.createElement('div');
-                        div.className = 'top-item';
-                        div.innerHTML = `
-                            <span class="rank">#${u.rank}</span>
-                            <span class="name">${u.username}</span>
-                            <span class="value">${u.balance} ₽</span>
-                        `;
-                        list.appendChild(div);
-                    });
-                }
-            } catch (e) { console.error(e); }
-            try {
-                const response = await fetch('/api/top/rare');
-                const users = await response.json();
-                const list = document.getElementById('top-rare-list');
-                list.innerHTML = '';
-                if (users.length === 0) {
-                    list.innerHTML = '<p style="opacity: 0.7;">Пока никто не выбил редкие номера</p>';
-                } else {
-                    users.forEach(u => {
-                        const div = document.createElement('div');
-                        div.className = 'top-item';
-                        div.innerHTML = `
-                            <span class="rank">#${u.rank}</span>
-                            <span class="name">${u.username}</span>
-                            <span class="value">${u.count} редких</span>
-                        `;
-                        list.appendChild(div);
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
+async function loadMarket() {
+    const r = await fetch('/api/market');
+    const items = await r.json();
+    const list = document.getElementById('market-list');
+    list.innerHTML = '';
+    if (items.length === 0) {
+        list.innerHTML = '<p style="opacity:0.7;text-align:center;">Рынок пуст</p>';
+        return;
+    }
+    items.forEach(i => {
+        const d = document.createElement('div');
+        d.className = `item-card rarity-${i.rarity}`;
+        d.innerHTML = `
+            <div>
+                <div class="number">${flags[i.country]||''} ${i.number}</div>
+                <div class="meta">${i.country} • ${i.rarity}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div class="price">${i.price}₽</div>
+                <button class="btn" onclick="buyMarket(${i.id})">Купить</button>
+            </div>`;
+        list.appendChild(d);
+    });
+}
 
-        async function getBonus() {
-            try {
-                const response = await fetch(`/api/bonus/${userId}`, { method: 'POST' });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '🎁' : '⏰'} ${result.message}`);
-                loadData();
-            } catch (e) { console.error(e); }
-        }
+async function buyMarket(id) {
+    const r = await fetch(`/api/market/buy/${userId}/${id}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadMarket();
+    loadData();
+}
 
-        // ===== АДМИН-ФУНКЦИИ =====
+async function loadTasks() {
+    const r = await fetch(`/api/tasks/${userId}`);
+    const tasks = await r.json();
+    const list = document.getElementById('tasks-list');
+    list.innerHTML = '';
+    tasks.forEach(t => {
+        const pct = Math.min(100, (t.progress / t.target) * 100);
+        const d = document.createElement('div');
+        d.className = 'task-card';
+        d.innerHTML = `
+            <div class="task-name">${t.name}</div>
+            <div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div>
+            <div class="task-bottom">
+                <span style="opacity:0.7;font-size:0.85em;">${t.progress}/${t.target}</span>
+                <span class="reward">+${t.reward}₽</span>
+                ${t.completed ? '<span style="color:#4CAF50;">✓ Получено</span>' :
+                  t.progress >= t.target ? `<button class="btn" onclick="claimTask('${t.key}')">Забрать</button>` : ''}
+            </div>`;
+        list.appendChild(d);
+    });
+}
 
-        async function showAdmin() {
-            if (!isAdmin) {
-                tg.showAlert('⛔ Доступ запрещён!');
-                return;
-            }
-            document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('admin-screen').classList.remove('hidden');
-            await loadAdminStats();
-            await loadAdminUsers();
-        }
+async function claimTask(key) {
+    const r = await fetch(`/api/tasks/claim/${userId}/${key}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadTasks();
+    loadData();
+}
 
-        async function loadAdminStats() {
-            try {
-                const response = await fetch('/api/admin/stats');
-                const data = await response.json();
-                document.getElementById('admin-stats').innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-value">${data.total_users}</div>
-                        <div class="stat-label">👥 Пользователей</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${Math.floor(data.total_balance)}₽</div>
-                        <div class="stat-label">💰 Общий баланс</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${data.total_inventory}</div>
-                        <div class="stat-label">🎒 Номеров</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${data.total_market}</div>
-                        <div class="stat-label">🏪 На рынке</div>
-                    </div>
-                `;
-            } catch (e) { console.error(e); }
-        }
+async function loadAuctions() {
+    const r = await fetch('/api/auctions');
+    const lots = await r.json();
+    const list = document.getElementById('auction-list');
+    list.innerHTML = '';
+    if (lots.length === 0) {
+        list.innerHTML = '<p style="opacity:0.7;text-align:center;">Нет активных торгов</p>';
+        return;
+    }
+    lots.forEach(l => {
+        const ends = new Date(l.ends_at);
+        const diff = Math.max(0, ends - Date.now());
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        const d = document.createElement('div');
+        d.className = `item-card rarity-${l.rarity}`;
+        d.innerHTML = `
+            <div>
+                <div class="number">${flags[l.country]||''} ${l.number}</div>
+                <div class="meta">${l.rarity} • ⏰ ${mins}:${secs.toString().padStart(2,'0')}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div class="price">${l.current_bid}₽</div>
+                <button class="btn btn-blue" onclick="makeBid(${l.id}, ${l.current_bid})">Ставка</button>
+            </div>`;
+        list.appendChild(d);
+    });
+}
 
-        async function loadAdminUsers() {
-            try {
-                const response = await fetch('/api/admin/users');
-                const users = await response.json();
-                const list = document.getElementById('admin-users-list');
-                list.innerHTML = '';
-                if (users.length === 0) {
-                    list.innerHTML = '<p style="opacity: 0.7;">Пока нет пользователей</p>';
-                    return;
-                }
-                users.forEach(u => {
-                    const div = document.createElement('div');
-                    div.className = 'user-row';
-                    div.innerHTML = `
-                        <div>
-                            <div class="uname">@${u.username || 'нет'}</div>
-                            <div class="uid">ID: ${u.user_id}</div>
-                        </div>
-                        <div class="ubal">${u.balance}₽</div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
-        }
+async function makeBid(lotId, current) {
+    const bid = prompt(`Текущая ставка: ${current}₽. Новая ставка:`);
+    if (!bid || isNaN(bid) || bid <= current) return;
+    const r = await fetch(`/api/auctions/bid/${userId}/${lotId}`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({bid: parseFloat(bid)})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadAuctions();
+    loadData();
+}
 
-        async function adminGiveMoney() {
-            const user_id = document.getElementById('give-money-user').value;
-            const amount = document.getElementById('give-money-amount').value;
-            if (!user_id || !amount) { tg.showAlert('Заполни все поля!'); return; }
-            try {
-                const response = await fetch('/api/admin/give_money', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({user_id: parseInt(user_id), amount: parseFloat(amount)})
-                });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                if (result.success) {
-                    document.getElementById('give-money-user').value = '';
-                    document.getElementById('give-money-amount').value = '';
-                    await loadAdminUsers();
-                    await loadAdminStats();
-                }
-            } catch (e) { console.error(e); }
-        }
+async function loadSafe() {
+    const r = await fetch(`/api/safe/${userId}`);
+    const d = await r.json();
+    document.getElementById('safe-amount').textContent = `${Math.floor(d.amount)} ₽`;
+    document.getElementById('safe-interest').textContent = `Проценты: +${d.interest} ₽`;
+}
 
-        async function adminSetBalance() {
-            const user_id = document.getElementById('set-bal-user').value;
-            const amount = document.getElementById('set-bal-amount').value;
-            if (!user_id || !amount) { tg.showAlert('Заполни все поля!'); return; }
-            try {
-                const response = await fetch('/api/admin/set_balance', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({user_id: parseInt(user_id), amount: parseFloat(amount)})
-                });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                if (result.success) {
-                    document.getElementById('set-bal-user').value = '';
-                    document.getElementById('set-bal-amount').value = '';
-                    await loadAdminUsers();
-                }
-            } catch (e) { console.error(e); }
-        }
+async function depositSafe() {
+    const a = prompt('Сколько внести?');
+    if (!a || isNaN(a) || a <= 0) return;
+    const r = await fetch(`/api/safe/deposit/${userId}`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({amount: parseFloat(a)})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadSafe();
+    loadData();
+}
 
-        async function adminGiveNumber() {
-            const user_id = document.getElementById('give-num-user').value;
-            const number = document.getElementById('give-num-number').value;
-            const country = document.getElementById('give-num-country').value;
-            const rarity = document.getElementById('give-num-rarity').value;
-            const price = document.getElementById('give-num-price').value;
-            if (!user_id || !number) { tg.showAlert('Заполни ID и номер!'); return; }
-            try {
-                const response = await fetch('/api/admin/give_number', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: parseInt(user_id),
-                        number: number,
-                        country: country,
-                        rarity: rarity,
-                        price: parseFloat(price || 500)
-                    })
-                });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                if (result.success) {
-                    document.getElementById('give-num-user').value = '';
-                    document.getElementById('give-num-number').value = '';
-                }
-            } catch (e) { console.error(e); }
-        }
+async function withdrawSafe() {
+    const r = await fetch(`/api/safe/withdraw/${userId}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadSafe();
+    loadData();
+}
 
-        async function adminBroadcast() {
-            const text = document.getElementById('broadcast-text').value;
-            if (!text) { tg.showAlert('Введи текст!'); return; }
-            try {
-                const response = await fetch('/api/admin/broadcast', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({text: text})
-                });
-                const result = await response.json();
-                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
-                if (result.success) {
-                    document.getElementById('broadcast-text').value = '';
-                }
-            } catch (e) { console.error(e); }
-        }
+async function loadUpgrades() {
+    const r = await fetch(`/api/upgrades/${userId}`);
+    const ups = await r.json();
+    const list = document.getElementById('upgrades-list');
+    list.innerHTML = '';
+    Object.entries(ups).forEach(([key, u]) => {
+        const d = document.createElement('div');
+        d.className = 'task-card';
+        d.innerHTML = `
+            <div class="task-name">${u.name}</div>
+            <div style="opacity:0.7;font-size:0.85em;margin-bottom:5px;">${u.desc}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span>Уровень: ${u.level}/${u.max}</span>
+                ${u.price ? `<button class="btn btn-blue" onclick="buyUp('${key}')">${u.price}₽</button>` : '<span style="color:#4CAF50;">MAX</span>'}
+            </div>`;
+        list.appendChild(d);
+    });
+}
 
-        // Загрузка при старте
-        loadData();
-        checkAdmin();
-    </script>
+async function buyUp(key) {
+    const r = await fetch(`/api/upgrades/buy/${userId}/${key}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadUpgrades();
+    loadData();
+}
+
+async function loadTops() {
+    const r1 = await fetch('/api/top/balance');
+    const users1 = await r1.json();
+    const l1 = document.getElementById('top-balance-list');
+    l1.innerHTML = '';
+    users1.forEach(u => {
+        const d = document.createElement('div');
+        d.className = 'item-card';
+        d.innerHTML = `<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${Math.floor(u.balance)}₽</div>`;
+        l1.appendChild(d);
+    });
+    const r2 = await fetch('/api/top/rare');
+    const users2 = await r2.json();
+    const l2 = document.getElementById('top-rare-list');
+    l2.innerHTML = '';
+    if (users2.length === 0) l2.innerHTML = '<p style="opacity:0.7;">Пока никто не выбил редких</p>';
+    users2.forEach(u => {
+        const d = document.createElement('div');
+        d.className = 'item-card';
+        d.innerHTML = `<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${u.count} редких</div>`;
+        l2.appendChild(d);
+    });
+}
+
+async function getBonus() {
+    const r = await fetch(`/api/bonus/${userId}`, { method: 'POST' });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadData();
+}
+
+async function loadAdmin() {
+    const r = await fetch('/api/admin/users');
+    const users = await r.json();
+    const l = document.getElementById('adm-users-list');
+    l.innerHTML = '';
+    users.forEach(u => {
+        const d = document.createElement('div');
+        d.className = 'item-card';
+        d.innerHTML = `<div><div class="number">@${u.username||'нет'}</div><div class="meta">ID: ${u.user_id}</div></div><div class="price">${Math.floor(u.balance)}₽</div>`;
+        l.appendChild(d);
+    });
+}
+
+async function admGiveMoney() {
+    const id = document.getElementById('adm-give-id').value;
+    const a = document.getElementById('adm-give-amount').value;
+    if (!id || !a) return tg.showAlert('Заполни поля!');
+    const r = await fetch('/api/admin/give_money', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({user_id: parseInt(id), amount: parseFloat(a)})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+    loadAdmin();
+}
+
+async function admGiveNumber() {
+    const id = document.getElementById('adm-num-id').value;
+    const num = document.getElementById('adm-num-number').value;
+    if (!id || !num) return tg.showAlert('Заполни поля!');
+    const r = await fetch('/api/admin/give_number', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({user_id: parseInt(id), number: num, country: 'Россия', rarity: 'Легендарный', price: 50000})
+    });
+    const d = await r.json();
+    tg.showAlert(d.message);
+}
+
+loadData();
+</script>
 </body>
 </html>
