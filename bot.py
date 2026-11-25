@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sqlite3
 from threading import Thread
 
 from aiogram import Bot, Dispatcher
@@ -144,37 +145,113 @@ def bid_api(user_id, lot_id):
     s, m = db.make_bid(user_id, lot_id, bid)
     return jsonify({"success": s, "message": m})
 
-@flask_app.route("/api/admin/users")
-def admin_users():
-    return jsonify([{"user_id": u[0], "username": u[1], "balance": u[2]} for u in db.get_all_users()])
+
+# ===== АДМИН API (ВСЕ ФУНКЦИИ) =====
+
+def check_admin(user_id):
+    return user_id in ADMIN_IDS
 
 @flask_app.route("/api/admin/stats")
 def admin_stats():
     users = db.get_all_users()
+    conn = db.get_conn()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM inventory")
+    total_inv = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM market")
+    total_market = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM auction")
+    total_auction = c.fetchone()[0]
+    conn.close()
     return jsonify({
         "total_users": len(users),
         "total_balance": sum(u[2] for u in users),
-        "total_inventory": 0,
-        "total_market": 0
+        "total_inventory": total_inv,
+        "total_market": total_market,
+        "total_auction": total_auction
     })
+
+@flask_app.route("/api/admin/users")
+def admin_users():
+    return jsonify([{"user_id": u[0], "username": u[1], "balance": u[2]} for u in db.get_all_users()])
 
 @flask_app.route("/api/admin/give_money", methods=["POST"])
 def admin_give_money():
     d = request.json
-    db.add_balance(int(d["user_id"]), float(d["amount"]))
-    return jsonify({"success": True, "message": f"Выдано {d['amount']}₽"})
+    amount = float(d["amount"])
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Сумма должна быть больше 0!"})
+    db.add_balance(int(d["user_id"]), amount)
+    nb = db.get_balance(int(d["user_id"]))
+    return jsonify({"success": True, "message": f"Выдано {amount}₽. Новый баланс: {nb}₽"})
+
+@flask_app.route("/api/admin/take_money", methods=["POST"])
+def admin_take_money():
+    d = request.json
+    user_id = int(d["user_id"])
+    amount = float(d["amount"])
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Сумма должна быть больше 0!"})
+    cur = db.get_balance(user_id)
+    if cur < amount:
+        return jsonify({"success": False, "message": f"У игрока только {cur}₽, нельзя списать {amount}₽!"})
+    db.add_balance(user_id, -amount)
+    nb = db.get_balance(user_id)
+    return jsonify({"success": True, "message": f"Списано {amount}₽. Новый баланс: {nb}₽"})
 
 @flask_app.route("/api/admin/set_balance", methods=["POST"])
 def admin_set_balance():
     d = request.json
-    db.set_balance(int(d["user_id"]), float(d["amount"]))
-    return jsonify({"success": True, "message": f"Баланс: {d['amount']}₽"})
+    amount = float(d["amount"])
+    if amount < 0:
+        return jsonify({"success": False, "message": "Баланс не может быть отрицательным!"})
+    db.set_balance(int(d["user_id"]), amount)
+    return jsonify({"success": True, "message": f"Баланс установлен на {amount}₽"})
+
+@flask_app.route("/api/admin/user_info/<int:user_id>")
+def admin_user_info(user_id):
+    user, cnt = db.get_user_info(user_id)
+    if not user:
+        return jsonify({"success": False, "message": f"Игрок {user_id} не найден!"})
+    return jsonify({
+        "success": True,
+        "user_id": user[0],
+        "username": user[1] or "нет",
+        "balance": user[2],
+        "created_at": user[3][:10] if user[3] else "?",
+        "items_count": cnt
+    })
+
+@flask_app.route("/api/admin/user_inventory/<int:user_id>")
+def admin_user_inventory(user_id):
+    items = db.get_user_inventory_full(user_id)
+    return jsonify([{"id": i[0], "number": i[1], "country": i[2], "rarity": i[3], "buy_price": i[4]} for i in items])
+
+@flask_app.route("/api/admin/remove_number", methods=["POST"])
+def admin_remove_number():
+    d = request.json
+    db.remove_from_inventory(int(d["inventory_id"]), int(d["user_id"]))
+    return jsonify({"success": True, "message": "Номер удалён!"})
 
 @flask_app.route("/api/admin/give_number", methods=["POST"])
 def admin_give_number():
     d = request.json
     db.give_number_to_user(int(d["user_id"]), d["number"].upper(), d["country"], d["rarity"], float(d["price"]))
-    return jsonify({"success": True, "message": "Номер выдан!"})
+    return jsonify({"success": True, "message": f"Номер {d['number'].upper()} выдан!"})
+
+@flask_app.route("/api/admin/broadcast", methods=["POST"])
+def admin_broadcast():
+    text = request.json.get("text", "").strip()
+    if not text:
+        return jsonify({"success": False, "message": "Текст пуст!"})
+    conn = db.get_conn()
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id SERIAL PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
+    c.execute("INSERT INTO pending_broadcasts (text) VALUES (%s)", (text,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "Рассылка поставлена в очередь! Отправится в течение минуты."})
+
 
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT)
@@ -196,11 +273,38 @@ async def cmd_start(message: Message):
         parse_mode="HTML", reply_markup=keyboard
     )
 
+async def broadcast_sender():
+    while True:
+        try:
+            conn = db.get_conn()
+            c = conn.cursor()
+            c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id SERIAL PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
+            c.execute("SELECT id, text FROM pending_broadcasts WHERE sent = 0 LIMIT 1")
+            row = c.fetchone()
+            if row:
+                bid, text = row
+                users = db.send_message_to_all()
+                sent = failed = 0
+                for uid in users:
+                    try:
+                        await bot.send_message(uid, f"📢 <b>Рассылка:</b>\n\n{text}", parse_mode="HTML")
+                        sent += 1
+                    except:
+                        failed += 1
+                c.execute("UPDATE pending_broadcasts SET sent = 1 WHERE id = %s", (bid,))
+                conn.commit()
+                print(f"📢 Рассылка #{bid}: отправлено {sent}, ошибок {failed}")
+            conn.close()
+        except Exception as e:
+            print(f"Broadcast error: {e}")
+        await asyncio.sleep(30)
+
 async def main():
     flask_thread = Thread(target=run_flask, daemon=True)
     flask_thread.start()
     print("🌐 Веб-сервер запущен")
     print("🤖 Бот запущен!")
+    asyncio.create_task(broadcast_sender())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
