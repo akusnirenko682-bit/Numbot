@@ -2,13 +2,13 @@ import asyncio
 import os
 from threading import Thread
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from flask import Flask, jsonify, request
 
 import database as db
-from config import BOT_TOKEN, ADMIN_ID, PORT
+from config import BOT_TOKEN, ADMIN_IDS, PORT
 
 flask_app = Flask(__name__, static_folder='static')
 
@@ -29,7 +29,7 @@ def get_user(user_id):
     db.get_or_create_user(user_id, request.args.get("username"))
     return jsonify({
         "balance": db.get_balance(user_id),
-        "is_admin": user_id == ADMIN_ID,
+        "is_admin": user_id in ADMIN_IDS,
         "issue_price": db.get_issue_price(user_id)
     })
 
