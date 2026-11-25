@@ -71,6 +71,10 @@
         }
         .menu-btn .icon { font-size: 2em; margin-bottom: 8px; }
         .menu-btn .label { font-size: 0.9em; font-weight: 600; }
+        .menu-btn.admin-btn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            border-color: #ff416c;
+        }
         .hidden { display: none; }
         .back-btn {
             background: rgba(255,255,255,0.15);
@@ -134,9 +138,71 @@
         }
         .top-item .name { flex: 1; }
         .top-item .value { color: #ffd700; font-weight: bold; }
+        
+        /* Админ-панель стили */
+        .admin-section {
+            background: rgba(255, 65, 108, 0.1);
+            border: 1px solid rgba(255, 65, 108, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .admin-section h3 {
+            color: #ff416c;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        .admin-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1em;
+        }
+        .admin-input::placeholder { color: rgba(255,255,255,0.5); }
+        .admin-btn-action {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .user-row {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-row .uid { font-size: 0.8em; opacity: 0.6; }
+        .user-row .uname { font-weight: bold; }
+        .user-row .ubal { color: #ffd700; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-card .stat-value { font-size: 1.5em; font-weight: bold; color: #ffd700; }
+        .stat-card .stat-label { font-size: 0.8em; opacity: 0.7; margin-top: 5px; }
     </style>
 </head>
 <body>
+    <!-- ГЛАВНЫЙ ЭКРАН -->
     <div id="main-screen">
         <div class="header"><h1>🚗 Numbers Bot</h1></div>
         <div class="balance-card">
@@ -185,20 +251,33 @@
                 <div class="label">Бонус</div>
             </div>
         </div>
+        <!-- КНОПКА АДМИНА (скрыта по умолчанию) -->
+        <div id="admin-menu-btn" class="hidden">
+            <div class="section-title">🔐 Управление</div>
+            <div class="menu-grid">
+                <div class="menu-btn admin-btn" onclick="showAdmin()">
+                    <div class="icon">⚙️</div>
+                    <div class="label">Админ-панель</div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- ИНВЕНТАРЬ -->
     <div id="inventory-screen" class="hidden">
         <button class="back-btn" onclick="showMain()">◀️ Назад</button>
         <h2 style="margin-bottom: 20px;">🎒 Твой инвентарь</h2>
         <div id="inventory-list"></div>
     </div>
 
+    <!-- РЫНОК -->
     <div id="market-screen" class="hidden">
         <button class="back-btn" onclick="showMain()">◀️ Назад</button>
         <h2 style="margin-bottom: 20px;">🏪 Рынок</h2>
         <div id="market-list"></div>
     </div>
 
+    <!-- ТОПЫ -->
     <div id="top-screen" class="hidden">
         <button class="back-btn" onclick="showMain()">◀️ Назад</button>
         <h2 style="margin-bottom: 20px;">🏆 Топ игроков</h2>
@@ -208,11 +287,75 @@
         <div id="top-rare-list"></div>
     </div>
 
+    <!-- АДМИН-ПАНЕЛЬ -->
+    <div id="admin-screen" class="hidden">
+        <button class="back-btn" onclick="showMain()">◀️ Назад</button>
+        <h2 style="margin-bottom: 20px;">⚙️ Админ-панель</h2>
+        
+        <!-- Статистика -->
+        <div class="admin-section">
+            <h3>📊 Статистика бота</h3>
+            <div class="stats-grid" id="admin-stats"></div>
+        </div>
+        
+        <!-- Список пользователей -->
+        <div class="admin-section">
+            <h3>👥 Пользователи</h3>
+            <div id="admin-users-list"></div>
+        </div>
+        
+        <!-- Выдать деньги -->
+        <div class="admin-section">
+            <h3>💰 Выдать деньги</h3>
+            <input type="number" class="admin-input" id="give-money-user" placeholder="ID пользователя">
+            <input type="number" class="admin-input" id="give-money-amount" placeholder="Сумма">
+            <button class="admin-btn-action" onclick="adminGiveMoney()">Выдать</button>
+        </div>
+        
+        <!-- Установить баланс -->
+        <div class="admin-section">
+            <h3>⚖️ Установить баланс</h3>
+            <input type="number" class="admin-input" id="set-bal-user" placeholder="ID пользователя">
+            <input type="number" class="admin-input" id="set-bal-amount" placeholder="Новый баланс">
+            <button class="admin-btn-action" onclick="adminSetBalance()">Установить</button>
+        </div>
+        
+        <!-- Выдать номер -->
+        <div class="admin-section">
+            <h3>🚗 Выдать номер</h3>
+            <input type="number" class="admin-input" id="give-num-user" placeholder="ID пользователя">
+            <input type="text" class="admin-input" id="give-num-number" placeholder="Номер (А777АА77)">
+            <select class="admin-input" id="give-num-country">
+                <option value="Россия">🇷🇺 Россия</option>
+                <option value="Беларусь">🇧🇾 Беларусь</option>
+                <option value="Украина">🇺🇦 Украина</option>
+                <option value="Казахстан">🇰🇿 Казахстан</option>
+            </select>
+            <select class="admin-input" id="give-num-rarity">
+                <option value="Обычный">⚪ Обычный</option>
+                <option value="Необычный">🟢 Необычный</option>
+                <option value="Редкий">🔵 Редкий</option>
+                <option value="Эпический">🟣 Эпический</option>
+                <option value="Легендарный">🟡 Легендарный</option>
+            </select>
+            <input type="number" class="admin-input" id="give-num-price" placeholder="Цена" value="500">
+            <button class="admin-btn-action" onclick="adminGiveNumber()">Выдать номер</button>
+        </div>
+        
+        <!-- Рассылка -->
+        <div class="admin-section">
+            <h3>📢 Рассылка всем</h3>
+            <textarea class="admin-input" id="broadcast-text" placeholder="Текст рассылки" rows="3"></textarea>
+            <button class="admin-btn-action" onclick="adminBroadcast()">Отправить рассылку</button>
+        </div>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         const userId = tg.initDataUnsafe?.user?.id;
         const flags = {'Россия': '🇷🇺', 'Беларусь': '🇧🇾', 'Украина': '🇺🇦', 'Казахстан': '🇰🇿'};
+        let isAdmin = false;
 
         async function loadData() {
             try {
@@ -222,11 +365,23 @@
             } catch (e) { console.error(e); }
         }
 
+        async function checkAdmin() {
+            try {
+                const response = await fetch(`/api/is_admin/${userId}`);
+                const data = await response.json();
+                isAdmin = data.is_admin;
+                if (isAdmin) {
+                    document.getElementById('admin-menu-btn').classList.remove('hidden');
+                }
+            } catch (e) { console.error(e); }
+        }
+
         function showMain() {
             document.getElementById('main-screen').classList.remove('hidden');
             document.getElementById('inventory-screen').classList.add('hidden');
             document.getElementById('market-screen').classList.add('hidden');
             document.getElementById('top-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.add('hidden');
             loadData();
         }
 
@@ -391,7 +546,158 @@
             } catch (e) { console.error(e); }
         }
 
+        // ===== АДМИН-ФУНКЦИИ =====
+
+        async function showAdmin() {
+            if (!isAdmin) {
+                tg.showAlert('⛔ Доступ запрещён!');
+                return;
+            }
+            document.getElementById('main-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+            await loadAdminStats();
+            await loadAdminUsers();
+        }
+
+        async function loadAdminStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const data = await response.json();
+                document.getElementById('admin-stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.total_users}</div>
+                        <div class="stat-label">👥 Пользователей</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.floor(data.total_balance)}₽</div>
+                        <div class="stat-label">💰 Общий баланс</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.total_inventory}</div>
+                        <div class="stat-label">🎒 Номеров</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.total_market}</div>
+                        <div class="stat-label">🏪 На рынке</div>
+                    </div>
+                `;
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadAdminUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const users = await response.json();
+                const list = document.getElementById('admin-users-list');
+                list.innerHTML = '';
+                if (users.length === 0) {
+                    list.innerHTML = '<p style="opacity: 0.7;">Пока нет пользователей</p>';
+                    return;
+                }
+                users.forEach(u => {
+                    const div = document.createElement('div');
+                    div.className = 'user-row';
+                    div.innerHTML = `
+                        <div>
+                            <div class="uname">@${u.username || 'нет'}</div>
+                            <div class="uid">ID: ${u.user_id}</div>
+                        </div>
+                        <div class="ubal">${u.balance}₽</div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function adminGiveMoney() {
+            const user_id = document.getElementById('give-money-user').value;
+            const amount = document.getElementById('give-money-amount').value;
+            if (!user_id || !amount) { tg.showAlert('Заполни все поля!'); return; }
+            try {
+                const response = await fetch('/api/admin/give_money', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: parseInt(user_id), amount: parseFloat(amount)})
+                });
+                const result = await response.json();
+                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                if (result.success) {
+                    document.getElementById('give-money-user').value = '';
+                    document.getElementById('give-money-amount').value = '';
+                    await loadAdminUsers();
+                    await loadAdminStats();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function adminSetBalance() {
+            const user_id = document.getElementById('set-bal-user').value;
+            const amount = document.getElementById('set-bal-amount').value;
+            if (!user_id || !amount) { tg.showAlert('Заполни все поля!'); return; }
+            try {
+                const response = await fetch('/api/admin/set_balance', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: parseInt(user_id), amount: parseFloat(amount)})
+                });
+                const result = await response.json();
+                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                if (result.success) {
+                    document.getElementById('set-bal-user').value = '';
+                    document.getElementById('set-bal-amount').value = '';
+                    await loadAdminUsers();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function adminGiveNumber() {
+            const user_id = document.getElementById('give-num-user').value;
+            const number = document.getElementById('give-num-number').value;
+            const country = document.getElementById('give-num-country').value;
+            const rarity = document.getElementById('give-num-rarity').value;
+            const price = document.getElementById('give-num-price').value;
+            if (!user_id || !number) { tg.showAlert('Заполни ID и номер!'); return; }
+            try {
+                const response = await fetch('/api/admin/give_number', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: parseInt(user_id),
+                        number: number,
+                        country: country,
+                        rarity: rarity,
+                        price: parseFloat(price || 500)
+                    })
+                });
+                const result = await response.json();
+                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                if (result.success) {
+                    document.getElementById('give-num-user').value = '';
+                    document.getElementById('give-num-number').value = '';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function adminBroadcast() {
+            const text = document.getElementById('broadcast-text').value;
+            if (!text) { tg.showAlert('Введи текст!'); return; }
+            try {
+                const response = await fetch('/api/admin/broadcast', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text})
+                });
+                const result = await response.json();
+                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                if (result.success) {
+                    document.getElementById('broadcast-text').value = '';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Загрузка при старте
         loadData();
+        checkAdmin();
     </script>
 </body>
 </html>
