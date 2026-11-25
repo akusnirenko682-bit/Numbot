@@ -8,29 +8,34 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 import database as db
 from config import BOT_TOKEN, ADMIN_ID, PORT
 
 flask_app = Flask(__name__, static_folder='static')
 
+
 @flask_app.route("/")
 def home():
     return "✅ NumBot работает!"
+
 
 @flask_app.route("/health")
 def health():
     return "OK"
 
+
 @flask_app.route("/app")
 def webapp():
     return flask_app.send_static_file('index.html')
+
 
 @flask_app.route("/api/user/<int:user_id>")
 def get_user(user_id):
     db.get_or_create_user(user_id, None)
     return jsonify({"balance": db.get_balance(user_id)})
+
 
 @flask_app.route("/api/issue/<int:user_id>/<country>", methods=["POST"])
 def issue_api(user_id, country):
@@ -44,15 +49,48 @@ def issue_api(user_id, country):
     number, country, rarity, value = db.issue_number(user_id, country_name, price)
     return jsonify({"success": True, "number": number, "country": country, "rarity": rarity, "price": value})
 
+
 @flask_app.route("/api/inventory/<int:user_id>")
 def get_inventory(user_id):
     items = db.get_user_inventory(user_id)
     return jsonify([{"id": i[0], "number": i[1], "country": i[2], "rarity": i[3], "buy_price": i[4]} for i in items])
 
+
 @flask_app.route("/api/sell/<int:user_id>/<int:item_id>", methods=["POST"])
 def sell_api(user_id, item_id):
     success, msg = db.sell_number(user_id, item_id)
     return jsonify({"success": success, "message": msg})
+
+
+@flask_app.route("/api/market")
+def get_market():
+    items = db.get_market_listings(30)
+    return jsonify([{"id": i[0], "seller_id": i[1], "number": i[2], "country": i[3], "rarity": i[4], "price": i[5]} for i in items])
+
+
+@flask_app.route("/api/market/sell/<int:user_id>/<int:item_id>", methods=["POST"])
+def sell_to_market(user_id, item_id):
+    try:
+        price = float(request.json.get("price", 0))
+        if price <= 0:
+            return jsonify({"success": False, "message": "Цена должна быть больше 0!"})
+    except:
+        return jsonify({"success": False, "message": "Неверная цена!"})
+    success, msg = db.create_market_listing(user_id, item_id, price)
+    return jsonify({"success": success, "message": msg})
+
+
+@flask_app.route("/api/market/buy/<int:buyer_id>/<int:listing_id>", methods=["POST"])
+def buy_from_market_api(buyer_id, listing_id):
+    success, msg = db.buy_from_market(buyer_id, listing_id)
+    return jsonify({"success": success, "message": msg})
+
+
+@flask_app.route("/api/market/remove/<int:user_id>/<int:listing_id>", methods=["POST"])
+def remove_listing(user_id, listing_id):
+    success, msg = db.remove_market_listing(user_id, listing_id)
+    return jsonify({"success": success, "message": msg})
+
 
 @flask_app.route("/api/bonus/<int:user_id>", methods=["POST"])
 def bonus_api(user_id):
@@ -62,11 +100,35 @@ def bonus_api(user_id):
     bonus = db.give_bonus(user_id)
     return jsonify({"success": True, "message": f"Получено {bonus}₽!"})
 
+
+@flask_app.route("/api/top/balance")
+def top_balance():
+    users = db.get_top_balance(10)
+    return jsonify([{"rank": i, "username": u[1] or f"User{u[0]}", "balance": u[2]} for i, u in enumerate(users, 1)])
+
+
+@flask_app.route("/api/top/rare")
+def top_rare():
+    users = db.get_top_rare_numbers(10)
+    result = []
+    for i, (uid, count) in enumerate(users, 1):
+        conn = __import__('sqlite3').connect(db.DB_NAME)
+        c = conn.cursor()
+        c.execute("SELECT username FROM users WHERE user_id = ?", (uid,))
+        r = c.fetchone()
+        conn.close()
+        username = r[0] if r and r[0] else f"User{uid}"
+        result.append({"rank": i, "username": username, "count": count})
+    return jsonify(result)
+
+
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT)
 
+
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
 
 # ===== СЕКРЕТНАЯ АДМИНКА =====
 class AdminStates(StatesGroup):
@@ -77,8 +139,10 @@ class AdminStates(StatesGroup):
     waiting_for_price = State()
     waiting_for_message = State()
 
+
 def is_admin(user_id):
     return user_id == ADMIN_ID
+
 
 @dp.message(Command("adm"))
 async def secret_admin(message: Message):
@@ -86,15 +150,9 @@ async def secret_admin(message: Message):
         await message.answer("⛔ Доступ запрещён!")
         return
     text = ("⚙️ <b>Админ-панель</b>\n\n"
-            "💰 Выдать деньги\n"
-            "📉 Списать деньги\n"
-            "⚖️ Установить баланс\n"
-            "👤 Инфо о пользователе\n"
-            "🎒 Инвентарь пользователя\n"
-            "❌ Удалить номер\n"
-            "🚗 Выдать номер\n"
-            "📢 Рассылка\n"
-            "📊 Статистика")
+            "💰 Выдать деньги\n📉 Списать деньги\n⚖️ Установить баланс\n"
+            "👤 Инфо о пользователе\n🎒 Инвентарь пользователя\n❌ Удалить номер\n"
+            "🚗 Выдать номер\n📢 Рассылка\n📊 Статистика")
     keyboard = [
         [InlineKeyboardButton(text="💰 Выдать деньги", callback_data="admin_give_money")],
         [InlineKeyboardButton(text="📉 Списать деньги", callback_data="admin_take_money")],
@@ -108,13 +166,14 @@ async def secret_admin(message: Message):
     ]
     await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
 
-# Админ-обработчики
+
 @dp.callback_query(F.data == "admin_give_money")
 async def admin_give_money_start(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id): return
     await callback.message.edit_text("💰 Введите ID пользователя:")
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="give_money")
+
 
 @dp.callback_query(F.data == "admin_take_money")
 async def admin_take_money_start(callback: CallbackQuery, state: FSMContext):
@@ -123,12 +182,14 @@ async def admin_take_money_start(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="take_money")
 
+
 @dp.callback_query(F.data == "admin_set_balance")
 async def admin_set_balance_start(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id): return
     await callback.message.edit_text("⚖️ Введите ID пользователя:")
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="set_balance")
+
 
 @dp.callback_query(F.data == "admin_user_info")
 async def admin_user_info_start(callback: CallbackQuery, state: FSMContext):
@@ -137,12 +198,14 @@ async def admin_user_info_start(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="user_info")
 
+
 @dp.callback_query(F.data == "admin_user_inv")
 async def admin_user_inv_start(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id): return
     await callback.message.edit_text("🎒 Введите ID пользователя:")
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="user_inv")
+
 
 @dp.callback_query(F.data == "admin_remove_number")
 async def admin_remove_number_start(callback: CallbackQuery, state: FSMContext):
@@ -151,6 +214,7 @@ async def admin_remove_number_start(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="remove_number")
 
+
 @dp.callback_query(F.data == "admin_give_number")
 async def admin_give_number_start(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id): return
@@ -158,11 +222,13 @@ async def admin_give_number_start(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AdminStates.waiting_for_user_id)
     await state.update_data(action="give_number")
 
+
 @dp.callback_query(F.data == "admin_broadcast")
 async def admin_broadcast_start(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id): return
     await callback.message.edit_text("📢 Введите текст рассылки:")
     await state.set_state(AdminStates.waiting_for_message)
+
 
 @dp.callback_query(F.data == "admin_stats")
 async def admin_stats(callback: CallbackQuery):
@@ -174,17 +240,22 @@ async def admin_stats(callback: CallbackQuery):
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM inventory")
     total_inv = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM market")
+    total_market = c.fetchone()[0]
     conn.close()
     text = (f"📊 <b>Статистика</b>\n\n"
             f"👥 Пользователей: <b>{total_users}</b>\n"
             f"💰 Общий баланс: <b>{total_balance}₽</b>\n"
-            f"🎒 Всего номеров: <b>{total_inv}</b>")
+            f"🎒 Всего номеров: <b>{total_inv}</b>\n"
+            f"🏪 На рынке: <b>{total_market}</b>")
     kb = [[InlineKeyboardButton(text="◀️ Назад", callback_data="back_admin")]]
     await callback.message.edit_text(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+
 
 @dp.callback_query(F.data == "back_admin")
 async def back_admin(callback: CallbackQuery):
     await secret_admin(callback.message)
+
 
 @dp.message(AdminStates.waiting_for_user_id)
 async def process_user_id(message: Message, state: FSMContext):
@@ -246,6 +317,7 @@ async def process_user_id(message: Message, state: FSMContext):
         await message.answer("🚗 Введите номер (например, А777АА77):")
         await state.set_state(AdminStates.waiting_for_number)
 
+
 @dp.message(AdminStates.waiting_for_amount)
 async def process_amount(message: Message, state: FSMContext):
     if not is_admin(message.from_user.id): return
@@ -278,6 +350,7 @@ async def process_amount(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
     await state.clear()
 
+
 @dp.message(AdminStates.waiting_for_number)
 async def process_number(message: Message, state: FSMContext):
     if not is_admin(message.from_user.id): return
@@ -285,12 +358,14 @@ async def process_number(message: Message, state: FSMContext):
     await message.answer("🌍 Страна (Россия/Беларусь/Украина/Казахстан):")
     await state.set_state(AdminStates.waiting_for_rarity)
 
+
 @dp.message(AdminStates.waiting_for_rarity)
 async def process_rarity(message: Message, state: FSMContext):
     if not is_admin(message.from_user.id): return
-    await state.update_data(rarity=message.text.strip().capitalize())
-    await message.answer("💰 Цена:")
+    await state.update_data(country=message.text.strip())
+    await message.answer("⭐ Редкость (Обычный/Необычный/Редкий/Эпический/Легендарный):")
     await state.set_state(AdminStates.waiting_for_price)
+
 
 @dp.message(AdminStates.waiting_for_price)
 async def process_price(message: Message, state: FSMContext):
@@ -303,14 +378,14 @@ async def process_price(message: Message, state: FSMContext):
     data = await state.get_data()
     uid = data.get("user_id")
     num = data.get("number")
-    country = data.get("rarity")  # здесь на самом деле страна
-    rar = data.get("rarity")
-    # Исправим: нужно брать страну отдельно. Упростим:
-    db.give_number_to_user(uid, num, "Россия", rar, price)
-    text = f"✅ Номер <b>{num}</b> выдан пользователю {uid}!"
+    country = data.get("country", "Россия")
+    rar = data.get("rarity", "Обычный")
+    db.give_number_to_user(uid, num, country, rar, price)
+    text = f"✅ Номер <b>{num}</b> ({country}, {rar}) выдан пользователю {uid}!"
     kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
     await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
     await state.clear()
+
 
 @dp.message(AdminStates.waiting_for_message)
 async def process_broadcast(message: Message, state: FSMContext):
@@ -329,6 +404,7 @@ async def process_broadcast(message: Message, state: FSMContext):
     await message.answer(result, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
     await state.clear()
 
+
 @dp.callback_query(F.data.startswith("admin_del_"))
 async def admin_delete_number(callback: CallbackQuery):
     if not is_admin(callback.from_user.id): return
@@ -338,6 +414,7 @@ async def admin_delete_number(callback: CallbackQuery):
     db.remove_from_inventory(inv_id, uid)
     await callback.answer(f"✅ Номер удалён у {uid}!", show_alert=True)
     await secret_admin(callback.message)
+
 
 # ===== ОСНОВНОЙ БОТ =====
 
@@ -352,10 +429,11 @@ async def cmd_start(message: Message):
         f"🚗 <b>Добро пожаловать в Numbers Bot!</b>\n\n"
         f"🇷🇺 Россия | 🇧🇾 Беларусь | 🇺🇦 Украина | 🇰🇿 Казахстан\n\n"
         f"Выбирай страну и получай случайный номерной знак!\n"
-        f"Собирай редкие номера и продавай их дороже!",
+        f"Собирай редкие номера, продавай на рынке, соревнуйся в топе!",
         parse_mode="HTML",
         reply_markup=keyboard
     )
+
 
 async def main():
     flask_thread = Thread(target=run_flask, daemon=True)
@@ -363,6 +441,7 @@ async def main():
     print("🌐 Веб-сервер запущен")
     print("🤖 Бот запущен!")
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
