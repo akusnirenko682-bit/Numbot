@@ -9,55 +9,83 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             color: white;
             min-height: 100vh;
             padding: 20px;
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2em; color: #ffd700; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { 
+            font-size: 2.2em; 
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
         .balance-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
         }
         .balance-card h2 { font-size: 0.9em; opacity: 0.9; margin-bottom: 10px; }
         .balance-card .amount { font-size: 2.5em; font-weight: bold; }
-        .case-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border: none;
-            border-radius: 20px;
-            padding: 25px;
-            width: 100%;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        
+        .section-title {
+            font-size: 1.2em;
+            margin: 25px 0 15px;
+            padding-left: 10px;
+            border-left: 4px solid #ffd700;
         }
-        .case-btn:active { transform: scale(0.98); }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .menu-btn {
+        
+        .countries-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .country-btn {
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .country-btn:active { transform: scale(0.95); }
+        .country-btn .flag { font-size: 2.5em; margin-bottom: 8px; }
+        .country-btn .name { font-size: 0.9em; font-weight: 600; }
+        .country-btn .price { font-size: 0.75em; opacity: 0.7; margin-top: 5px; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .menu-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.15);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
         }
-        .menu-btn .icon { font-size: 2em; margin-bottom: 10px; }
+        .menu-btn .icon { font-size: 2em; margin-bottom: 8px; }
         .menu-btn .label { font-size: 0.9em; font-weight: 600; }
+        
         .hidden { display: none; }
         .back-btn {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
             border: none;
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
             cursor: pointer;
             margin-bottom: 20px;
+            font-size: 1em;
         }
         .item-card {
             background: rgba(255,255,255,0.1);
@@ -72,18 +100,19 @@
         .item-card .country { font-size: 0.8em; opacity: 0.7; }
         .item-card .price { color: #ffd700; font-weight: bold; }
         .sell-btn {
-            background: #f44336;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             border: none;
             padding: 8px 15px;
             border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
         }
         .rarity-Обычный { border-left: 4px solid #9e9e9e; }
         .rarity-Необычный { border-left: 4px solid #4CAF50; }
         .rarity-Редкий { border-left: 4px solid #2196F3; }
         .rarity-Эпический { border-left: 4px solid #9C27B0; }
-        .rarity-Легендарный { border-left: 4px solid #FFD700; }
+        .rarity-Легендарный { border-left: 4px solid #FFD700; background: rgba(255, 215, 0, 0.1); }
     </style>
 </head>
 <body>
@@ -97,10 +126,31 @@
             <div class="amount" id="balance">0 ₽</div>
         </div>
         
-        <button class="case-btn" onclick="openCase()">
-            🎁 Открыть кейс (500₽)
-        </button>
+        <div class="section-title">🎯 Пункт выдачи</div>
+        <div class="countries-grid">
+            <div class="country-btn" onclick="issueNumber('ru')">
+                <div class="flag">🇷🇺</div>
+                <div class="name">Россия</div>
+                <div class="price">500 ₽</div>
+            </div>
+            <div class="country-btn" onclick="issueNumber('by')">
+                <div class="flag">🇧🇾</div>
+                <div class="name">Беларусь</div>
+                <div class="price">500 ₽</div>
+            </div>
+            <div class="country-btn" onclick="issueNumber('ua')">
+                <div class="flag">🇺🇦</div>
+                <div class="name">Украина</div>
+                <div class="price">500 ₽</div>
+            </div>
+            <div class="country-btn" onclick="issueNumber('kz')">
+                <div class="flag">🇰🇿</div>
+                <div class="name">Казахстан</div>
+                <div class="price">500 ₽</div>
+            </div>
+        </div>
         
+        <div class="section-title">📋 Меню</div>
         <div class="menu-grid">
             <div class="menu-btn" onclick="showInventory()">
                 <div class="icon">🎒</div>
@@ -122,7 +172,6 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
         const userId = tg.initDataUnsafe?.user?.id;
         
         async function loadData() {
@@ -130,9 +179,7 @@
                 const response = await fetch(`/api/user/${userId}`);
                 const data = await response.json();
                 document.getElementById('balance').textContent = `${data.balance} ₽`;
-            } catch (e) {
-                console.error('Error:', e);
-            }
+            } catch (e) { console.error(e); }
         }
         
         function showMain() {
@@ -141,58 +188,33 @@
             loadData();
         }
         
-        async function openCase() {
+        async function issueNumber(country) {
             try {
-                const response = await fetch(`/api/open_case/${userId}`, { method: 'POST' });
+                const response = await fetch(`/api/issue/${userId}/${country}`, { method: 'POST' });
                 const result = await response.json();
-                
                 if (result.success) {
-                    const flags = {
-                        'Россия': '🇷🇺',
-                        'Беларусь': '🇧🇾',
-                        'Украина': '🇺🇦',
-                        'Казахстан': '🇰🇿'
-                    };
-                    
-                    tg.showAlert(
-                        `🎉 Выбит номер!\n\n` +
-                        `${flags[result.country] || ''} ${result.number}\n` +
-                        `Страна: ${result.country}\n` +
-                        `Редкость: ${result.rarity}\n` +
-                        `Стоимость: ${result.price}₽`
-                    );
+                    const flags = {'Россия': '🇷🇺', 'Беларусь': '🇧🇾', 'Украина': '🇺🇦', 'Казахстан': '🇰🇿'};
+                    tg.showAlert(`🎉 Выбит номер!\n\n${flags[result.country] || ''} ${result.number}\nСтрана: ${result.country}\nРедкость: ${result.rarity}\nСтоимость: ${result.price}₽`);
                     loadData();
                 } else {
                     tg.showAlert(`❌ ${result.message}`);
                 }
-            } catch (e) {
-                console.error('Error:', e);
-            }
+            } catch (e) { console.error(e); }
         }
         
         async function showInventory() {
             document.getElementById('main-screen').classList.add('hidden');
             document.getElementById('inventory-screen').classList.remove('hidden');
-            
             try {
                 const response = await fetch(`/api/inventory/${userId}`);
                 const items = await response.json();
-                
                 const list = document.getElementById('inventory-list');
                 list.innerHTML = '';
-                
                 if (items.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Инвентарь пуст. Открой кейс!</p>';
+                    list.innerHTML = '<p style="text-align: center; opacity: 0.7;">Инвентарь пуст. Выбери страну выше!</p>';
                     return;
                 }
-                
-                const flags = {
-                    'Россия': '🇷🇺',
-                    'Беларусь': '🇧🇾',
-                    'Украина': '🇺🇦',
-                    'Казахстан': '🇰🇿'
-                };
-                
+                const flags = {'Россия': '🇷🇺', 'Беларусь': '🇧🇾', 'Украина': '🇺🇦', 'Казахстан': '🇰🇿'};
                 items.forEach(item => {
                     const sellPrice = Math.floor(item.buy_price * 0.8);
                     const div = document.createElement('div');
@@ -209,36 +231,25 @@
                     `;
                     list.appendChild(div);
                 });
-            } catch (e) {
-                console.error('Error:', e);
-            }
+            } catch (e) { console.error(e); }
         }
         
         async function sellNumber(itemId) {
             try {
                 const response = await fetch(`/api/sell/${userId}/${itemId}`, { method: 'POST' });
                 const result = await response.json();
-                
-                if (result.success) {
-                    tg.showAlert(`✅ ${result.message}`);
-                    showInventory();
-                } else {
-                    tg.showAlert(`❌ ${result.message}`);
-                }
-            } catch (e) {
-                console.error('Error:', e);
-            }
+                tg.showAlert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                showInventory();
+            } catch (e) { console.error(e); }
         }
         
         async function getBonus() {
             try {
                 const response = await fetch(`/api/bonus/${userId}`, { method: 'POST' });
                 const result = await response.json();
-                tg.showAlert(`🎁 ${result.message}`);
+                tg.showAlert(`${result.success ? '🎁' : '⏰'} ${result.message}`);
                 loadData();
-            } catch (e) {
-                console.error('Error:', e);
-            }
+            } catch (e) { console.error(e); }
         }
         
         loadData();
