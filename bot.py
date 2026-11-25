@@ -37,6 +37,11 @@ def get_user(user_id):
     return jsonify({"balance": db.get_balance(user_id)})
 
 
+@flask_app.route("/api/is_admin/<int:user_id>")
+def is_admin_api(user_id):
+    return jsonify({"is_admin": user_id == ADMIN_ID})
+
+
 @flask_app.route("/api/issue/<int:user_id>/<country>", methods=["POST"])
 def issue_api(user_id, country):
     country_map = {"ru": "Россия", "by": "Беларусь", "ua": "Украина", "kz": "Казахстан"}
@@ -122,6 +127,83 @@ def top_rare():
     return jsonify(result)
 
 
+# ===== АДМИН API ДЛЯ ВЕБ-ИНТЕРФЕЙСА =====
+
+@flask_app.route("/api/admin/users")
+def admin_get_users():
+    users = db.get_all_users()
+    return jsonify([{"user_id": u[0], "username": u[1], "balance": u[2]} for u in users])
+
+
+@flask_app.route("/api/admin/give_money", methods=["POST"])
+def admin_give_money():
+    data = request.json
+    user_id = int(data.get("user_id"))
+    amount = float(data.get("amount", 0))
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Сумма должна быть больше 0!"})
+    db.add_balance(user_id, amount)
+    nb = db.get_balance(user_id)
+    return jsonify({"success": True, "message": f"Выдано {amount}₽. Новый баланс: {nb}₽"})
+
+
+@flask_app.route("/api/admin/set_balance", methods=["POST"])
+def admin_set_balance():
+    data = request.json
+    user_id = int(data.get("user_id"))
+    amount = float(data.get("amount", 0))
+    db.set_balance(user_id, amount)
+    return jsonify({"success": True, "message": f"Баланс установлен на {amount}₽"})
+
+
+@flask_app.route("/api/admin/give_number", methods=["POST"])
+def admin_give_number():
+    data = request.json
+    user_id = int(data.get("user_id"))
+    number = data.get("number", "").upper()
+    country = data.get("country", "Россия")
+    rarity = data.get("rarity", "Обычный")
+    price = float(data.get("price", 500))
+    db.give_number_to_user(user_id, number, country, rarity, price)
+    return jsonify({"success": True, "message": f"Номер {number} ({country}, {rarity}) выдан!"})
+
+
+@flask_app.route("/api/admin/stats")
+def admin_stats():
+    users = db.get_all_users()
+    total_users = len(users)
+    total_balance = sum(u[2] for u in users)
+    conn = __import__('sqlite3').connect(db.DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM inventory")
+    total_inv = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM market")
+    total_market = c.fetchone()[0]
+    conn.close()
+    return jsonify({
+        "total_users": total_users,
+        "total_balance": total_balance,
+        "total_inventory": total_inv,
+        "total_market": total_market
+    })
+
+
+@flask_app.route("/api/admin/broadcast", methods=["POST"])
+def admin_broadcast():
+    data = request.json
+    text = data.get("text", "")
+    if not text:
+        return jsonify({"success": False, "message": "Текст пуст!"})
+    # Сохраняем в БД для отправки через бота
+    conn = __import__('sqlite3').connect(db.DB_NAME)
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id INTEGER PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
+    c.execute("INSERT INTO pending_broadcasts (text) VALUES (?)", (text,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "Рассылка запланирована! Бот отправит её в течение минуты."})
+
+
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT)
 
@@ -130,7 +212,7 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
-# ===== СЕКРЕТНАЯ АДМИНКА =====
+# ===== СЕКРЕТНАЯ АДМИНКА В TELEGRAM (резервная) =====
 class AdminStates(StatesGroup):
     waiting_for_user_id = State()
     waiting_for_amount = State()
@@ -149,262 +231,19 @@ async def secret_admin(message: Message):
     if not is_admin(message.from_user.id):
         await message.answer("⛔ Доступ запрещён!")
         return
-    text = ("⚙️ <b>Админ-панель</b>\n\n"
-            "💰 Выдать деньги\n📉 Списать деньги\n⚖️ Установить баланс\n"
-            "👤 Инфо о пользователе\n🎒 Инвентарь пользователя\n❌ Удалить номер\n"
-            "🚗 Выдать номер\n📢 Рассылка\n📊 Статистика")
-    keyboard = [
-        [InlineKeyboardButton(text="💰 Выдать деньги", callback_data="admin_give_money")],
-        [InlineKeyboardButton(text="📉 Списать деньги", callback_data="admin_take_money")],
-        [InlineKeyboardButton(text="⚖️ Установить баланс", callback_data="admin_set_balance")],
-        [InlineKeyboardButton(text="👤 Инфо", callback_data="admin_user_info")],
-        [InlineKeyboardButton(text="🎒 Инвентарь", callback_data="admin_user_inv")],
-        [InlineKeyboardButton(text="❌ Удалить номер", callback_data="admin_remove_number")],
-        [InlineKeyboardButton(text="🚗 Выдать номер", callback_data="admin_give_number")],
-        [InlineKeyboardButton(text="📢 Рассылка", callback_data="admin_broadcast")],
-        [InlineKeyboardButton(text="📊 Статистика", callback_data="admin_stats")]
-    ]
-    await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
+    hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
+    await message.answer(
+        "⚙️ <b>Админ-панель</b>\n\n"
+        "Открой Mini App и нажми кнопку ⚙️ Админ — там удобнее!\n"
+        "Или используй кнопки ниже:",
+        parse_mode="HTML",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="⚙️ Открыть админку", web_app=WebAppInfo(url=f"https://{hostname}/app"))]
+        ])
+    )
 
 
-@dp.callback_query(F.data == "admin_give_money")
-async def admin_give_money_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("💰 Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="give_money")
-
-
-@dp.callback_query(F.data == "admin_take_money")
-async def admin_take_money_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("📉 Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="take_money")
-
-
-@dp.callback_query(F.data == "admin_set_balance")
-async def admin_set_balance_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("⚖️ Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="set_balance")
-
-
-@dp.callback_query(F.data == "admin_user_info")
-async def admin_user_info_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("👤 Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="user_info")
-
-
-@dp.callback_query(F.data == "admin_user_inv")
-async def admin_user_inv_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("🎒 Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="user_inv")
-
-
-@dp.callback_query(F.data == "admin_remove_number")
-async def admin_remove_number_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("❌ Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="remove_number")
-
-
-@dp.callback_query(F.data == "admin_give_number")
-async def admin_give_number_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("🚗 Введите ID пользователя:")
-    await state.set_state(AdminStates.waiting_for_user_id)
-    await state.update_data(action="give_number")
-
-
-@dp.callback_query(F.data == "admin_broadcast")
-async def admin_broadcast_start(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id): return
-    await callback.message.edit_text("📢 Введите текст рассылки:")
-    await state.set_state(AdminStates.waiting_for_message)
-
-
-@dp.callback_query(F.data == "admin_stats")
-async def admin_stats(callback: CallbackQuery):
-    if not is_admin(callback.from_user.id): return
-    users = db.get_all_users()
-    total_users = len(users)
-    total_balance = sum(u[2] for u in users)
-    conn = __import__('sqlite3').connect(db.DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM inventory")
-    total_inv = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM market")
-    total_market = c.fetchone()[0]
-    conn.close()
-    text = (f"📊 <b>Статистика</b>\n\n"
-            f"👥 Пользователей: <b>{total_users}</b>\n"
-            f"💰 Общий баланс: <b>{total_balance}₽</b>\n"
-            f"🎒 Всего номеров: <b>{total_inv}</b>\n"
-            f"🏪 На рынке: <b>{total_market}</b>")
-    kb = [[InlineKeyboardButton(text="◀️ Назад", callback_data="back_admin")]]
-    await callback.message.edit_text(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-
-
-@dp.callback_query(F.data == "back_admin")
-async def back_admin(callback: CallbackQuery):
-    await secret_admin(callback.message)
-
-
-@dp.message(AdminStates.waiting_for_user_id)
-async def process_user_id(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    try:
-        user_id = int(message.text.strip())
-    except ValueError:
-        await message.answer("❌ ID должен быть числом!")
-        return
-    data = await state.get_data()
-    action = data.get("action")
-    await state.update_data(user_id=user_id)
-
-    if action in ("give_money", "take_money", "set_balance"):
-        await message.answer("💰 Введите сумму:")
-        await state.set_state(AdminStates.waiting_for_amount)
-    elif action == "user_info":
-        user, cnt = db.get_user_info(user_id)
-        if user:
-            uid, username, balance, created, _ = user
-            text = f"👤 <b>Информация</b>\n\n🆔 ID: <code>{uid}</code>\n👤 @{username or 'нет'}\n💰 Баланс: {balance}₽\n🎒 Номеров: {cnt}\n📅 Регистрация: {created[:10]}"
-        else:
-            text = f"❌ Пользователь {user_id} не найден!"
-        kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-        await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-        await state.clear()
-    elif action == "user_inv":
-        items = db.get_user_inventory_full(user_id)
-        if not items:
-            text = f"🎒 Инвентарь {user_id} пуст!"
-            kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-            await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-        else:
-            text = f"🎒 <b>Инвентарь {user_id}</b>\n\n"
-            kb = []
-            for item in items:
-                iid, _, number, country, rarity, bp, _ = item
-                text += f"🔸 <b>{number}</b> ({country}, {rarity}) — {bp}₽ | ID: {iid}\n\n"
-                kb.append([InlineKeyboardButton(text=f"❌ Удалить {number}", callback_data=f"admin_del_{iid}_{user_id}")])
-            kb.append([InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")])
-            await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-        await state.clear()
-    elif action == "remove_number":
-        items = db.get_user_inventory_full(user_id)
-        if not items:
-            kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-            await message.answer(f"🎒 Инвентарь {user_id} пуст!", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-        else:
-            text = f"❌ Выберите номер для удаления (ID: {user_id}):\n\n"
-            kb = []
-            for item in items:
-                iid, _, number, country, rarity, _, _ = item
-                text += f"• <b>{number}</b> ({country}, {rarity}) — ID: {iid}\n"
-                kb.append([InlineKeyboardButton(text=f"❌ {number}", callback_data=f"admin_del_{iid}_{user_id}")])
-            kb.append([InlineKeyboardButton(text="◀️ Отмена", callback_data="back_admin")])
-            await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-        await state.clear()
-    elif action == "give_number":
-        await message.answer("🚗 Введите номер (например, А777АА77):")
-        await state.set_state(AdminStates.waiting_for_number)
-
-
-@dp.message(AdminStates.waiting_for_amount)
-async def process_amount(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    try:
-        amount = float(message.text.strip())
-    except ValueError:
-        await message.answer("❌ Введите число!")
-        return
-    data = await state.get_data()
-    user_id = data.get("user_id")
-    action = data.get("action")
-
-    if action == "give_money":
-        db.add_balance(user_id, amount)
-        nb = db.get_balance(user_id)
-        text = f"✅ Выдано {amount}₽ → {user_id}\nБаланс: {nb}₽"
-    elif action == "take_money":
-        cur = db.get_balance(user_id)
-        if cur < amount:
-            text = f"❌ У {user_id} только {cur}₽!"
-        else:
-            db.add_balance(user_id, -amount)
-            nb = db.get_balance(user_id)
-            text = f"✅ Списано {amount}₽ у {user_id}\nБаланс: {nb}₽"
-    elif action == "set_balance":
-        db.set_balance(user_id, amount)
-        text = f"✅ Баланс {user_id} установлен на {amount}₽"
-
-    kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-    await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-    await state.clear()
-
-
-@dp.message(AdminStates.waiting_for_number)
-async def process_number(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    await state.update_data(number=message.text.strip().upper())
-    await message.answer("🌍 Страна (Россия/Беларусь/Украина/Казахстан):")
-    await state.set_state(AdminStates.waiting_for_rarity)
-
-
-@dp.message(AdminStates.waiting_for_rarity)
-async def process_rarity(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    await state.update_data(country=message.text.strip())
-    await message.answer("⭐ Редкость (Обычный/Необычный/Редкий/Эпический/Легендарный):")
-    await state.set_state(AdminStates.waiting_for_price)
-
-
-@dp.message(AdminStates.waiting_for_price)
-async def process_price(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    try:
-        price = float(message.text.strip())
-    except ValueError:
-        await message.answer("❌ Введите число!")
-        return
-    data = await state.get_data()
-    uid = data.get("user_id")
-    num = data.get("number")
-    country = data.get("country", "Россия")
-    rar = data.get("rarity", "Обычный")
-    db.give_number_to_user(uid, num, country, rar, price)
-    text = f"✅ Номер <b>{num}</b> ({country}, {rar}) выдан пользователю {uid}!"
-    kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-    await message.answer(text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-    await state.clear()
-
-
-@dp.message(AdminStates.waiting_for_message)
-async def process_broadcast(message: Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
-    text = message.text
-    users = db.send_message_to_all()
-    sent = failed = 0
-    for uid in users:
-        try:
-            await bot.send_message(uid, f"📢 <b>Рассылка:</b>\n\n{text}", parse_mode="HTML")
-            sent += 1
-        except:
-            failed += 1
-    result = f"📢 Рассылка завершена!\n✅ Отправлено: {sent}\n❌ Ошибок: {failed}"
-    kb = [[InlineKeyboardButton(text="◀️ Админ-панель", callback_data="back_admin")]]
-    await message.answer(result, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
-    await state.clear()
-
-
+# Резервные callback-обработчики для админки в Telegram
 @dp.callback_query(F.data.startswith("admin_del_"))
 async def admin_delete_number(callback: CallbackQuery):
     if not is_admin(callback.from_user.id): return
@@ -413,7 +252,37 @@ async def admin_delete_number(callback: CallbackQuery):
     uid = int(parts[3])
     db.remove_from_inventory(inv_id, uid)
     await callback.answer(f"✅ Номер удалён у {uid}!", show_alert=True)
-    await secret_admin(callback.message)
+
+
+@dp.message(AdminStates.waiting_for_user_id)
+async def process_user_id(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("Используй админ-панель в Mini App — там удобнее! ⚙️")
+
+
+@dp.message(AdminStates.waiting_for_amount)
+async def process_amount(message: Message, state: FSMContext):
+    await state.clear()
+
+
+@dp.message(AdminStates.waiting_for_number)
+async def process_number(message: Message, state: FSMContext):
+    await state.clear()
+
+
+@dp.message(AdminStates.waiting_for_rarity)
+async def process_rarity(message: Message, state: FSMContext):
+    await state.clear()
+
+
+@dp.message(AdminStates.waiting_for_price)
+async def process_price(message: Message, state: FSMContext):
+    await state.clear()
+
+
+@dp.message(AdminStates.waiting_for_message)
+async def process_broadcast(message: Message, state: FSMContext):
+    await state.clear()
 
 
 # ===== ОСНОВНОЙ БОТ =====
@@ -435,11 +304,43 @@ async def cmd_start(message: Message):
     )
 
 
+# Фоновая задача для отправки рассылок
+async def broadcast_sender():
+    while True:
+        try:
+            conn = __import__('sqlite3').connect(db.DB_NAME)
+            c = conn.cursor()
+            c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id INTEGER PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
+            c.execute("SELECT id, text FROM pending_broadcasts WHERE sent = 0 LIMIT 1")
+            row = c.fetchone()
+            if row:
+                bid, text = row
+                users = db.send_message_to_all()
+                sent = failed = 0
+                for uid in users:
+                    try:
+                        await bot.send_message(uid, f"📢 <b>Рассылка:</b>\n\n{text}", parse_mode="HTML")
+                        sent += 1
+                    except:
+                        failed += 1
+                c.execute("UPDATE pending_broadcasts SET sent = 1 WHERE id = ?", (bid,))
+                conn.commit()
+                print(f"📢 Рассылка #{bid}: отправлено {sent}, ошибок {failed}")
+            conn.close()
+        except Exception as e:
+            print(f"Broadcast error: {e}")
+        await asyncio.sleep(30)
+
+
 async def main():
     flask_thread = Thread(target=run_flask, daemon=True)
     flask_thread.start()
     print("🌐 Веб-сервер запущен")
     print("🤖 Бот запущен!")
+    
+    # Запускаем фоновую задачу для рассылок
+    asyncio.create_task(broadcast_sender())
+    
     await dp.start_polling(bot)
 
 
