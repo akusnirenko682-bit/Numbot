@@ -5,18 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Nova Bot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
 <style>
 :root{--bg-deep:#0B0F19;--bg-violet:#1A103C;--bg-purple:#2D1B69;--glass-bg:rgba(255,255,255,0.06);--glass-border:rgba(255,255,255,0.12);--neon-blue:#3b82f6;--neon-green:#10b981;--neon-purple:#a855f7;--neon-gold:#ffd700;--neon-pink:#d946ef;--neon-violet:#8b5cf6;--text-primary:#fff;--text-secondary:rgba(255,255,255,0.6)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,var(--bg-deep) 0%,var(--bg-violet) 50%,var(--bg-purple) 100%);color:var(--text-primary);min-height:100vh;overflow-x:hidden;position:relative}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,var(--bg-deep) 0%,var(--bg-violet) 50%,var(--bg-purple) 100%);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
 .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.4;z-index:0;pointer-events:none}
 .glow-1{width:300px;height:300px;background:var(--neon-violet);top:-100px;right:-50px}
 .glow-2{width:250px;height:250px;background:var(--neon-pink);bottom:10%;left:-80px;opacity:0.25}
 .container{position:relative;z-index:1;padding:20px;padding-bottom:30px;max-width:480px;margin:0 auto}
 .header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
 .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--neon-violet),var(--neon-pink));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;box-shadow:0 0 20px rgba(139,92,246,0.4);border:2px solid rgba(255,255,255,0.2)}
-.greeting h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.greeting h1{font-size:22px;font-weight:700}
 .greeting p{font-size:14px;color:var(--text-secondary);margin-top:4px}
 .profile-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:24px;margin-bottom:28px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
 .profile-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -30,14 +29,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .menu-item{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px 14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all 0.3s;min-height:110px}
 .menu-item:active{transform:scale(0.96);background:rgba(255,255,255,0.1)}
-.menu-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.15);border-radius:12px;color:var(--neon-violet);filter:drop-shadow(0 0 8px rgba(139,92,246,0.5))}
-.menu-icon i{width:22px;height:22px;stroke-width:2}
+.menu-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.15);border-radius:12px;color:var(--neon-violet);font-size:22px}
 .menu-text{font-size:15px;font-weight:600;color:var(--text-primary)}
 .menu-subtext{font-size:12px;color:var(--text-secondary);margin-top:-6px}
 .screen{display:none;padding-bottom:20px}
 .screen.active{display:block}
 .back-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);color:white;padding:12px 20px;border-radius:14px;cursor:pointer;margin-bottom:20px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-.screen-title{font-size:24px;font-weight:700;margin-bottom:20px;letter-spacing:-0.5px}
+.screen-title{font-size:24px;font-weight:700;margin-bottom:20px}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px;margin-bottom:12px}
 .countries-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .country-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:20px;text-align:center;cursor:pointer;transition:all 0.3s}
@@ -45,9 +43,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .country-btn .flag{font-size:2.5em;margin-bottom:8px}
 .country-btn .name{font-size:14px;font-weight:600;margin-bottom:4px}
 .country-btn .price{font-size:13px;color:var(--neon-gold);font-weight:600}
-.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s;cursor:pointer}
+.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 .item-card.selected{border-color:var(--neon-violet);box-shadow:0 0 15px rgba(139,92,246,0.4)}
-.item-card .number{font-weight:700;font-size:15px;letter-spacing:0.5px}
+.item-card .number{font-weight:700;font-size:15px}
 .item-card .meta{font-size:12px;color:var(--text-secondary);margin-top:3px}
 .item-card .price{color:var(--neon-gold);font-weight:700;font-size:14px}
 .rarity-Обычный{border-left:3px solid var(--neon-blue)}
@@ -61,17 +59,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-red{background:linear-gradient(135deg,#ff416c,#ff4b2b)}
 .btn-group{display:flex;gap:6px;flex-wrap:wrap}
 .task-card,.upgrade-card,.promo-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px}
-.task-name,.upgrade-name{font-weight:600;margin-bottom:4px;font-size:15px}
+.task-name{font-weight:600;margin-bottom:4px;font-size:15px}
 .task-progress{background:rgba(0,0,0,0.3);height:8px;border-radius:4px;margin:10px 0;overflow:hidden}
 .task-progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));transition:width 0.3s}
-.task-bottom,.upgrade-bottom{display:flex;justify-content:space-between;align-items:center}
+.task-bottom{display:flex;justify-content:space-between;align-items:center}
 .reward{color:var(--neon-gold);font-size:13px;font-weight:600}
-.upgrade-desc{font-size:13px;color:var(--text-secondary);margin-bottom:10px}
 .adm-section{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:18px;margin-bottom:14px}
-.adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600}
 .adm-input{width:100%;padding:12px;margin-bottom:10px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);color:white;font-size:14px}
 .adm-input::placeholder{color:var(--text-secondary)}
-.adm-input:focus{outline:none;border-color:var(--neon-violet)}
 .adm-btn{width:100%;padding:12px;border:none;border-radius:12px;color:white;font-weight:600;cursor:pointer;font-size:14px}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat-card{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:14px;text-align:center}
@@ -84,21 +80,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .streak-dot.bonus{border-color:var(--neon-gold)}
 .season-bar{background:rgba(0,0,0,0.3);height:12px;border-radius:6px;overflow:hidden;margin:10px 0}
 .season-bar-fill{height:100%;background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));transition:width 0.3s}
-.roulette-container{background:linear-gradient(180deg,#1A103C 0%,#0B0F19 100%);border:2px solid var(--glass-border);border-radius:24px;padding:25px 15px;margin:20px 0;position:relative;overflow:hidden}
+.roulette-container{background:linear-gradient(180deg,#1A103C 0%,#0B0F19 100%);border:2px solid var(--glass-border);border-radius:24px;padding:25px 15px;margin:20px 0}
 .roulette-label{text-align:center;font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:2px;margin-bottom:15px}
 .roulette-slots{display:flex;justify-content:center;gap:6px;margin:15px 0;flex-wrap:wrap}
-.roulette-slot{width:42px;height:60px;background:rgba(0,0,0,0.6);border:2px solid var(--glass-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;font-family:'Arial Black',sans-serif;color:rgba(255,255,255,0.3);overflow:hidden;position:relative;transition:all 0.3s ease}
+.roulette-slot{width:42px;height:60px;background:rgba(0,0,0,0.6);border:2px solid var(--glass-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;font-family:'Arial Black',sans-serif;color:rgba(255,255,255,0.3);transition:all 0.3s}
 .roulette-slot.spinning{animation:slotBlur 0.08s infinite;color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2)}
 .roulette-slot.stopping{animation:slotBounce 0.4s ease-out;transform:scale(1.15)}
 .roulette-slot.final{transform:scale(1)}
-.roulette-slot.rarity-Обычный{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 12px var(--neon-blue),inset 0 0 10px rgba(59,130,246,0.2)}
-.roulette-slot.rarity-Необычный{border-color:var(--neon-green);color:var(--neon-green);box-shadow:0 0 12px var(--neon-green),inset 0 0 10px rgba(16,185,129,0.2)}
-.roulette-slot.rarity-Редкий{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 20px var(--neon-blue),inset 0 0 15px rgba(59,130,246,0.3)}
-.roulette-slot.rarity-Эпический{border-color:var(--neon-purple);color:var(--neon-purple);box-shadow:0 0 25px var(--neon-purple),inset 0 0 15px rgba(168,85,247,0.3)}
-.roulette-slot.rarity-Легендарный{border-color:var(--neon-gold);color:var(--neon-gold);box-shadow:0 0 30px var(--neon-gold),inset 0 0 20px rgba(255,215,0,0.3);animation:legendarySlot 1s infinite}
+.roulette-slot.rarity-Обычный{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 12px var(--neon-blue)}
+.roulette-slot.rarity-Необычный{border-color:var(--neon-green);color:var(--neon-green);box-shadow:0 0 12px var(--neon-green)}
+.roulette-slot.rarity-Редкий{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 20px var(--neon-blue)}
+.roulette-slot.rarity-Эпический{border-color:var(--neon-purple);color:var(--neon-purple);box-shadow:0 0 25px var(--neon-purple)}
+.roulette-slot.rarity-Легендарный{border-color:var(--neon-gold);color:var(--neon-gold);box-shadow:0 0 30px var(--neon-gold);animation:legendarySlot 1s infinite}
 @keyframes slotBlur{0%{transform:translateY(-3px);filter:blur(1px)}100%{transform:translateY(3px);filter:blur(1px)}}
 @keyframes slotBounce{0%{transform:scale(1.3) translateY(-10px)}50%{transform:scale(1.1) translateY(5px)}100%{transform:scale(1) translateY(0)}}
-@keyframes legendarySlot{0%,100%{box-shadow:0 0 30px var(--neon-gold),inset 0 0 20px rgba(255,215,0,0.3)}50%{box-shadow:0 0 50px var(--neon-gold),0 0 80px rgba(255,215,0,0.5),inset 0 0 25px rgba(255,215,0,0.4)}}
+@keyframes legendarySlot{0%,100%{box-shadow:0 0 30px var(--neon-gold)}50%{box-shadow:0 0 50px var(--neon-gold),0 0 80px rgba(255,215,0,0.5)}}
 .rarity-display{text-align:center;margin-top:20px;padding:15px;border-radius:16px;background:rgba(0,0,0,0.3);display:none}
 .rarity-display.rarity-Обычный{border:2px solid var(--neon-blue);box-shadow:0 0 20px var(--neon-blue)}
 .rarity-display.rarity-Необычный{border:2px solid var(--neon-green);box-shadow:0 0 20px var(--neon-green)}
@@ -120,8 +116,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .online-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 .online-dot.online{background:var(--neon-green);box-shadow:0 0 8px var(--neon-green)}
 .online-dot.offline{background:#ff4444;box-shadow:0 0 8px #ff4444}
-@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.1)}}
 </style>
 </head>
@@ -136,7 +130,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-title"><i data-lucide="user" style="width:20px;height:20px;color:var(--neon-violet);"></i>Ваш профиль</div>
+            <div class="profile-title">👤 Ваш профиль</div>
             <div class="status-badge"><div class="status-dot"></div>Активен</div>
         </div>
         <div class="profile-stats">
@@ -146,25 +140,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
     </div>
     <div class="menu-grid">
-        <div class="menu-item" onclick="showScreen('screen-generator')"><div class="menu-icon"><i data-lucide="dices"></i></div><span class="menu-text">Генератор</span><span class="menu-subtext">Получить новый</span></div>
-        <div class="menu-item" onclick="showScreen('screen-daily')"><div class="menu-icon"><i data-lucide="gift"></i></div><span class="menu-text">Ежедневный</span><span class="menu-subtext">Бесплатный кейс</span></div>
-        <div class="menu-item" onclick="showScreen('screen-channel')"><div class="menu-icon"><i data-lucide="megaphone"></i></div><span class="menu-text">Канал</span><span class="menu-subtext">+10000₽ бонус</span></div>
-        <div class="menu-item" onclick="showScreen('screen-tasks')"><div class="menu-icon"><i data-lucide="check-square"></i></div><span class="menu-text">Задания</span><span class="menu-subtext">Ежедневные</span></div>
-        <div class="menu-item" onclick="showScreen('screen-promo')"><div class="menu-icon"><i data-lucide="ticket"></i></div><span class="menu-text">Промокод</span><span class="menu-subtext">Ввести код</span></div>
-        <div class="menu-item" onclick="showScreen('screen-referral')"><div class="menu-icon"><i data-lucide="users"></i></div><span class="menu-text">Рефералы</span><span class="menu-subtext">Пригласить друга</span></div>
-        <div class="menu-item" onclick="showScreen('screen-season')"><div class="menu-icon"><i data-lucide="star"></i></div><span class="menu-text">Сезон</span><span class="menu-subtext">Уровень и XP</span></div>
-        <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon"><i data-lucide="gavel"></i></div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
-        <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon"><i data-lucide="wallet"></i></div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
-        <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon"><i data-lucide="briefcase"></i></div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
-        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
-        <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon"><i data-lucide="store"></i></div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
-        <div class="menu-item" onclick="showScreen('screen-trades')"><div class="menu-icon"><i data-lucide="repeat"></i></div><span class="menu-text">Трейды</span><span class="menu-subtext">Обмен с игроками</span></div>
-        <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon"><i data-lucide="zap"></i></div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
-        <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon"><i data-lucide="trophy"></i></div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
+        <div class="menu-item" onclick="showScreen('screen-generator')"><div class="menu-icon">🎲</div><span class="menu-text">Генератор</span><span class="menu-subtext">Получить новый</span></div>
+        <div class="menu-item" onclick="showScreen('screen-daily')"><div class="menu-icon">🎁</div><span class="menu-text">Ежедневный</span><span class="menu-subtext">Бесплатный кейс</span></div>
+        <div class="menu-item" onclick="showScreen('screen-channel')"><div class="menu-icon">📢</div><span class="menu-text">Канал</span><span class="menu-subtext">+10000₽ бонус</span></div>
+        <div class="menu-item" onclick="showScreen('screen-tasks')"><div class="menu-icon">✅</div><span class="menu-text">Задания</span><span class="menu-subtext">Ежедневные</span></div>
+        <div class="menu-item" onclick="showScreen('screen-promo')"><div class="menu-icon">🎟️</div><span class="menu-text">Промокод</span><span class="menu-subtext">Ввести код</span></div>
+        <div class="menu-item" onclick="showScreen('screen-referral')"><div class="menu-icon">👥</div><span class="menu-text">Рефералы</span><span class="menu-subtext">Пригласить друга</span></div>
+        <div class="menu-item" onclick="showScreen('screen-season')"><div class="menu-icon">⭐</div><span class="menu-text">Сезон</span><span class="menu-subtext">Уровень и XP</span></div>
+        <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon">🏎️</div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
+        <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon">💰</div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
+        <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon">🎒</div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
+        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon">🔒</div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
+        <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon">🏪</div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
+        <div class="menu-item" onclick="showScreen('screen-trades')"><div class="menu-icon">🔄</div><span class="menu-text">Трейды</span><span class="menu-subtext">Обмен с игроками</span></div>
+        <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon">⚡</div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
+        <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon">🏆</div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
     </div>
     <div id="admin-btn-container" style="display:none;margin-top:14px;">
         <div class="menu-item" onclick="showScreen('screen-admin')" style="background:linear-gradient(135deg,rgba(217,70,239,0.15),rgba(139,92,246,0.15));border-color:rgba(217,70,239,0.4);">
-            <div class="menu-icon" style="background:rgba(217,70,239,0.2);color:var(--neon-pink);filter:drop-shadow(0 0 8px rgba(217,70,239,0.5));"><i data-lucide="settings"></i></div>
+            <div class="menu-icon" style="background:rgba(217,70,239,0.2);color:var(--neon-pink);">⚙️</div>
             <span class="menu-text">Админ-панель</span><span class="menu-subtext">Управление ботом</span>
         </div>
     </div>
@@ -172,7 +166,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div id="screen-generator" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🎯 Выбери страну</h2>
     <div id="issue-timer" style="display:none;text-align:center;padding:10px;background:rgba(255,65,108,0.15);border:1px solid var(--neon-pink);border-radius:12px;margin-bottom:15px;color:var(--neon-pink);font-weight:600;"></div>
     <div class="countries-grid">
@@ -196,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-channel" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">📢 Telegram канал</h2>
     <div class="channel-card">
         <div class="channel-icon">📢</div>
@@ -214,7 +208,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-daily" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🎁 Ежедневный кейс</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твоя серия</div>
@@ -225,24 +219,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-promo" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🎟️ Промокод</h2>
     <div class="glass-card">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;text-align:center;">Промокоды публикуются в нашем <b style="color:var(--neon-gold);">Telegram канале</b></div>
         <input type="text" class="adm-input" id="promo-input" placeholder="Введи промокод" style="text-transform:uppercase;">
         <button class="btn btn-blue" onclick="usePromo()" style="width:100%;padding:14px;font-size:15px;">Активировать</button>
     </div>
-    <a href="https://t.me/Numbernomi" target="_blank" style="text-decoration:none;">
-        <div class="glass-card" style="text-align:center;cursor:pointer;margin-top:15px;">
-            <div style="font-size:1.5em;margin-bottom:8px;">📢</div>
-            <div style="font-weight:600;">Подпишись на канал</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:5px;">Чтобы получать промокоды</div>
-        </div>
-    </a>
 </div></div>
 
 <div id="screen-referral" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">👥 Рефералы</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твой код</div>
@@ -254,7 +241,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-season" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">⭐ Сезонный пропуск</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Уровень</div>
@@ -266,7 +253,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-inventory" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🎒 Твоя коллекция</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;text-align:center;">⚡ Быстрая продажа</div>
@@ -281,7 +268,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tasks" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">📋 Задания</h2>
     <h3 style="color:var(--neon-gold);margin:10px 0;font-size:16px;">📅 Ежедневные</h3>
     <div id="daily-tasks-list"></div>
@@ -290,19 +277,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-auction" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🏎️ Аукцион</h2>
     <div id="auction-list"></div>
 </div></div>
 
 <div id="screen-market" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🏪 Рынок</h2>
     <div id="market-list"></div>
 </div></div>
 
 <div id="screen-trades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🤝 Трейды</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">📥 Входящие трейды</div>
@@ -319,7 +306,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-safe" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🔒 Сейф</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">В сейфе</div>
@@ -344,13 +331,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-upgrades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">⚡ Улучшения</h2>
     <div id="upgrades-list"></div>
 </div></div>
 
 <div id="screen-balance" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">💰 Баланс</h2>
     <div class="glass-card" style="text-align:center;padding:30px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Текущий баланс</div>
@@ -361,7 +348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tops" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">🏆 Топы</h2>
     <h3 style="color:var(--neon-gold);margin:15px 0 10px;font-size:16px;">💰 По деньгам</h3>
     <div id="top-balance-list"></div>
@@ -370,169 +357,908 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-admin" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
     <h2 class="screen-title">⚙️ Админ-панель</h2>
-    <div class="adm-section"><h3><i data-lucide="bar-chart-3" style="width:18px;height:18px;"></i>Статистика</h3><div class="stats-grid" id="admin-stats"></div></div>
-    <div class="adm-section"><h3><i data-lucide="banknote" style="width:18px;height:18px;"></i>Выдать деньги</h3><input type="number" class="adm-input" id="adm-give-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-give-amount" placeholder="Сумма"><button class="adm-btn btn-blue" onclick="admGiveMoney()">Выдать</button></div>
-    <div class="adm-section"><h3><i data-lucide="trending-down" style="width:18px;height:18px;"></i>Списать деньги</h3><input type="number" class="adm-input" id="adm-take-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-take-amount" placeholder="Сумма"><button class="adm-btn btn-red" onclick="admTakeMoney()">Списать</button></div>
-    <div class="adm-section"><h3><i data-lucide="scale" style="width:18px;height:18px;"></i>Установить баланс</h3><input type="number" class="adm-input" id="adm-set-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-set-amount" placeholder="Новый баланс"><button class="adm-btn btn-blue" onclick="admSetBalance()">Установить</button></div>
-    <div class="adm-section"><h3><i data-lucide="user-search" style="width:18px;height:18px;"></i>Инфо о пользователе</h3><input type="number" class="adm-input" id="adm-info-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInfo()">Показать</button><div id="adm-info-result" style="margin-top:10px;"></div></div>
-    <div class="adm-section"><h3><i data-lucide="backpack" style="width:18px;height:18px;"></i>Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
-    <div class="adm-section"><h3><i data-lucide="car" style="width:18px;height:18px;"></i>Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
-    <div class="adm-section"><h3><i data-lucide="ticket" style="width:18px;height:18px;"></i>Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код (например NOVA2026)"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Бесплатный кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма/кол-во"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. использований (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать промокод</button></div>
-    <div class="adm-section"><h3><i data-lucide="trash-2" style="width:18px;height:18px;"></i>Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код для удаления"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить промокод</button></div>
-    <div class="adm-section"><h3><i data-lucide="megaphone" style="width:18px;height:18px;"></i>Рассылка всем</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст рассылки" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить рассылку</button></div>
-    <div class="adm-section"><h3><i data-lucide="users" style="width:18px;height:18px;"></i>Все пользователи</h3><div id="adm-users-list"></div></div>
+    <div class="adm-section"><h3>📊 Статистика</h3><div class="stats-grid" id="admin-stats"></div></div>
+    <div class="adm-section"><h3>💰 Выдать деньги</h3><input type="number" class="adm-input" id="adm-give-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-give-amount" placeholder="Сумма"><button class="adm-btn btn-blue" onclick="admGiveMoney()">Выдать</button></div>
+    <div class="adm-section"><h3>📉 Списать деньги</h3><input type="number" class="adm-input" id="adm-take-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-take-amount" placeholder="Сумма"><button class="adm-btn btn-red" onclick="admTakeMoney()">Списать</button></div>
+    <div class="adm-section"><h3>⚖️ Установить баланс</h3><input type="number" class="adm-input" id="adm-set-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-set-amount" placeholder="Новый баланс"><button class="adm-btn btn-blue" onclick="admSetBalance()">Установить</button></div>
+    <div class="adm-section"><h3>👤 Инфо о пользователе</h3><input type="number" class="adm-input" id="adm-info-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInfo()">Показать</button><div id="adm-info-result" style="margin-top:10px;"></div></div>
+    <div class="adm-section"><h3>🎒 Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
+    <div class="adm-section"><h3>🚗 Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
+    <div class="adm-section"><h3>🎟️ Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать</button></div>
+    <div class="adm-section"><h3>🗑️ Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить</button></div>
+    <div class="adm-section"><h3>📢 Рассылка</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить</button></div>
+    <div class="adm-section"><h3>👥 Все пользователи</h3><div id="adm-users-list"></div></div>
 </div></div>
 
 <script>
-const tg=window.Telegram.WebApp;tg.ready();tg.expand();tg.setHeaderColor('#0B0F19');tg.setBackgroundColor('#0B0F19');
-const userId=tg.initDataUnsafe?.user?.id,username=tg.initDataUnsafe?.user?.username,firstName=tg.initDataUnsafe?.user?.first_name||'Игрок';
-const flags={'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
-let issuePrice=500,refCode='',selectedSafeDays=7,tradeSelectedItems=[],skipRoulette=false,currentRouletteData=null;
-document.getElementById('greeting-text').textContent=`Привет, ${firstName} 👋`;
-document.getElementById('user-avatar').textContent=firstName.charAt(0).toUpperCase();
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+tg.setHeaderColor('#0B0F19');
+tg.setBackgroundColor('#0B0F19');
 
-function showScreen(id){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+const userId = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+const username = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : '';
+const firstName = tg.initDataUnsafe && tg.initDataUnsafe.user ? (tg.initDataUnsafe.user.first_name || 'Игрок') : 'Игрок';
+const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
+let issuePrice = 500, refCode = '', selectedSafeDays = 7, tradeSelectedItems = [], skipRoulette = false, currentRouletteData = null;
+
+document.getElementById('greeting-text').textContent = 'Привет, ' + firstName + ' 👋';
+document.getElementById('user-avatar').textContent = firstName.charAt(0).toUpperCase();
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
     document.getElementById(id).classList.add('active');
-    const map={'screen-main':loadData,'screen-inventory':loadInventory,'screen-tasks':loadTasks,'screen-market':loadMarket,'screen-auction':loadAuctions,'screen-safe':loadSafe,'screen-upgrades':loadUpgrades,'screen-tops':loadTops,'screen-balance':loadBalance,'screen-admin':loadAdmin,'screen-daily':loadDaily,'screen-promo':loadPromos,'screen-referral':loadReferral,'screen-season':loadSeason,'screen-channel':loadChannel,'screen-generator':checkIssueTimer,'screen-trades':loadTrades};
-    if(map[id])map[id]();
-    lucide.createIcons();window.scrollTo(0,0);
+    const map = {
+        'screen-main': loadData,
+        'screen-inventory': loadInventory,
+        'screen-tasks': loadTasks,
+        'screen-market': loadMarket,
+        'screen-auction': loadAuctions,
+        'screen-safe': loadSafe,
+        'screen-upgrades': loadUpgrades,
+        'screen-tops': loadTops,
+        'screen-balance': loadBalance,
+        'screen-admin': loadAdmin,
+        'screen-daily': loadDaily,
+        'screen-promo': loadPromos,
+        'screen-referral': loadReferral,
+        'screen-season': loadSeason,
+        'screen-channel': loadChannel,
+        'screen-generator': checkIssueTimer,
+        'screen-trades': loadTrades
+    };
+    if (map[id]) map[id]();
+    window.scrollTo(0, 0);
 }
 
-function formatNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.floor(n)}
+function formatNum(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return Math.floor(n);
+}
 
-async function loadData(){try{const r=await fetch(`/api/user/${userId}?username=${username||''}`),d=await r.json();issuePrice=d.issue_price||500;['ru','by','ua','kz'].forEach(c=>{const el=document.getElementById('price-'+c);if(el)el.textContent=`${issuePrice} ₽`});document.getElementById('stat-balance').textContent=formatNum(d.balance);if(d.is_admin)document.getElementById('admin-btn-container').style.display='block'}catch(e){console.error(e)}}
+async function loadData() {
+    try {
+        const r = await fetch('/api/user/' + userId + '?username=' + (username || ''));
+        const d = await r.json();
+        issuePrice = d.issue_price || 500;
+        ['ru','by','ua','kz'].forEach(function(c) {
+            const el = document.getElementById('price-' + c);
+            if (el) el.textContent = issuePrice + ' ₽';
+        });
+        document.getElementById('stat-balance').textContent = formatNum(d.balance);
+        if (d.is_admin) document.getElementById('admin-btn-container').style.display = 'block';
+    } catch(e) { console.error('loadData error:', e); }
+}
 
-function checkIssueTimer(){fetch(`/api/user/${userId}`).then(r=>r.json()).then(d=>{const t=document.getElementById('issue-timer');if(!d.can_issue&&d.issue_wait>0){t.style.display='block';t.textContent=`⏳ Подожди ${d.issue_wait} сек...`;setTimeout(checkIssueTimer,1000)}else{t.style.display='none'}})}
+function checkIssueTimer() {
+    fetch('/api/user/' + userId).then(r => r.json()).then(d => {
+        const t = document.getElementById('issue-timer');
+        if (!d.can_issue && d.issue_wait > 0) {
+            t.style.display = 'block';
+            t.textContent = '⏳ Подожди ' + d.issue_wait + ' сек...';
+            setTimeout(checkIssueTimer, 1000);
+        } else {
+            t.style.display = 'none';
+        }
+    }).catch(e => console.error(e));
+}
 
-async function startRoulette(country){
-    const r=await fetch(`/api/user/${userId}`),d=await r.json();
-    if(!d.can_issue){tg.showAlert(`Подожди ${d.issue_wait} сек!`);return}
-    if(d.balance<issuePrice){tg.showAlert(`Недостаточно средств! Нужно ${issuePrice}₽`);return}
-    skipRoulette=false;document.getElementById('roulette-display').style.display='block';document.getElementById('rarity-display').style.display='none';document.getElementById('skip-btn').style.display='block';
-    const apiR=await fetch(`/api/issue/${userId}/${country}`,{method:'POST'}),apiD=await apiR.json();
-    if(!apiD.success){tg.showAlert(apiD.message);document.getElementById('roulette-display').style.display='none';return}
-    currentRouletteData=apiD;const number=apiD.number,chars=number.split(''),letters='АВЕКМНОРСТУХІ',digits='0123456789';
-    const slotsContainer=document.getElementById('roulette-slots');slotsContainer.innerHTML='';const slots=[];
-    for(let i=0;i<chars.length;i++){const slot=document.createElement('div');slot.className='roulette-slot spinning';slot.textContent='?';slotsContainer.appendChild(slot);slots.push(slot)}
-    const spinIntervals=[];
-    for(let i=0;i<chars.length;i++){const isLetter=letters.includes(chars[i].toUpperCase()),charSet=isLetter?letters:digits;const interval=setInterval(()=>{if(skipRoulette)return;slots[i].textContent=charSet[Math.floor(Math.random()*charSet.length)]},40);spinIntervals.push(interval)}
-    for(let i=0;i<chars.length;i++){if(skipRoulette)break;await new Promise(r=>setTimeout(r,300+i*200));clearInterval(spinIntervals[i]);slots[i].textContent=chars[i];slots[i].classList.remove('spinning');slots[i].classList.add('stopping');await new Promise(r=>setTimeout(r,200));slots[i].classList.remove('stopping');slots[i].classList.add('final',`rarity-${apiD.rarity}`)}
-    if(!skipRoulette){await new Promise(r=>setTimeout(r,200));showRarityResult(apiD)}
+async function startRoulette(country) {
+    try {
+        const r = await fetch('/api/user/' + userId);
+        const d = await r.json();
+        if (!d.can_issue) { tg.showAlert('Подожди ' + d.issue_wait + ' сек!'); return; }
+        if (d.balance < issuePrice) { tg.showAlert('Недостаточно средств! Нужно ' + issuePrice + '₽'); return; }
+        
+        skipRoulette = false;
+        document.getElementById('roulette-display').style.display = 'block';
+        document.getElementById('rarity-display').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'block';
+        
+        const apiR = await fetch('/api/issue/' + userId + '/' + country, { method: 'POST' });
+        const apiD = await apiR.json();
+        
+        if (!apiD.success) {
+            tg.showAlert(apiD.message);
+            document.getElementById('roulette-display').style.display = 'none';
+            return;
+        }
+        
+        currentRouletteData = apiD;
+        const number = apiD.number;
+        const chars = number.split('');
+        const letters = 'АВЕКМНОРСТУХІ';
+        const digits = '0123456789';
+        
+        const slotsContainer = document.getElementById('roulette-slots');
+        slotsContainer.innerHTML = '';
+        const slots = [];
+        
+        for (let i = 0; i < chars.length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'roulette-slot spinning';
+            slot.textContent = '?';
+            slotsContainer.appendChild(slot);
+            slots.push(slot);
+        }
+        
+        const spinIntervals = [];
+        for (let i = 0; i < chars.length; i++) {
+            const isLetter = letters.indexOf(chars[i].toUpperCase()) !== -1;
+            const charSet = isLetter ? letters : digits;
+            const interval = setInterval(function() {
+                if (skipRoulette) return;
+                slots[i].textContent = charSet[Math.floor(Math.random() * charSet.length)];
+            }, 40);
+            spinIntervals.push(interval);
+        }
+        
+        for (let i = 0; i < chars.length; i++) {
+            if (skipRoulette) break;
+            await new Promise(function(resolve) { setTimeout(resolve, 300 + i * 200); });
+            clearInterval(spinIntervals[i]);
+            slots[i].textContent = chars[i];
+            slots[i].classList.remove('spinning');
+            slots[i].classList.add('stopping');
+            await new Promise(function(resolve) { setTimeout(resolve, 200); });
+            slots[i].classList.remove('stopping');
+            slots[i].classList.add('final', 'rarity-' + apiD.rarity);
+        }
+        
+        if (!skipRoulette) {
+            await new Promise(function(resolve) { setTimeout(resolve, 200); });
+            showRarityResult(apiD);
+        }
+        loadData();
+    } catch(e) {
+        console.error('startRoulette error:', e);
+        tg.showAlert('Ошибка: ' + e.message);
+    }
+}
+
+function skipAnimation() {
+    skipRoulette = true;
+    if (currentRouletteData) showRarityResult(currentRouletteData);
+    document.getElementById('skip-btn').style.display = 'none';
+}
+
+function showRarityResult(apiD) {
+    const slots = document.querySelectorAll('.roulette-slot');
+    const chars = apiD.number.split('');
+    slots.forEach(function(slot, i) {
+        slot.textContent = chars[i];
+        slot.classList.remove('spinning', 'stopping');
+        slot.classList.add('final', 'rarity-' + apiD.rarity);
+    });
+    const rd = document.getElementById('rarity-display');
+    rd.style.display = 'block';
+    rd.className = 'rarity-display rarity-' + apiD.rarity;
+    const rt = document.getElementById('rarity-text');
+    rt.textContent = apiD.rarity;
+    rt.className = 'rarity-text rarity-' + apiD.rarity;
+    document.getElementById('rarity-country').textContent = (flags[apiD.country] || '') + ' ' + apiD.country;
+    document.getElementById('rarity-price').textContent = apiD.price + '₽';
+}
+
+async function loadInventory() {
+    try {
+        const r = await fetch('/api/inventory/' + userId);
+        const items = await r.json();
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = '';
+        if (items.length === 0) {
+            list.innerHTML = '<div class="empty-state">Пусто. Открой номер!</div>';
+            return;
+        }
+        document.getElementById('stat-items').textContent = items.length;
+        items.forEach(function(i) {
+            const sp = Math.floor(i.buy_price * 0.8);
+            const d = document.createElement('div');
+            d.className = 'item-card rarity-' + i.rarity;
+            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.country + ' • ' + i.rarity + '</div><div style="font-size:12px;color:var(--neon-gold);margin-top:3px;">💰 ' + sp + '₽</div></div><div class="btn-group"><button class="btn btn-pink" onclick="confirmSell(' + i.id + ')">Продать</button><button class="btn" onclick="listMarket(' + i.id + ')">🏪</button><button class="btn btn-blue" onclick="auctionLot(' + i.id + ')">🏎️</button></div>';
+            list.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+function confirmSell(id) {
+    if (confirm('⚠️ Вы точно хотите продать этот номер?')) sellNumber(id);
+}
+
+async function sellNumber(id) {
+    try {
+        const r = await fetch('/api/sell/' + userId + '/' + id, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadInventory();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function autoSellByRarity(rarity) {
+    const names = {'Обычный':'⚪ Обычные','Необычный':'🟢 Необычные','Редкий':'🔵 Редкие','Эпический':'🟣 Эпические','Легендарный':'🟡 Легендарные','all':'💥 Все'};
+    if (!confirm('Продать ' + (names[rarity]||'все') + ' номера?')) return;
+    try {
+        const r = await fetch('/api/auto_sell/' + userId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rarity: rarity })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadInventory();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function listMarket(id) {
+    const p = prompt('Цена продажи:');
+    if (!p || isNaN(p) || p <= 0) return;
+    try {
+        const r = await fetch('/api/market/sell/' + userId + '/' + id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ price: parseFloat(p) })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadInventory();
+    } catch(e) { console.error(e); }
+}
+
+async function auctionLot(id) {
+    const p = prompt('Мин. цена:');
+    if (!p || isNaN(p) || p <= 0) return;
+    try {
+        const r = await fetch('/api/auctions/create/' + userId + '/' + id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ min_price: parseFloat(p) })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadInventory();
+    } catch(e) { console.error(e); }
+}
+
+async function loadMarket() {
+    try {
+        const r = await fetch('/api/market');
+        const items = await r.json();
+        const list = document.getElementById('market-list');
+        list.innerHTML = '';
+        if (items.length === 0) { list.innerHTML = '<div class="empty-state">Рынок пуст</div>'; return; }
+        items.forEach(function(i) {
+            const isOwner = i.seller_id === userId;
+            const d = document.createElement('div');
+            d.className = 'item-card rarity-' + i.rarity;
+            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.country + ' • ' + i.rarity + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + i.price + '₽</div>' + (isOwner ? '<button class="btn btn-red" onclick="removeMarket(' + i.id + ')">❌</button>' : '<button class="btn" onclick="buyMarket(' + i.id + ')">Купить</button>') + '</div>';
+            list.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function removeMarket(id) {
+    if (!confirm('Снять товар с продажи?')) return;
+    try {
+        const r = await fetch('/api/market/remove/' + userId + '/' + id, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadMarket();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function buyMarket(id) {
+    try {
+        const r = await fetch('/api/market/buy/' + userId + '/' + id, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadMarket();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadAuctions() {
+    try {
+        const r = await fetch('/api/auctions');
+        const lots = await r.json();
+        const list = document.getElementById('auction-list');
+        list.innerHTML = '';
+        if (lots.length === 0) { list.innerHTML = '<div class="empty-state">Нет активных торгов</div>'; return; }
+        lots.forEach(function(l) {
+            const ends = new Date(l.ends_at);
+            const diff = Math.max(0, ends - Date.now());
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            const isOwner = l.seller_id === userId;
+            const d = document.createElement('div');
+            d.className = 'item-card rarity-' + l.rarity;
+            d.innerHTML = '<div><div class="number">' + (flags[l.country]||'') + ' ' + l.number + '</div><div class="meta">' + l.rarity + ' • ⏰ ' + mins + ':' + secs.toString().padStart(2, '0') + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + l.current_bid + '₽</div>' + (isOwner ? '<button class="btn btn-red" onclick="removeAuction(' + l.id + ')">❌</button>' : '<button class="btn btn-blue" onclick="makeBid(' + l.id + ',' + l.current_bid + ')">Ставка</button>') + '</div>';
+            list.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function removeAuction(id) {
+    if (!confirm('Снять лот с аукциона?')) return;
+    try {
+        const r = await fetch('/api/auctions/remove/' + userId + '/' + id, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadAuctions();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function makeBid(lotId, current) {
+    const bid = prompt('Текущая: ' + current + '₽. Новая:');
+    if (!bid || isNaN(bid) || bid <= current) return;
+    try {
+        const r = await fetch('/api/auctions/bid/' + userId + '/' + lotId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bid: parseFloat(bid) })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadAuctions();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadTasks() {
+    try {
+        const r = await fetch('/api/tasks/' + userId);
+        const tasks = await r.json();
+        const dailyList = document.getElementById('daily-tasks-list');
+        const weeklyList = document.getElementById('weekly-tasks-list');
+        dailyList.innerHTML = '';
+        weeklyList.innerHTML = '';
+        tasks.forEach(function(t) {
+            const pct = Math.min(100, (t.progress / t.target) * 100);
+            const html = '<div class="task-card"><div class="task-name">' + t.name + '</div><div class="task-progress"><div class="task-progress-fill" style="width:' + pct + '%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">' + t.progress + '/' + t.target + '</span><span class="reward">+' + t.reward + '₽</span>' + (t.completed ? '<span style="color:var(--neon-green);">✓</span>' : (t.progress >= t.target ? '<button class="btn btn-blue" onclick="claimTask(\'' + t.key + '\')">Забрать</button>' : '')) + '</div></div>';
+            if (t.type === 'weekly') weeklyList.innerHTML += html;
+            else dailyList.innerHTML += html;
+        });
+        if (dailyList.innerHTML === '') dailyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
+        if (weeklyList.innerHTML === '') weeklyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
+    } catch(e) { console.error(e); }
+}
+
+async function claimTask(key) {
+    try {
+        const r = await fetch('/api/tasks/claim/' + userId + '/' + key, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadTasks();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+function selectSafeDays(days) {
+    selectedSafeDays = days;
+    [1, 3, 7, 30].forEach(function(d) {
+        document.getElementById('safe-d' + d).className = 'btn';
+    });
+    document.getElementById('safe-d' + days).className = 'btn btn-blue';
+}
+
+async function loadSafe() {
+    try {
+        const r = await fetch('/api/safe/' + userId);
+        const d = await r.json();
+        document.getElementById('safe-amount').textContent = Math.floor(d.amount) + ' ₽';
+        document.getElementById('safe-interest').textContent = 'Проценты: +' + d.interest + ' ₽';
+        const li = document.getElementById('safe-lock-info');
+        if (d.locked && d.unlock_time) {
+            const unlock = new Date(d.unlock_time);
+            const diff = unlock - Date.now();
+            if (diff > 0) {
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                li.textContent = '🔒 Заблокировано ещё ' + h + 'ч ' + m + 'м';
+                li.style.color = 'var(--neon-pink)';
+            } else {
+                li.textContent = '✅ Можно забрать';
+                li.style.color = 'var(--neon-green)';
+            }
+        } else {
+            li.textContent = d.amount > 0 ? '✅ Можно забрать' : '';
+            li.style.color = 'var(--neon-green)';
+        }
+    } catch(e) { console.error(e); }
+}
+
+async function depositSafe() {
+    const a = document.getElementById('safe-deposit-amount').value;
+    if (!a || isNaN(a) || a <= 0) return tg.showAlert('Введи сумму!');
+    try {
+        const r = await fetch('/api/safe/deposit/' + userId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: parseFloat(a), days: selectedSafeDays })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadSafe();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function withdrawSafe() {
+    try {
+        const r = await fetch('/api/safe/withdraw/' + userId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadSafe();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadUpgrades() {
+    try {
+        const r = await fetch('/api/upgrades/' + userId);
+        const ups = await r.json();
+        const list = document.getElementById('upgrades-list');
+        list.innerHTML = '';
+        Object.keys(ups).forEach(function(key) {
+            const u = ups[key];
+            const d = document.createElement('div');
+            d.className = 'upgrade-card';
+            d.innerHTML = '<div class="task-name">' + u.name + '</div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">' + u.desc + '</div><div class="task-bottom"><span style="font-size:13px;opacity:0.7;">Уровень: ' + u.level + '/' + u.max + '</span>' + (u.price ? '<button class="btn btn-blue" onclick="buyUp(\'' + key + '\')">' + u.price + '₽</button>' : '<span style="color:var(--neon-green);font-weight:600;">MAX</span>') + '</div>';
+            list.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function buyUp(key) {
+    try {
+        const r = await fetch('/api/upgrades/buy/' + userId + '/' + key, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadUpgrades();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadBalance() {
+    try {
+        const r = await fetch('/api/user/' + userId);
+        const d = await r.json();
+        document.getElementById('balance-big').textContent = Math.floor(d.balance) + ' ₽';
+    } catch(e) { console.error(e); }
+}
+
+async function getBonus() {
+    try {
+        const r = await fetch('/api/bonus/' + userId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadBalance();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadTops() {
+    try {
+        const r1 = await fetch('/api/top/balance');
+        const u1 = await r1.json();
+        const l1 = document.getElementById('top-balance-list');
+        l1.innerHTML = '';
+        if (u1.length === 0) l1.innerHTML = '<div class="empty-state">Пока пусто</div>';
+        u1.forEach(function(u) {
+            const d = document.createElement('div');
+            d.className = 'item-card';
+            d.innerHTML = '<div><div class="number">#' + u.rank + ' ' + u.username + '</div></div><div class="price">' + formatNum(u.balance) + '₽</div>';
+            l1.appendChild(d);
+        });
+        const r2 = await fetch('/api/top/rare');
+        const u2 = await r2.json();
+        const l2 = document.getElementById('top-rare-list');
+        l2.innerHTML = '';
+        if (u2.length === 0) l2.innerHTML = '<div class="empty-state">Пока никто не выбил редких</div>';
+        u2.forEach(function(u) {
+            const d = document.createElement('div');
+            d.className = 'item-card';
+            d.innerHTML = '<div><div class="number">#' + u.rank + ' ' + u.username + '</div></div><div class="price">' + u.count + ' редких</div>';
+            l2.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function loadDaily() {
+    try {
+        const r = await fetch('/api/daily/' + userId);
+        const d = await r.json();
+        const dots = document.getElementById('streak-dots');
+        dots.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'streak-dot' + (i < d.streak ? ' active' : '') + (i === 6 ? ' bonus' : '');
+            dot.textContent = i === 6 ? '🎁' : (i + 1);
+            dots.appendChild(dot);
+        }
+        document.getElementById('daily-timer').textContent = d.can_claim ? '✅ Кейс готов!' : '⏰ Следующий через ' + d.wait;
+    } catch(e) { console.error(e); }
+}
+
+async function claimDaily() {
+    try {
+        const r = await fetch('/api/daily/claim/' + userId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadDaily();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadPromos() {
+    try {
+        const r = await fetch('/api/promos/active');
+        const promos = await r.json();
+        const list = document.getElementById('promo-list');
+        if (!list) return;
+        list.innerHTML = '';
+        if (promos.length === 0) { list.innerHTML = '<div class="empty-state">Нет активных промокодов</div>'; return; }
+        const isAdmin = document.getElementById('admin-btn-container').style.display !== 'none';
+        promos.forEach(function(p) {
+            const d = document.createElement('div');
+            d.className = 'promo-card';
+            d.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:16px;color:var(--neon-gold);">' + p.code + '</div><div style="font-size:12px;opacity:0.7;">' + (p.reward_type === 'money' ? '💰 ' + p.reward_value + '₽' : '🎁 Кейс') + ' • ' + p.current_uses + '/' + (p.max_uses || '∞') + '</div></div>' + (isAdmin ? '<button class="btn btn-red" onclick="deletePromo(\'' + p.code + '\')" style="padding:6px 10px;">❌</button>' : '') + '</div>';
+            list.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function usePromo() {
+    const code = document.getElementById('promo-input').value.trim();
+    if (!code) return tg.showAlert('Введи промокод!');
+    try {
+        const r = await fetch('/api/promo/use/' + userId + '/' + code, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) document.getElementById('promo-input').value = '';
+    } catch(e) { console.error(e); }
+}
+
+async function deletePromo(code) {
+    if (!confirm('Удалить промокод ' + code + '?')) return;
+    try {
+        const r = await fetch('/api/promo/delete/' + code, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadPromos();
+    } catch(e) { console.error(e); }
+}
+
+async function loadReferral() {
+    try {
+        const r = await fetch('/api/referral/' + userId);
+        const d = await r.json();
+        refCode = d.code || '';
+        document.getElementById('ref-code').textContent = refCode;
+        document.getElementById('ref-count').textContent = d.count || 0;
+    } catch(e) { console.error(e); }
+}
+
+async function copyRef() {
+    if (!refCode) return tg.showAlert('Код не загружен!');
+    const link = 'https://t.me/Nombder67_bot?start=ref_' + refCode;
+    try {
+        await navigator.clipboard.writeText(link);
+        tg.showAlert('✅ Ссылка скопирована!');
+    } catch(e) {
+        tg.showAlert('Ссылка: ' + link);
+    }
+}
+
+async function loadSeason() {
+    try {
+        const r = await fetch('/api/season/' + userId);
+        const d = await r.json();
+        document.getElementById('season-level').textContent = d.level;
+        document.getElementById('season-xp-text').textContent = d.xp + ' / ' + d.xp_for_next + ' XP';
+        document.getElementById('season-bar').style.width = d.progress + '%';
+        document.getElementById('season-reward').textContent = ((d.level + 1) * 500) + '₽';
+    } catch(e) { console.error(e); }
+}
+
+async function loadChannel() {
+    try {
+        const r = await fetch('/api/channel/check/' + userId);
+        const d = await r.json();
+        const btn = document.getElementById('channel-claim-btn');
+        if (d.subscribed) {
+            btn.textContent = '✅ Бонус уже получен!';
+            btn.disabled = true;
+        } else {
+            btn.textContent = '✅ Проверить подписку и получить бонус';
+            btn.disabled = false;
+        }
+    } catch(e) { console.error(e); }
+}
+
+async function claimChannelBonus() {
+    try {
+        const r = await fetch('/api/channel/claim/' + userId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadChannel();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function loadTrades() {
+    try {
+        const usersR = await fetch('/api/trades/users/' + userId);
+        const users = await usersR.json();
+        const select = document.getElementById('trade-receiver');
+        select.innerHTML = '<option value="">Выбери игрока...</option>';
+        users.filter(function(u) { return u.online; }).forEach(function(u) {
+            const opt = document.createElement('option');
+            opt.value = u.user_id;
+            opt.textContent = u.username + ' (' + Math.floor(u.balance) + '₽)';
+            select.appendChild(opt);
+        });
+        
+        const invR = await fetch('/api/trades/inventory/' + userId);
+        const items = await invR.json();
+        const list = document.getElementById('trade-items-list');
+        list.innerHTML = '';
+        tradeSelectedItems = [];
+        items.forEach(function(i) {
+            const d = document.createElement('div');
+            d.className = 'item-card';
+            d.style.cursor = 'pointer';
+            d.onclick = function() { toggleTradeItem(i.id, d); };
+            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.rarity + ' • ' + Math.floor(i.buy_price) + '₽</div></div>';
+            list.appendChild(d);
+        });
+        
+        const tradesR = await fetch('/api/trades/pending/' + userId);
+        const trades = await tradesR.json();
+        const pendingList = document.getElementById('pending-trades-list');
+        pendingList.innerHTML = '';
+        if (trades.length === 0) {
+            pendingList.innerHTML = '<div style="opacity:0.7;text-align:center;padding:10px;">Нет входящих трейдов</div>';
+        } else {
+            trades.forEach(function(t) {
+                const d = document.createElement('div');
+                d.className = 'item-card';
+                d.style.cursor = 'default';
+                d.innerHTML = '<div><div class="number">От: ' + t.sender_name + '</div><div class="meta">' + (t.money > 0 ? '💰 ' + t.money + '₽' : '') + ' ' + (t.items && t.items.length > 0 ? '🎒 ' + t.items.length + ' номеров' : '') + '</div></div><div style="display:flex;gap:6px;"><button class="btn" onclick="acceptTrade(' + t.id + ')">✅</button><button class="btn btn-red" onclick="declineTrade(' + t.id + ')">❌</button></div>';
+                pendingList.appendChild(d);
+            });
+        }
+    } catch(e) { console.error(e); }
+}
+
+function toggleTradeItem(itemId, element) {
+    const idx = tradeSelectedItems.indexOf(itemId);
+    if (idx > -1) {
+        tradeSelectedItems.splice(idx, 1);
+        element.classList.remove('selected');
+    } else {
+        tradeSelectedItems.push(itemId);
+        element.classList.add('selected');
+    }
+}
+
+async function createTrade() {
+    const receiverId = document.getElementById('trade-receiver').value;
+    const money = parseFloat(document.getElementById('trade-money').value) || 0;
+    if (!receiverId) return tg.showAlert('Выбери игрока!');
+    if (money === 0 && tradeSelectedItems.length === 0) return tg.showAlert('Добавь деньги или номера!');
+    if (!confirm('Отправить трейд? ' + (money > 0 ? money + '₽' : '') + ' ' + (tradeSelectedItems.length > 0 ? tradeSelectedItems.length + ' номеров' : ''))) return;
+    try {
+        const r = await fetch('/api/trades/create/' + userId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ receiver_id: parseInt(receiverId), money: money, items: tradeSelectedItems })
+        });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) {
+            document.getElementById('trade-money').value = '';
+            tradeSelectedItems = [];
+            loadTrades();
+            loadData();
+        }
+    } catch(e) { console.error(e); }
+}
+
+async function acceptTrade(tradeId) {
+    if (!confirm('Принять трейд?')) return;
+    try {
+        const r = await fetch('/api/trades/accept/' + userId + '/' + tradeId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadTrades();
+        loadData();
+    } catch(e) { console.error(e); }
+}
+
+async function declineTrade(tradeId) {
+    if (!confirm('Отклонить трейд?')) return;
+    try {
+        const r = await fetch('/api/trades/decline/' + userId + '/' + tradeId, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        loadTrades();
+    } catch(e) { console.error(e); }
+}
+
+async function loadAdmin() {
+    await loadAdminStats();
+    await loadAdminUsers();
+}
+
+async function loadAdminStats() {
+    try {
+        const r = await fetch('/api/admin/stats');
+        const d = await r.json();
+        document.getElementById('admin-stats').innerHTML = '<div class="stat-card"><div class="stat-value">' + d.total_users + '</div><div class="stat-label">👥 Игроков</div></div><div class="stat-card"><div class="stat-value">' + formatNum(d.total_balance) + '₽</div><div class="stat-label">💰 Общий баланс</div></div><div class="stat-card"><div class="stat-value">' + d.total_inventory + '</div><div class="stat-label">🎒 Номеров</div></div><div class="stat-card"><div class="stat-value">' + d.total_market + '</div><div class="stat-label">🏪 На рынке</div></div>';
+    } catch(e) { console.error(e); }
+}
+
+async function loadAdminUsers() {
+    try {
+        const r = await fetch('/api/admin/users');
+        const users = await r.json();
+        const l = document.getElementById('adm-users-list');
+        l.innerHTML = '';
+        if (users.length === 0) { l.innerHTML = '<div class="empty-state">Нет игроков</div>'; return; }
+        users.forEach(function(u) {
+            const d = document.createElement('div');
+            d.className = 'item-card';
+            const dot = u.online ? '<span class="online-dot online"></span>' : '<span class="online-dot offline"></span>';
+            d.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + dot + '<div><div class="number">@' + (u.username || 'нет') + '</div><div class="meta">ID: ' + u.user_id + '</div></div></div><div class="price">' + formatNum(u.balance) + '₽</div>';
+            l.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function admGiveMoney() {
+    const id = document.getElementById('adm-give-id').value;
+    const a = document.getElementById('adm-give-amount').value;
+    if (!id || !a) return tg.showAlert('Заполни поля!');
+    try {
+        const r = await fetch('/api/admin/give_money', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: parseInt(id), amount: parseFloat(a) }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) { document.getElementById('adm-give-id').value = ''; document.getElementById('adm-give-amount').value = ''; loadAdminUsers(); loadAdminStats(); }
+    } catch(e) { console.error(e); }
+}
+
+async function admTakeMoney() {
+    const id = document.getElementById('adm-take-id').value;
+    const a = document.getElementById('adm-take-amount').value;
+    if (!id || !a) return tg.showAlert('Заполни поля!');
+    try {
+        const r = await fetch('/api/admin/take_money', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: parseInt(id), amount: parseFloat(a) }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) { document.getElementById('adm-take-id').value = ''; document.getElementById('adm-take-amount').value = ''; loadAdminUsers(); loadAdminStats(); }
+    } catch(e) { console.error(e); }
+}
+
+async function admSetBalance() {
+    const id = document.getElementById('adm-set-id').value;
+    const a = document.getElementById('adm-set-amount').value;
+    if (!id || !a) return tg.showAlert('Заполни поля!');
+    try {
+        const r = await fetch('/api/admin/set_balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: parseInt(id), amount: parseFloat(a) }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) { document.getElementById('adm-set-id').value = ''; document.getElementById('adm-set-amount').value = ''; loadAdminUsers(); }
+    } catch(e) { console.error(e); }
+}
+
+async function admUserInfo() {
+    const id = document.getElementById('adm-info-id').value;
+    if (!id) return tg.showAlert('Введи ID!');
+    try {
+        const r = await fetch('/api/admin/user_info/' + id);
+        const d = await r.json();
+        const box = document.getElementById('adm-info-result');
+        if (d.success) {
+            box.innerHTML = '<div class="item-card"><div><div class="number">@' + d.username + '</div><div class="meta">ID: ' + d.user_id + ' • Рег: ' + d.created_at + ' • Номеров: ' + d.items_count + '</div></div><div class="price">' + formatNum(d.balance) + '₽</div></div>';
+        } else {
+            box.innerHTML = '<p style="color:var(--neon-pink);">' + d.message + '</p>';
+        }
+    } catch(e) { console.error(e); }
+}
+
+async function admUserInv() {
+    const id = document.getElementById('adm-inv-id').value;
+    if (!id) return tg.showAlert('Введи ID!');
+    try {
+        const r = await fetch('/api/admin/user_inventory/' + id);
+        const items = await r.json();
+        const box = document.getElementById('adm-inv-result');
+        if (items.length === 0) { box.innerHTML = '<div class="empty-state">Пусто</div>'; return; }
+        box.innerHTML = '';
+        items.forEach(function(i) {
+            const d = document.createElement('div');
+            d.className = 'item-card rarity-' + i.rarity;
+            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.rarity + ' • ' + Math.floor(i.buy_price) + '₽ • ID:' + i.id + '</div></div><button class="btn btn-red" onclick="admRemoveNumber(' + id + ',' + i.id + ')">❌</button>';
+            box.appendChild(d);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function admRemoveNumber(uid, invId) {
+    try {
+        const r = await fetch('/api/admin/remove_number', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, inventory_id: invId }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        admUserInv();
+        loadAdminStats();
+    } catch(e) { console.error(e); }
+}
+
+async function admGiveNumber() {
+    const id = document.getElementById('adm-num-id').value;
+    const num = document.getElementById('adm-num-number').value;
+    const country = document.getElementById('adm-num-country').value;
+    const rarity = document.getElementById('adm-num-rarity').value;
+    const price = document.getElementById('adm-num-price').value || 500;
+    if (!id || !num) return tg.showAlert('Заполни ID и номер!');
+    try {
+        const r = await fetch('/api/admin/give_number', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: parseInt(id), number: num, country: country, rarity: rarity, price: parseFloat(price) }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) { document.getElementById('adm-num-id').value = ''; document.getElementById('adm-num-number').value = ''; }
+    } catch(e) { console.error(e); }
+}
+
+async function admCreatePromo() {
+    const code = document.getElementById('adm-promo-code').value;
+    const type = document.getElementById('adm-promo-type').value;
+    const value = document.getElementById('adm-promo-value').value;
+    const max = document.getElementById('adm-promo-max').value || 0;
+    if (!code || !value) return tg.showAlert('Заполни код и сумму!');
+    try {
+        const r = await fetch('/api/admin/create_promo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code, type: type, reward_value: parseFloat(value), max_uses: parseInt(max) }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) { document.getElementById('adm-promo-code').value = ''; document.getElementById('adm-promo-value').value = ''; document.getElementById('adm-promo-max').value = ''; }
+    } catch(e) { console.error(e); }
+}
+
+async function admDeletePromo() {
+    const code = document.getElementById('adm-del-promo-code').value;
+    if (!code) return tg.showAlert('Введи код!');
+    try {
+        const r = await fetch('/api/admin/delete_promo/' + code, { method: 'POST' });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) document.getElementById('adm-del-promo-code').value = '';
+    } catch(e) { console.error(e); }
+}
+
+async function admBroadcast() {
+    const t = document.getElementById('adm-broadcast-text').value;
+    if (!t) return tg.showAlert('Введи текст!');
+    try {
+        const r = await fetch('/api/admin/broadcast', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: t }) });
+        const d = await r.json();
+        tg.showAlert(d.message);
+        if (d.success) document.getElementById('adm-broadcast-text').value = '';
+    } catch(e) { console.error(e); }
+}
+
+// Запуск
+if (userId) {
     loadData();
+} else {
+    document.getElementById('greeting-text').textContent = 'Ошибка: не удалось получить ID';
 }
-
-function skipAnimation(){skipRoulette=true;if(currentRouletteData)showRarityResult(currentRouletteData);document.getElementById('skip-btn').style.display='none'}
-
-function showRarityResult(apiD){
-    const slots=document.querySelectorAll('.roulette-slot'),chars=apiD.number.split('');
-    slots.forEach((slot,i)=>{slot.textContent=chars[i];slot.classList.remove('spinning','stopping');slot.classList.add('final',`rarity-${apiD.rarity}`)});
-    const rd=document.getElementById('rarity-display');rd.style.display='block';rd.className=`rarity-display rarity-${apiD.rarity}`;
-    const rt=document.getElementById('rarity-text');rt.textContent=apiD.rarity;rt.className=`rarity-text rarity-${apiD.rarity}`;
-    document.getElementById('rarity-country').textContent=`${flags[apiD.country]||''} ${apiD.country}`;
-    document.getElementById('rarity-price').textContent=`${apiD.price}₽`;
-}
-
-async function loadInventory(){const r=await fetch(`/api/inventory/${userId}`),items=await r.json(),list=document.getElementById('inventory-list');list.innerHTML='';if(items.length===0){list.innerHTML='<div class="empty-state">Пусто. Открой номер!</div>';return}document.getElementById('stat-items').textContent=items.length;items.forEach(i=>{const sp=Math.floor(i.buy_price*0.8),d=document.createElement('div');d.className=`item-card rarity-${i.rarity}`;d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div><div style="font-size:12px;color:var(--neon-gold);margin-top:3px;">💰 ${sp}₽</div></div><div class="btn-group"><button class="btn btn-pink" onclick="confirmSell(${i.id})">Продать</button><button class="btn" onclick="listMarket(${i.id})">🏪</button><button class="btn btn-blue" onclick="auctionLot(${i.id})">🏎️</button></div>`;list.appendChild(d)})}
-function confirmSell(id){if(confirm('⚠️ Вы точно хотите продать этот номер?'))sellNumber(id)}
-async function sellNumber(id){const r=await fetch(`/api/sell/${userId}/${id}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadInventory();loadData()}
-async function autoSellByRarity(rarity){const names={'Обычный':'⚪ Обычные','Необычный':'🟢 Необычные','Редкий':'🔵 Редкие','Эпический':'🟣 Эпические','Легендарный':'🟡 Легендарные','all':'💥 Все'};if(!confirm(`Продать ${names[rarity]||'все'} номера?`))return;const r=await fetch(`/api/auto_sell/${userId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rarity})}),d=await r.json();tg.showAlert(d.message);loadInventory();loadData()}
-async function listMarket(id){const p=prompt('Цена продажи:');if(!p||isNaN(p)||p<=0)return;const r=await fetch(`/api/market/sell/${userId}/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({price:parseFloat(p)})}),d=await r.json();tg.showAlert(d.message);loadInventory()}
-async function auctionLot(id){const p=prompt('Мин. цена:');if(!p||isNaN(p)||p<=0)return;const r=await fetch(`/api/auctions/create/${userId}/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({min_price:parseFloat(p)})}),d=await r.json();tg.showAlert(d.message);loadInventory()}
-
-async function loadMarket(){const r=await fetch('/api/market'),items=await r.json(),list=document.getElementById('market-list');list.innerHTML='';if(items.length===0){list.innerHTML='<div class="empty-state">Рынок пуст</div>';return}items.forEach(i=>{const isOwner=i.seller_id===userId,d=document.createElement('div');d.className=`item-card rarity-${i.rarity}`;d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">${i.price}₽</div>${isOwner?`<button class="btn btn-red" onclick="removeMarket(${i.id})">❌</button>`:`<button class="btn" onclick="buyMarket(${i.id})">Купить</button>`}</div>`;list.appendChild(d)})}
-async function removeMarket(id){if(!confirm('Снять товар с продажи?'))return;const r=await fetch(`/api/market/remove/${userId}/${id}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadMarket();loadData()}
-async function buyMarket(id){const r=await fetch(`/api/market/buy/${userId}/${id}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadMarket();loadData()}
-
-async function loadAuctions(){const r=await fetch('/api/auctions'),lots=await r.json(),list=document.getElementById('auction-list');list.innerHTML='';if(lots.length===0){list.innerHTML='<div class="empty-state">Нет активных торгов</div>';return}lots.forEach(l=>{const ends=new Date(l.ends_at),diff=Math.max(0,ends-Date.now()),mins=Math.floor(diff/60000),secs=Math.floor((diff%60000)/1000),isOwner=l.seller_id===userId,d=document.createElement('div');d.className=`item-card rarity-${l.rarity}`;d.innerHTML=`<div><div class="number">${flags[l.country]||''} ${l.number}</div><div class="meta">${l.rarity} • ⏰ ${mins}:${secs.toString().padStart(2,'0')}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">${l.current_bid}₽</div>${isOwner?`<button class="btn btn-red" onclick="removeAuction(${l.id})">❌</button>`:`<button class="btn btn-blue" onclick="makeBid(${l.id},${l.current_bid})">Ставка</button>`}</div>`;list.appendChild(d)})}
-async function removeAuction(id){if(!confirm('Снять лот с аукциона?'))return;const r=await fetch(`/api/auctions/remove/${userId}/${id}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadAuctions();loadData()}
-async function makeBid(lotId,current){const bid=prompt(`Текущая: ${current}₽. Новая:`);if(!bid||isNaN(bid)||bid<=current)return;const r=await fetch(`/api/auctions/bid/${userId}/${lotId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bid:parseFloat(bid)})}),d=await r.json();tg.showAlert(d.message);loadAuctions();loadData()}
-
-async function loadTasks(){const r=await fetch(`/api/tasks/${userId}`),tasks=await r.json(),dailyList=document.getElementById('daily-tasks-list'),weeklyList=document.getElementById('weekly-tasks-list');dailyList.innerHTML='';weeklyList.innerHTML='';tasks.forEach(t=>{const pct=Math.min(100,(t.progress/t.target)*100),html=`<div class="task-card"><div class="task-name">${t.name}</div><div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">${t.progress}/${t.target}</span><span class="reward">+${t.reward}₽</span>${t.completed?'<span style="color:var(--neon-green);">✓</span>':(t.progress>=t.target?`<button class="btn btn-blue" onclick="claimTask('${t.key}')">Забрать</button>`:'')}</div></div>`;if(t.type==='weekly')weeklyList.innerHTML+=html;else dailyList.innerHTML+=html});if(dailyList.innerHTML==='')dailyList.innerHTML='<div class="empty-state">Нет заданий</div>';if(weeklyList.innerHTML==='')weeklyList.innerHTML='<div class="empty-state">Нет заданий</div>'}
-async function claimTask(key){const r=await fetch(`/api/tasks/claim/${userId}/${key}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadTasks();loadData()}
-
-function selectSafeDays(days){selectedSafeDays=days;[1,3,7,30].forEach(d=>{document.getElementById('safe-d'+d).className='btn'});document.getElementById('safe-d'+days).className='btn btn-blue'}
-async function loadSafe(){const r=await fetch(`/api/safe/${userId}`),d=await r.json();document.getElementById('safe-amount').textContent=`${Math.floor(d.amount)} ₽`;document.getElementById('safe-interest').textContent=`Проценты: +${d.interest} ₽`;const li=document.getElementById('safe-lock-info');if(d.locked&&d.unlock_time){const unlock=new Date(d.unlock_time),diff=unlock-Date.now();if(diff>0){const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);li.textContent=`🔒 Заблокировано ещё ${h}ч ${m}м`;li.style.color='var(--neon-pink)'}else{li.textContent='✅ Можно забрать';li.style.color='var(--neon-green)'}}else{li.textContent=d.amount>0?'✅ Можно забрать':'';li.style.color='var(--neon-green)'}}
-async function depositSafe(){const a=document.getElementById('safe-deposit-amount').value;if(!a||isNaN(a)||a<=0)return tg.showAlert('Введи сумму!');const r=await fetch(`/api/safe/deposit/${userId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:parseFloat(a),days:selectedSafeDays})}),d=await r.json();tg.showAlert(d.message);loadSafe();loadData()}
-async function withdrawSafe(){const r=await fetch(`/api/safe/withdraw/${userId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadSafe();loadData()}
-
-async function loadUpgrades(){const r=await fetch(`/api/upgrades/${userId}`),ups=await r.json(),list=document.getElementById('upgrades-list');list.innerHTML='';Object.entries(ups).forEach(([key,u])=>{const d=document.createElement('div');d.className='upgrade-card';d.innerHTML=`<div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc}</div><div class="upgrade-bottom"><span style="font-size:13px;opacity:0.7;">Уровень: ${u.level}/${u.max}</span>${u.price?`<button class="btn btn-blue" onclick="buyUp('${key}')">${u.price}₽</button>`:'<span style="color:var(--neon-green);font-weight:600;">MAX</span>'}</div>`;list.appendChild(d)})}
-async function buyUp(key){const r=await fetch(`/api/upgrades/buy/${userId}/${key}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadUpgrades();loadData()}
-
-async function loadBalance(){const r=await fetch(`/api/user/${userId}`),d=await r.json();document.getElementById('balance-big').textContent=`${Math.floor(d.balance)} ₽`}
-async function getBonus(){const r=await fetch(`/api/bonus/${userId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadBalance();loadData()}
-
-async function loadTops(){const r1=await fetch('/api/top/balance'),u1=await r1.json(),l1=document.getElementById('top-balance-list');l1.innerHTML='';if(u1.length===0)l1.innerHTML='<div class="empty-state">Пока пусто</div>';u1.forEach(u=>{const d=document.createElement('div');d.className='item-card';d.innerHTML=`<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${formatNum(u.balance)}₽</div>`;l1.appendChild(d)});const r2=await fetch('/api/top/rare'),u2=await r2.json(),l2=document.getElementById('top-rare-list');l2.innerHTML='';if(u2.length===0)l2.innerHTML='<div class="empty-state">Пока никто не выбил редких</div>';u2.forEach(u=>{const d=document.createElement('div');d.className='item-card';d.innerHTML=`<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${u.count} редких</div>`;l2.appendChild(d)})}
-
-async function loadDaily(){try{const r=await fetch(`/api/daily/${userId}`),d=await r.json(),dots=document.getElementById('streak-dots');dots.innerHTML='';for(let i=0;i<7;i++){const dot=document.createElement('div');dot.className='streak-dot'+(i<d.streak?' active':'')+(i===6?' bonus':'');dot.textContent=i===6?'🎁':(i+1);dots.appendChild(dot)}document.getElementById('daily-timer').textContent=d.can_claim?'✅ Кейс готов!':`⏰ Следующий через ${d.wait}`}catch(e){console.error(e)}}
-async function claimDaily(){const r=await fetch(`/api/daily/claim/${userId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadDaily();loadData()}
-
-async function loadPromos(){try{const r=await fetch('/api/promos/active'),promos=await r.json(),list=document.getElementById('promo-list');list.innerHTML='';if(promos.length===0){list.innerHTML='<div class="empty-state">Нет активных промокодов</div>';return}const isAdmin=document.getElementById('admin-btn-container').style.display!=='none';promos.forEach(p=>{const d=document.createElement('div');d.className='promo-card';d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:16px;color:var(--neon-gold);">${p.code}</div><div style="font-size:12px;opacity:0.7;">${p.reward_type==='money'?'💰 '+p.reward_value+'₽':'🎁 Кейс'} • ${p.current_uses}/${p.max_uses||'∞'}</div></div>${isAdmin?`<button class="btn btn-red" onclick="deletePromo('${p.code}')" style="padding:6px 10px;">❌</button>`:''}</div>`;list.appendChild(d)})}catch(e){console.error(e)}}
-async function usePromo(){const code=document.getElementById('promo-input').value.trim();if(!code)return tg.showAlert('Введи промокод!');const r=await fetch(`/api/promo/use/${userId}/${code}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);if(d.success)document.getElementById('promo-input').value=''}
-async function deletePromo(code){if(!confirm(`Удалить промокод ${code}?`))return;const r=await fetch(`/api/promo/delete/${code}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadPromos()}
-
-async function loadReferral(){try{const r=await fetch(`/api/referral/${userId}`),d=await r.json();refCode=d.code||'';document.getElementById('ref-code').textContent=refCode;document.getElementById('ref-count').textContent=d.count||0}catch(e){console.error(e)}}
-async function copyRef(){if(!refCode)return tg.showAlert('Код не загружен!');const link=`https://t.me/Nombder67_bot?start=ref_${refCode}`;try{await navigator.clipboard.writeText(link);tg.showAlert('✅ Ссылка скопирована!')}catch(e){tg.showAlert('Ссылка: '+link)}}
-
-async function loadSeason(){try{const r=await fetch(`/api/season/${userId}`),d=await r.json();document.getElementById('season-level').textContent=d.level;document.getElementById('season-xp-text').textContent=`${d.xp} / ${d.xp_for_next} XP`;document.getElementById('season-bar').style.width=`${d.progress}%`;document.getElementById('season-reward').textContent=`${(d.level+1)*500}₽`}catch(e){console.error(e)}}
-
-async function loadChannel(){try{const r=await fetch(`/api/channel/check/${userId}`),d=await r.json(),btn=document.getElementById('channel-claim-btn');if(d.subscribed){btn.textContent='✅ Бонус уже получен!';btn.disabled=true}else{btn.textContent='✅ Проверить подписку и получить бонус';btn.disabled=false}}catch(e){console.error(e)}}
-async function claimChannelBonus(){const r=await fetch(`/api/channel/claim/${userId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadChannel();loadData()}
-
-// ===== ТРЕЙДЫ =====
-async function loadTrades(){
-    try{
-        const usersR=await fetch(`/api/trades/users/${userId}`),users=await usersR.json();
-        const select=document.getElementById('trade-receiver');
-        select.innerHTML='<option value="">Выбери игрока...</option>';
-        users.filter(u=>u.online).forEach(u=>{const opt=document.createElement('option');opt.value=u.user_id;opt.textContent=`${u.username} (${Math.floor(u.balance)}₽)`;select.appendChild(opt)});
-        const invR=await fetch(`/api/trades/inventory/${userId}`),items=await invR.json();
-        const list=document.getElementById('trade-items-list');list.innerHTML='';tradeSelectedItems=[];
-        items.forEach(i=>{const d=document.createElement('div');d.className='item-card';d.onclick=()=>toggleTradeItem(i.id,d);d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.rarity} • ${Math.floor(i.buy_price)}₽</div></div>`;list.appendChild(d)});
-        const tradesR=await fetch(`/api/trades/pending/${userId}`),trades=await tradesR.json();
-        const pendingList=document.getElementById('pending-trades-list');pendingList.innerHTML='';
-        if(trades.length===0){pendingList.innerHTML='<div style="opacity:0.7;text-align:center;padding:10px;">Нет входящих трейдов</div>'}
-        else{trades.forEach(t=>{const d=document.createElement('div');d.className='item-card';d.style.cursor='default';d.innerHTML=`<div><div class="number">От: ${t.sender_name}</div><div class="meta">${t.money>0?'💰 '+t.money+'₽':''} ${t.items&&t.items.length>0?'🎒 '+t.items.length+' номеров':''}</div></div><div style="display:flex;gap:6px;"><button class="btn" onclick="acceptTrade(${t.id})">✅</button><button class="btn btn-red" onclick="declineTrade(${t.id})">❌</button></div>`;pendingList.appendChild(d)})}
-    }catch(e){console.error(e)}
-}
-
-function toggleTradeItem(itemId,element){
-    const idx=tradeSelectedItems.indexOf(itemId);
-    if(idx>-1){tradeSelectedItems.splice(idx,1);element.classList.remove('selected')}
-    else{tradeSelectedItems.push(itemId);element.classList.add('selected')}
-}
-
-async function createTrade(){
-    const receiverId=document.getElementById('trade-receiver').value,money=parseFloat(document.getElementById('trade-money').value)||0;
-    if(!receiverId)return tg.showAlert('Выбери игрока!');
-    if(money===0&&tradeSelectedItems.length===0)return tg.showAlert('Добавь деньги или номера!');
-    if(!confirm(`Отправить трейд? ${money>0?money+'₽':''} ${tradeSelectedItems.length>0?tradeSelectedItems.length+' номеров':''}`))return;
-    const r=await fetch(`/api/trades/create/${userId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({receiver_id:parseInt(receiverId),money:money,items:tradeSelectedItems})}),d=await r.json();
-    tg.showAlert(d.message);
-    if(d.success){document.getElementById('trade-money').value='';tradeSelectedItems=[];loadTrades();loadData()}
-}
-
-async function acceptTrade(tradeId){if(!confirm('Принять трейд?'))return;const r=await fetch(`/api/trades/accept/${userId}/${tradeId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadTrades();loadData()}
-async function declineTrade(tradeId){if(!confirm('Отклонить трейд?'))return;const r=await fetch(`/api/trades/decline/${userId}/${tradeId}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);loadTrades()}
-
-// ===== АДМИН =====
-async function loadAdmin(){await loadAdminStats();await loadAdminUsers()}
-async function loadAdminStats(){const r=await fetch('/api/admin/stats'),d=await r.json();document.getElementById('admin-stats').innerHTML=`<div class="stat-card"><div class="stat-value">${d.total_users}</div><div class="stat-label">👥 Игроков</div></div><div class="stat-card"><div class="stat-value">${formatNum(d.total_balance)}₽</div><div class="stat-label">💰 Общий баланс</div></div><div class="stat-card"><div class="stat-value">${d.total_inventory}</div><div class="stat-label">🎒 Номеров</div></div><div class="stat-card"><div class="stat-value">${d.total_market}</div><div class="stat-label">🏪 На рынке</div></div>`}
-async function loadAdminUsers(){const r=await fetch('/api/admin/users'),users=await r.json(),l=document.getElementById('adm-users-list');l.innerHTML='';if(users.length===0){l.innerHTML='<div class="empty-state">Нет игроков</div>';return}users.forEach(u=>{const d=document.createElement('div');d.className='item-card';const dot=u.online?'<span class="online-dot online"></span>':'<span class="online-dot offline"></span>';d.innerHTML=`<div style="display:flex;align-items:center;gap:8px;">${dot}<div><div class="number">@${u.username||'нет'}</div><div class="meta">ID: ${u.user_id}</div></div></div><div class="price">${formatNum(u.balance)}₽</div>`;l.appendChild(d)})}
-async function admGiveMoney(){const id=document.getElementById('adm-give-id').value,a=document.getElementById('adm-give-amount').value;if(!id||!a)return tg.showAlert('Заполни поля!');const r=await fetch('/api/admin/give_money',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}),d=await r.json();tg.showAlert(d.message);if(d.success){document.getElementById('adm-give-id').value='';document.getElementById('adm-give-amount').value='';loadAdminUsers();loadAdminStats()}}
-async function admTakeMoney(){const id=document.getElementById('adm-take-id').value,a=document.getElementById('adm-take-amount').value;if(!id||!a)return tg.showAlert('Заполни поля!');const r=await fetch('/api/admin/take_money',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}),d=await r.json();tg.showAlert(d.message);if(d.success){document.getElementById('adm-take-id').value='';document.getElementById('adm-take-amount').value='';loadAdminUsers();loadAdminStats()}}
-async function admSetBalance(){const id=document.getElementById('adm-set-id').value,a=document.getElementById('adm-set-amount').value;if(!id||!a)return tg.showAlert('Заполни поля!');const r=await fetch('/api/admin/set_balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}),d=await r.json();tg.showAlert(d.message);if(d.success){document.getElementById('adm-set-id').value='';document.getElementById('adm-set-amount').value='';loadAdminUsers()}}
-async function admUserInfo(){const id=document.getElementById('adm-info-id').value;if(!id)return tg.showAlert('Введи ID!');const r=await fetch(`/api/admin/user_info/${id}`),d=await r.json(),box=document.getElementById('adm-info-result');if(d.success){box.innerHTML=`<div class="item-card"><div><div class="number">@${d.username}</div><div class="meta">ID: ${d.user_id} • Рег: ${d.created_at} • Номеров: ${d.items_count}</div></div><div class="price">${formatNum(d.balance)}₽</div></div>`}else{box.innerHTML=`<p style="color:var(--neon-pink);">${d.message}</p>`}}
-async function admUserInv(){const id=document.getElementById('adm-inv-id').value;if(!id)return tg.showAlert('Введи ID!');const r=await fetch(`/api/admin/user_inventory/${id}`),items=await r.json(),box=document.getElementById('adm-inv-result');if(items.length===0){box.innerHTML='<div class="empty-state">Пусто</div>';return}box.innerHTML='';items.forEach(i=>{const d=document.createElement('div');d.className=`item-card rarity-${i.rarity}`;d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.rarity} • ${Math.floor(i.buy_price)}₽ • ID:${i.id}</div></div><button class="btn btn-red" onclick="admRemoveNumber(${id},${i.id})">❌</button>`;box.appendChild(d)})}
-async function admRemoveNumber(uid,invId){const r=await fetch('/api/admin/remove_number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,inventory_id:invId})}),d=await r.json();tg.showAlert(d.message);admUserInv();loadAdminStats()}
-async function admGiveNumber(){const id=document.getElementById('adm-num-id').value,num=document.getElementById('adm-num-number').value,country=document.getElementById('adm-num-country').value,rarity=document.getElementById('adm-num-rarity').value,price=document.getElementById('adm-num-price').value||500;if(!id||!num)return tg.showAlert('Заполни ID и номер!');const r=await fetch('/api/admin/give_number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),number:num,country,rarity,price:parseFloat(price)})}),d=await r.json();tg.showAlert(d.message);if(d.success){document.getElementById('adm-num-id').value='';document.getElementById('adm-num-number').value=''}}
-async function admCreatePromo(){const code=document.getElementById('adm-promo-code').value,type=document.getElementById('adm-promo-type').value,value=document.getElementById('adm-promo-value').value,max=document.getElementById('adm-promo-max').value||0;if(!code||!value)return tg.showAlert('Заполни код и сумму!');const r=await fetch('/api/admin/create_promo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,type,reward_value:parseFloat(value),max_uses:parseInt(max)})}),d=await r.json();tg.showAlert(d.message);if(d.success){document.getElementById('adm-promo-code').value='';document.getElementById('adm-promo-value').value='';document.getElementById('adm-promo-max').value=''}}
-async function admDeletePromo(){const code=document.getElementById('adm-del-promo-code').value;if(!code)return tg.showAlert('Введи код!');const r=await fetch(`/api/admin/delete_promo/${code}`,{method:'POST'}),d=await r.json();tg.showAlert(d.message);if(d.success)document.getElementById('adm-del-promo-code').value=''}
-async function admBroadcast(){const t=document.getElementById('adm-broadcast-text').value;if(!t)return tg.showAlert('Введи текст!');const r=await fetch('/api/admin/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}),d=await r.json();tg.showAlert(d.message);if(d.success)document.getElementById('adm-broadcast-text').value=''}
-
-loadData();lucide.createIcons();
 </script>
 </body>
-        </html>
+    </html>
