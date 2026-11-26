@@ -147,7 +147,7 @@ def bid_api(user_id, lot_id):
     return jsonify({"success": s, "message": m})
 
 
-# ===== НОВЫЕ API ДЛЯ РОСТА =====
+# ===== НОВЫЕ API =====
 
 @flask_app.route("/api/daily/<int:user_id>")
 def daily_api(user_id):
@@ -164,7 +164,6 @@ def daily_api(user_id):
 def daily_claim_api(user_id):
     success, msg = db.claim_daily_case(user_id)
     if success and "Выбит" in msg:
-        # Парсим номер из сообщения
         parts = msg.split()
         number = parts[1] if len(parts) > 1 else ""
         rarity = parts[2].replace("(", "").replace(")", "") if len(parts) > 2 else ""
@@ -190,6 +189,16 @@ def referral_api(user_id):
 @flask_app.route("/api/season/<int:user_id>")
 def season_api(user_id):
     return jsonify(db.get_season_info(user_id))
+
+@flask_app.route("/api/channel/check/<int:user_id>")
+def channel_check(user_id):
+    subscribed = db.check_channel_subscription(user_id)
+    return jsonify({"subscribed": subscribed})
+
+@flask_app.route("/api/channel/claim/<int:user_id>", methods=["POST"])
+def channel_claim(user_id):
+    s, m = db.give_channel_bonus(user_id)
+    return jsonify({"success": s, "message": m})
 
 
 # ===== АДМИН API =====
@@ -234,7 +243,7 @@ def admin_take_money():
         return jsonify({"success": False, "message": "Сумма должна быть больше 0!"})
     cur = db.get_balance(user_id)
     if cur < amount:
-        return jsonify({"success": False, "message": f"У игрока только {cur}₽, нельзя списать {amount}₽!"})
+        return jsonify({"success": False, "message": f"У игрока только {cur}₽!"})
     db.add_balance(user_id, -amount)
     nb = db.get_balance(user_id)
     return jsonify({"success": True, "message": f"Списано {amount}₽. Новый баланс: {nb}₽"})
@@ -288,7 +297,8 @@ def admin_create_promo():
     max_uses = int(d.get("max_uses", 0))
     if not code or reward_value <= 0:
         return jsonify({"success": False, "message": "Заполни код и сумму!"})
-    s, m = db.create_promo_code(code, promo_type, "money" if promo_type == "money" else "case", reward_value, max_uses)
+    reward_type = "money" if promo_type == "money" else "case"
+    s, m = db.create_promo_code(code, promo_type, reward_type, reward_value, max_uses)
     return jsonify({"success": s, "message": m})
 
 @flask_app.route("/api/admin/broadcast", methods=["POST"])
@@ -302,7 +312,7 @@ def admin_broadcast():
     c.execute("INSERT INTO pending_broadcasts (text) VALUES (%s)", (text,))
     conn.commit()
     conn.close()
-    return jsonify({"success": True, "message": "Рассылка поставлена в очередь! Отправится в течение минуты."})
+    return jsonify({"success": True, "message": "Рассылка поставлена в очередь!"})
 
 
 def run_flask():
@@ -316,13 +326,10 @@ dp = Dispatcher()
 
 @dp.message(CommandStart(deep_link=True))
 async def cmd_start_referral(message: Message):
-    """Обработка реферальных ссылок /start?start=ref_CODE"""
     args = message.text.split(maxsplit=1)
     referred_by = None
-    
     if len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1][4:]
-        # Ищем пользователя по коду
         conn = db.get_conn()
         c = conn.cursor()
         c.execute("SELECT user_id FROM users WHERE referral_code = %s", (ref_code,))
@@ -330,18 +337,12 @@ async def cmd_start_referral(message: Message):
         conn.close()
         if r:
             referred_by = r[0]
-    
     db.get_or_create_user(message.from_user.id, message.from_user.username, referred_by)
-    
     hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🎮 Играть", web_app=WebAppInfo(url=f"https://{hostname}/app"))]
     ])
-    
-    ref_text = ""
-    if referred_by:
-        ref_text = "\n\n🎁 Твой друг пригласил тебя! Вы оба получили по 2000₽!"
-    
+    ref_text = "\n\n🎁 Твой друг пригласил тебя! Вы оба получили по 2000₽!" if referred_by else ""
     await message.answer(
         f"🚗 <b>Добро пожаловать в Nova Bot!</b>{ref_text}\n\n"
         f"🇷🇺 Россия | 🇧🇾 Беларусь | 🇺🇦 Украина | 🇰🇿 Казахстан\n\n"
