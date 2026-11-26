@@ -96,7 +96,7 @@ body {
 .season-bar { background:rgba(0,0,0,0.3); height:12px; border-radius:6px; overflow:hidden; margin:10px 0; }
 .season-bar-fill { height:100%; background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink)); transition:width 0.3s; }
 
-/* ===== РУЛЕТКА ===== */
+/* РУЛЕТКА */
 .roulette-container {
     background: linear-gradient(180deg, #1A103C 0%, #0B0F19 100%);
     border: 2px solid var(--glass-border);
@@ -114,112 +114,60 @@ body {
     background: linear-gradient(90deg, transparent, var(--neon-violet), transparent);
 }
 .roulette-label {
-    text-align:center;
-    font-size:12px;
-    color:var(--text-secondary);
-    text-transform:uppercase;
-    letter-spacing:2px;
-    margin-bottom:15px;
+    text-align:center; font-size:12px; color:var(--text-secondary);
+    text-transform:uppercase; letter-spacing:2px; margin-bottom:15px;
 }
-.roulette-slots {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin: 15px 0;
-    flex-wrap: wrap;
-}
+.roulette-slots { display: flex; justify-content: center; gap: 6px; margin: 15px 0; flex-wrap: wrap; }
 .roulette-slot {
-    width: 42px;
-    height: 60px;
+    width: 42px; height: 60px;
     background: rgba(0,0,0,0.6);
     border: 2px solid var(--glass-border);
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 900;
     font-family: 'Arial Black', sans-serif;
     color: rgba(255,255,255,0.3);
-    overflow: hidden;
-    position: relative;
+    overflow: hidden; position: relative;
     transition: all 0.3s ease;
 }
-.roulette-slot.spinning {
-    animation: slotBlur 0.08s infinite;
-    color: rgba(255,255,255,0.5);
-    border-color: rgba(255,255,255,0.2);
-}
-.roulette-slot.stopping {
-    animation: slotBounce 0.4s ease-out;
-    transform: scale(1.15);
-}
-.roulette-slot.final {
-    transform: scale(1);
-}
+.roulette-slot.spinning { animation: slotBlur 0.08s infinite; color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.2); }
+.roulette-slot.stopping { animation: slotBounce 0.4s ease-out; transform: scale(1.15); }
+.roulette-slot.final { transform: scale(1); }
 .roulette-slot.rarity-Обычный { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue), inset 0 0 10px rgba(59,130,246,0.2); }
 .roulette-slot.rarity-Необычный { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 12px var(--neon-green), inset 0 0 10px rgba(16,185,129,0.2); }
 .roulette-slot.rarity-Редкий { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue), inset 0 0 15px rgba(59,130,246,0.3); }
 .roulette-slot.rarity-Эпический { border-color: var(--neon-purple); color: var(--neon-purple); box-shadow: 0 0 25px var(--neon-purple), inset 0 0 15px rgba(168,85,247,0.3); }
 .roulette-slot.rarity-Легендарный { border-color: var(--neon-gold); color: var(--neon-gold); box-shadow: 0 0 30px var(--neon-gold), inset 0 0 20px rgba(255,215,0,0.3); animation: legendarySlot 1s infinite; }
 
-@keyframes slotBlur {
-    0% { transform: translateY(-3px); filter: blur(1px); }
-    100% { transform: translateY(3px); filter: blur(1px); }
-}
-@keyframes slotBounce {
-    0% { transform: scale(1.3) translateY(-10px); }
-    50% { transform: scale(1.1) translateY(5px); }
-    100% { transform: scale(1) translateY(0); }
-}
-@keyframes legendarySlot {
-    0%, 100% { box-shadow: 0 0 30px var(--neon-gold), inset 0 0 20px rgba(255,215,0,0.3); }
-    50% { box-shadow: 0 0 50px var(--neon-gold), 0 0 80px rgba(255,215,0,0.5), inset 0 0 25px rgba(255,215,0,0.4); }
-}
+@keyframes slotBlur { 0% { transform: translateY(-3px); filter: blur(1px); } 100% { transform: translateY(3px); filter: blur(1px); } }
+@keyframes slotBounce { 0% { transform: scale(1.3) translateY(-10px); } 50% { transform: scale(1.1) translateY(5px); } 100% { transform: scale(1) translateY(0); } }
+@keyframes legendarySlot { 0%,100% { box-shadow: 0 0 30px var(--neon-gold), inset 0 0 20px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 50px var(--neon-gold), 0 0 80px rgba(255,215,0,0.5), inset 0 0 25px rgba(255,215,0,0.4); } }
 
-.rarity-display {
-    text-align: center;
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 16px;
-    background: rgba(0,0,0,0.3);
-    display: none;
-}
+.rarity-display { text-align: center; margin-top: 20px; padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.3); display: none; }
 .rarity-display.rarity-Обычный { border: 2px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
 .rarity-display.rarity-Необычный { border: 2px solid var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
 .rarity-display.rarity-Редкий { border: 2px solid var(--neon-blue); box-shadow: 0 0 25px var(--neon-blue); }
 .rarity-display.rarity-Эпический { border: 2px solid var(--neon-purple); box-shadow: 0 0 30px var(--neon-purple); }
 .rarity-display.rarity-Легендарный { border: 2px solid var(--neon-gold); box-shadow: 0 0 40px var(--neon-gold); animation: legendaryGlow 1s infinite; }
 
-.rarity-text {
-    font-size: 22px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
+.rarity-text { font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
 .rarity-text.rarity-Обычный { color: var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); }
 .rarity-text.rarity-Необычный { color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); }
 .rarity-text.rarity-Редкий { color: var(--neon-blue); text-shadow: 0 0 25px var(--neon-blue); }
 .rarity-text.rarity-Эпический { color: var(--neon-purple); text-shadow: 0 0 30px var(--neon-purple); }
 .rarity-text.rarity-Легендарный { color: var(--neon-gold); text-shadow: 0 0 40px var(--neon-gold); }
 
-@keyframes legendaryGlow {
-    0%, 100% { box-shadow: 0 0 40px var(--neon-gold); }
-    50% { box-shadow: 0 0 60px var(--neon-gold), 0 0 100px rgba(255,215,0,0.5); }
-}
+@keyframes legendaryGlow { 0%,100% { box-shadow: 0 0 40px var(--neon-gold); } 50% { box-shadow: 0 0 60px var(--neon-gold), 0 0 100px rgba(255,215,0,0.5); } }
 
-.channel-card {
-    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
-    border: 2px solid var(--neon-blue);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 15px;
-    text-align: center;
-}
+.channel-card { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px; margin-bottom: 15px; text-align: center; }
 .channel-card .channel-icon { font-size: 3em; margin-bottom: 10px; }
 .channel-card .channel-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
 .channel-card .channel-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 15px; }
 .channel-card .channel-reward { font-size: 20px; font-weight: 700; color: var(--neon-gold); margin-bottom: 15px; }
+
+.online-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+.online-dot.online { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+.online-dot.offline { background: #ff4444; box-shadow: 0 0 8px #ff4444; }
 
 @keyframes fadeInDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -258,10 +206,9 @@ body {
         <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon"><i data-lucide="gavel"></i></div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
         <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon"><i data-lucide="wallet"></i></div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
         <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon"><i data-lucide="briefcase"></i></div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
-        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">Под 0.5% в час</span></div>
+        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
         <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon"><i data-lucide="store"></i></div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
         <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon"><i data-lucide="zap"></i></div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
-        <div class="menu-item" onclick="autoSell()"><div class="menu-icon"><i data-lucide="refresh-cw"></i></div><span class="menu-text">Автопродажа</span><span class="menu-subtext">Быстрая продажа</span></div>
         <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon"><i data-lucide="trophy"></i></div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
     </div>
     <div id="admin-btn-container" style="display:none;margin-top:14px;">
@@ -273,10 +220,11 @@ body {
 </div>
 </div>
 
-<!-- ГЕНЕРАТОР С РУЛЕТКОЙ -->
+<!-- ГЕНЕРАТОР -->
 <div id="screen-generator" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎯 Выбери страну</h2>
+    <div id="issue-timer" style="display:none;text-align:center;padding:10px;background:rgba(255,65,108,0.15);border:1px solid var(--neon-pink);border-radius:12px;margin-bottom:15px;color:var(--neon-pink);font-weight:600;"></div>
     <div class="countries-grid">
         <div class="country-btn" onclick="startRoulette('ru')"><div class="flag">🇷🇺</div><div class="name">Россия</div><div class="price" id="price-ru">500 ₽</div></div>
         <div class="country-btn" onclick="startRoulette('by')"><div class="flag">🇧🇾</div><div class="name">Беларусь</div><div class="price" id="price-by">500 ₽</div></div>
@@ -287,6 +235,7 @@ body {
         <div class="roulette-container">
             <div class="roulette-label">🎰 Рулетка</div>
             <div class="roulette-slots" id="roulette-slots"></div>
+            <button class="btn btn-blue" onclick="skipAnimation()" id="skip-btn" style="width:100%;margin-top:10px;padding:10px;display:none;">⏭ Пропустить анимацию</button>
             <div class="rarity-display" id="rarity-display">
                 <div class="rarity-text" id="rarity-text"></div>
                 <div style="font-size:14px;color:var(--text-secondary);margin-top:8px;" id="rarity-country"></div>
@@ -327,7 +276,7 @@ body {
     <button class="btn btn-blue" onclick="claimDaily()" style="width:100%;padding:16px;font-size:16px;margin-top:15px;">🎁 Забрать кейс</button>
 </div></div>
 
-<!-- ПРОМОКОД (без списка) -->
+<!-- ПРОМОКОД -->
 <div id="screen-promo" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎟️ Промокод</h2>
@@ -373,18 +322,30 @@ body {
     </div>
 </div></div>
 
-<!-- ИНВЕНТАРЬ -->
+<!-- КОЛЛЕКЦИЯ -->
 <div id="screen-inventory" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎒 Твоя коллекция</h2>
+    <div class="glass-card" style="margin-bottom:15px;">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;text-align:center;">⚡ Быстрая продажа</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn btn-pink" onclick="autoSellByRarity('Обычный')" style="padding:10px;font-size:13px;">⚪ Обычные</button>
+            <button class="btn" onclick="autoSellByRarity('Необычный')" style="padding:10px;font-size:13px;">🟢 Необычные</button>
+            <button class="btn btn-blue" onclick="autoSellByRarity('Редкий')" style="padding:10px;font-size:13px;">🔵 Редкие</button>
+            <button class="btn btn-red" onclick="autoSellByRarity('all')" style="padding:10px;font-size:13px;">💥 Все</button>
+        </div>
+    </div>
     <div id="inventory-list"></div>
 </div></div>
 
 <!-- ЗАДАНИЯ -->
 <div id="screen-tasks" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
-    <h2 class="screen-title">📋 Ежедневные задания</h2>
-    <div id="tasks-list"></div>
+    <h2 class="screen-title">📋 Задания</h2>
+    <h3 style="color:var(--neon-gold);margin:10px 0;font-size:16px;">📅 Ежедневные</h3>
+    <div id="daily-tasks-list"></div>
+    <h3 style="color:var(--neon-pink);margin:20px 0 10px;font-size:16px;">🗓️ Еженедельные</h3>
+    <div id="weekly-tasks-list"></div>
 </div></div>
 
 <!-- АУКЦИОН -->
@@ -409,12 +370,22 @@ body {
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">В сейфе</div>
         <div style="font-size:2.2em;font-weight:700;color:var(--neon-gold);margin-bottom:8px;" id="safe-amount">0 ₽</div>
         <div style="font-size:13px;color:var(--text-secondary);" id="safe-interest">Проценты: +0 ₽</div>
+        <div style="font-size:12px;color:var(--neon-pink);margin-top:8px;" id="safe-lock-info"></div>
     </div>
-    <p style="opacity:0.7;font-size:13px;margin-bottom:15px;text-align:center;">0.5% в час за хранение</p>
-    <div class="countries-grid">
-        <div class="country-btn" onclick="depositSafe()"><div class="name" style="font-size:15px;">💰 Внести</div></div>
-        <div class="country-btn" onclick="withdrawSafe()"><div class="name" style="font-size:15px;">📤 Забрать</div></div>
+    <p style="opacity:0.7;font-size:13px;margin-bottom:15px;text-align:center;">0.25% в день • Выбери срок</p>
+    <div class="glass-card">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">💰 Внести сумму</div>
+        <input type="number" class="adm-input" id="safe-deposit-amount" placeholder="Сумма">
+        <div style="font-size:13px;color:var(--text-secondary);margin:10px 0;">⏰ Срок хранения</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+            <button class="btn" onclick="selectSafeDays(1)" id="safe-d1" style="padding:10px;">1 д<br><small>0.25%</small></button>
+            <button class="btn btn-blue" onclick="selectSafeDays(3)" id="safe-d3" style="padding:10px;">3 д<br><small>0.75%</small></button>
+            <button class="btn" onclick="selectSafeDays(7)" id="safe-d7" style="padding:10px;">7 д<br><small>1.75%</small></button>
+            <button class="btn" onclick="selectSafeDays(30)" id="safe-d30" style="padding:10px;">30 д<br><small>7.5%</small></button>
+        </div>
+        <button class="btn btn-blue" onclick="depositSafe()" style="width:100%;padding:12px;">Внести</button>
     </div>
+    <button class="btn btn-pink" onclick="withdrawSafe()" style="width:100%;padding:14px;font-size:15px;margin-top:10px;">📤 Забрать</button>
 </div></div>
 
 <!-- УЛУЧШЕНИЯ -->
@@ -458,6 +429,7 @@ body {
     <div class="adm-section"><h3><i data-lucide="backpack" style="width:18px;height:18px;"></i>Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
     <div class="adm-section"><h3><i data-lucide="car" style="width:18px;height:18px;"></i>Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
     <div class="adm-section"><h3><i data-lucide="ticket" style="width:18px;height:18px;"></i>Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код (например NOVA2026)"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Бесплатный кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма/кол-во"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. использований (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать промокод</button></div>
+    <div class="adm-section"><h3><i data-lucide="trash-2" style="width:18px;height:18px;"></i>Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код для удаления"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить промокод</button></div>
     <div class="adm-section"><h3><i data-lucide="megaphone" style="width:18px;height:18px;"></i>Рассылка всем</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст рассылки" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить рассылку</button></div>
     <div class="adm-section"><h3><i data-lucide="users" style="width:18px;height:18px;"></i>Все пользователи</h3><div id="adm-users-list"></div></div>
 </div></div>
@@ -468,7 +440,7 @@ const userId = tg.initDataUnsafe?.user?.id;
 const username = tg.initDataUnsafe?.user?.username;
 const firstName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
 const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
-let issuePrice = 500, refCode = '';
+let issuePrice = 500, refCode = '', selectedSafeDays = 7;
 
 document.getElementById('greeting-text').textContent = `Привет, ${firstName} 👋`;
 document.getElementById('user-avatar').textContent = firstName.charAt(0).toUpperCase();
@@ -487,9 +459,11 @@ function showScreen(id) {
     if (id==='screen-balance') loadBalance();
     if (id==='screen-admin') loadAdmin();
     if (id==='screen-daily') loadDaily();
+    if (id==='screen-promo') loadPromos();
     if (id==='screen-referral') loadReferral();
     if (id==='screen-season') loadSeason();
     if (id==='screen-channel') loadChannel();
+    if (id==='screen-generator') checkIssueTimer();
     lucide.createIcons(); window.scrollTo(0,0);
 }
 
@@ -506,37 +480,50 @@ async function loadData() {
     } catch(e) { console.error(e); }
 }
 
-// ===== РУЛЕТКА (НОВАЯ ВЕРСИЯ) =====
+// ===== ТАЙМАУТ ГЕНЕРАТОРА =====
+function checkIssueTimer() {
+    fetch(`/api/user/${userId}`).then(r=>r.json()).then(d=>{
+        const timer = document.getElementById('issue-timer');
+        if (!d.can_issue && d.issue_wait > 0) {
+            timer.style.display = 'block';
+            timer.textContent = `⏳ Подожди ${d.issue_wait} сек...`;
+            setTimeout(checkIssueTimer, 1000);
+        } else {
+            timer.style.display = 'none';
+        }
+    });
+}
+
+// ===== РУЛЕТКА =====
+let skipRoulette = false;
+let currentRouletteData = null;
+
 async function startRoulette(country) {
-    const price = issuePrice;
     const r = await fetch(`/api/user/${userId}`);
     const d = await r.json();
-    if (d.balance < price) {
-        tg.showAlert(`Недостаточно средств! Нужно ${price}₽`);
+    if (!d.can_issue) {
+        tg.showAlert(`Подожди ${d.issue_wait} сек!`);
         return;
     }
+    const price = issuePrice;
+    if (d.balance < price) { tg.showAlert(`Недостаточно средств! Нужно ${price}₽`); return; }
     
-    // Показываем рулетку
+    skipRoulette = false;
     document.getElementById('roulette-display').style.display = 'block';
     document.getElementById('rarity-display').style.display = 'none';
+    document.getElementById('skip-btn').style.display = 'block';
     
-    // Запускаем API параллельно
     const apiR = await fetch(`/api/issue/${userId}/${country}`, {method:'POST'});
     const apiD = await apiR.json();
+    if (!apiD.success) { tg.showAlert(apiD.message); document.getElementById('roulette-display').style.display = 'none'; return; }
     
-    if (!apiD.success) {
-        tg.showAlert(apiD.message);
-        document.getElementById('roulette-display').style.display = 'none';
-        return;
-    }
-    
+    currentRouletteData = apiD;
     const number = apiD.number;
     const chars = number.split('');
     const letters = 'АВЕКМНОРСТУХІ';
     const digits = '0123456789';
     const numSlots = chars.length;
     
-    // Создаём слоты
     const slotsContainer = document.getElementById('roulette-slots');
     slotsContainer.innerHTML = '';
     const slots = [];
@@ -548,88 +535,203 @@ async function startRoulette(country) {
         slots.push(slot);
     }
     
-    // Каждый слот крутится независимо и останавливается по очереди
     const spinIntervals = [];
-    
-    // Запускаем прокрутку для всех слотов
     for (let i = 0; i < numSlots; i++) {
         const isLetter = letters.includes(chars[i].toUpperCase());
         const charSet = isLetter ? letters : digits;
-        
         const interval = setInterval(() => {
+            if (skipRoulette) return;
             const randomChar = charSet[Math.floor(Math.random() * charSet.length)];
             slots[i].textContent = randomChar;
-        }, 60);
+        }, 40);
         spinIntervals.push(interval);
     }
     
-    // Останавливаем слоты по очереди с задержкой
     for (let i = 0; i < numSlots; i++) {
-        await new Promise(resolve => setTimeout(resolve, 600 + i * 400));
-        
+        if (skipRoulette) break;
+        await new Promise(resolve => setTimeout(resolve, 300 + i * 200));
         clearInterval(spinIntervals[i]);
         slots[i].textContent = chars[i];
         slots[i].classList.remove('spinning');
         slots[i].classList.add('stopping');
-        
-        // Через 400мс убираем анимацию остановки и применяем цвет редкости
-        await new Promise(resolve => setTimeout(resolve, 400));
+        await new Promise(resolve => setTimeout(resolve, 200));
         slots[i].classList.remove('stopping');
         slots[i].classList.add('final', `rarity-${apiD.rarity}`);
     }
     
-    // Показываем редкость после остановки всех слотов
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const rarityDisplay = document.getElementById('rarity-display');
-    rarityDisplay.style.display = 'block';
-    rarityDisplay.className = `rarity-display rarity-${apiD.rarity}`;
-    
-    const rarityText = document.getElementById('rarity-text');
-    rarityText.textContent = apiD.rarity;
-    rarityText.className = `rarity-text rarity-${apiD.rarity}`;
-    
-    document.getElementById('rarity-country').textContent = `${flags[apiD.country]||''} ${apiD.country}`;
-    document.getElementById('rarity-price').textContent = `${apiD.price}₽`;
-    
+    if (!skipRoulette) { await new Promise(resolve => setTimeout(resolve, 200)); showRarityResult(apiD); }
     loadData();
 }
 
+function skipAnimation() {
+    skipRoulette = true;
+    if (currentRouletteData) showRarityResult(currentRouletteData);
+    document.getElementById('skip-btn').style.display = 'none';
+}
+
+function showRarityResult(apiD) {
+    const slots = document.querySelectorAll('.roulette-slot');
+    const chars = apiD.number.split('');
+    slots.forEach((slot, i) => {
+        slot.textContent = chars[i];
+        slot.classList.remove('spinning', 'stopping');
+        slot.classList.add('final', `rarity-${apiD.rarity}`);
+    });
+    const rarityDisplay = document.getElementById('rarity-display');
+    rarityDisplay.style.display = 'block';
+    rarityDisplay.className = `rarity-display rarity-${apiD.rarity}`;
+    const rarityText = document.getElementById('rarity-text');
+    rarityText.textContent = apiD.rarity;
+    rarityText.className = `rarity-text rarity-${apiD.rarity}`;
+    document.getElementById('rarity-country').textContent = `${flags[apiD.country]||''} ${apiD.country}`;
+    document.getElementById('rarity-price').textContent = `${apiD.price}₽`;
+}
+
+// ===== КОЛЛЕКЦИЯ =====
 async function loadInventory() {
     const r = await fetch(`/api/inventory/${userId}`); const items = await r.json();
     const list = document.getElementById('inventory-list'); list.innerHTML = '';
     if (items.length===0) { list.innerHTML = '<div class="empty-state">Пусто. Открой номер!</div>'; return; }
     document.getElementById('stat-items').textContent = items.length;
-    items.forEach(i => { const sp = Math.floor(i.buy_price*0.8); const d = document.createElement('div'); d.className=`item-card rarity-${i.rarity}`; d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div></div><div class="btn-group"><button class="btn btn-pink" onclick="sellNumber(${i.id})">${sp}₽</button><button class="btn" onclick="listMarket(${i.id})">🏪</button><button class="btn btn-blue" onclick="auctionLot(${i.id})">🏎️</button></div>`; list.appendChild(d); });
+    items.forEach(i => {
+        const sp = Math.floor(i.buy_price*0.8);
+        const d = document.createElement('div');
+        d.className=`item-card rarity-${i.rarity}`;
+        d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div><div style="font-size:12px;color:var(--neon-gold);margin-top:3px;">💰 ${sp}₽</div></div>
+        <div class="btn-group"><button class="btn btn-pink" onclick="confirmSell(${i.id})">Продать</button><button class="btn" onclick="listMarket(${i.id})">🏪</button><button class="btn btn-blue" onclick="auctionLot(${i.id})">🏎️</button></div>`;
+        list.appendChild(d);
+    });
 }
-async function sellNumber(id) { const r = await fetch(`/api/sell/${userId}/${id}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadInventory(); loadData(); }
-async function autoSell() { if (!confirm('Продать все обычные номера?')) return; const r = await fetch(`/api/auto_sell/${userId}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadData(); }
+
+function confirmSell(id) {
+    if (confirm('⚠️ Вы точно хотите продать этот номер?')) sellNumber(id);
+}
+
+async function sellNumber(id) {
+    const r = await fetch(`/api/sell/${userId}/${id}`, {method:'POST'});
+    const d = await r.json(); tg.showAlert(d.message); loadInventory(); loadData();
+}
+
+async function autoSellByRarity(rarity) {
+    const names = {'Обычный':'⚪ Обычные','Необычный':'🟢 Необычные','Редкий':'🔵 Редкие','Эпический':'🟣 Эпические','Легендарный':'🟡 Легендарные','all':'💥 Все'};
+    if (!confirm(`Продать ${names[rarity]||'все'} номера?`)) return;
+    const r = await fetch(`/api/auto_sell/${userId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rarity:rarity})});
+    const d = await r.json(); tg.showAlert(d.message); loadInventory(); loadData();
+}
+
 async function listMarket(id) { const p = prompt('Цена продажи:'); if (!p||isNaN(p)||p<=0) return; const r = await fetch(`/api/market/sell/${userId}/${id}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({price:parseFloat(p)})}); const d = await r.json(); tg.showAlert(d.message); loadInventory(); }
 async function auctionLot(id) { const p = prompt('Мин. цена:'); if (!p||isNaN(p)||p<=0) return; const r = await fetch(`/api/auctions/create/${userId}/${id}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({min_price:parseFloat(p)})}); const d = await r.json(); tg.showAlert(d.message); loadInventory(); }
 
-async function loadMarket() { const r = await fetch('/api/market'); const items = await r.json(); const list = document.getElementById('market-list'); list.innerHTML=''; if (items.length===0) { list.innerHTML='<div class="empty-state">Рынок пуст</div>'; return; } items.forEach(i => { const d = document.createElement('div'); d.className=`item-card rarity-${i.rarity}`; d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">${i.price}₽</div><button class="btn" onclick="buyMarket(${i.id})">Купить</button></div>`; list.appendChild(d); }); }
+// ===== РЫНОК =====
+async function loadMarket() {
+    const r = await fetch('/api/market'); const items = await r.json();
+    const list = document.getElementById('market-list'); list.innerHTML='';
+    if (items.length===0) { list.innerHTML='<div class="empty-state">Рынок пуст</div>'; return; }
+    items.forEach(i => {
+        const isOwner = i.seller_id === userId;
+        const d = document.createElement('div');
+        d.className=`item-card rarity-${i.rarity}`;
+        d.innerHTML=`<div><div class="number">${flags[i.country]||''} ${i.number}</div><div class="meta">${i.country} • ${i.rarity}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="price">${i.price}₽</div>
+        ${isOwner ? `<button class="btn btn-red" onclick="removeMarket(${i.id})">❌</button>` : `<button class="btn" onclick="buyMarket(${i.id})">Купить</button>`}</div>`;
+        list.appendChild(d);
+    });
+}
+async function removeMarket(id) { if (!confirm('Снять товар с продажи?')) return; const r = await fetch(`/api/market/remove/${userId}/${id}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadMarket(); loadData(); }
 async function buyMarket(id) { const r = await fetch(`/api/market/buy/${userId}/${id}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadMarket(); loadData(); }
 
-async function loadTasks() { const r = await fetch(`/api/tasks/${userId}`); const tasks = await r.json(); const list = document.getElementById('tasks-list'); list.innerHTML=''; tasks.forEach(t => { const pct = Math.min(100,(t.progress/t.target)*100); const d = document.createElement('div'); d.className='task-card'; d.innerHTML=`<div class="task-name">${t.name}</div><div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">${t.progress}/${t.target}</span><span class="reward">+${t.reward}₽</span>${t.completed?'<span style="color:var(--neon-green);">✓ Получено</span>':(t.progress>=t.target?`<button class="btn btn-blue" onclick="claimTask('${t.key}')">Забрать</button>`:'')}</div>`; list.appendChild(d); }); }
-async function claimTask(key) { const r = await fetch(`/api/tasks/claim/${userId}/${key}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadTasks(); loadData(); }
-
-async function loadAuctions() { const r = await fetch('/api/auctions'); const lots = await r.json(); const list = document.getElementById('auction-list'); list.innerHTML=''; if (lots.length===0) { list.innerHTML='<div class="empty-state">Нет активных торгов</div>'; return; } lots.forEach(l => { const ends = new Date(l.ends_at); const diff = Math.max(0, ends-Date.now()); const mins = Math.floor(diff/60000); const secs = Math.floor((diff%60000)/1000); const d = document.createElement('div'); d.className=`item-card rarity-${l.rarity}`; d.innerHTML=`<div><div class="number">${flags[l.country]||''} ${l.number}</div><div class="meta">${l.rarity} • ⏰ ${mins}:${secs.toString().padStart(2,'0')}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">${l.current_bid}₽</div><button class="btn btn-blue" onclick="makeBid(${l.id}, ${l.current_bid})">Ставка</button></div>`; list.appendChild(d); }); }
+// ===== АУКЦИОН =====
+async function loadAuctions() {
+    const r = await fetch('/api/auctions'); const lots = await r.json();
+    const list = document.getElementById('auction-list'); list.innerHTML='';
+    if (lots.length===0) { list.innerHTML='<div class="empty-state">Нет активных торгов</div>'; return; }
+    lots.forEach(l => {
+        const ends = new Date(l.ends_at); const diff = Math.max(0, ends-Date.now());
+        const mins = Math.floor(diff/60000); const secs = Math.floor((diff%60000)/1000);
+        const isOwner = l.seller_id === userId;
+        const d = document.createElement('div');
+        d.className=`item-card rarity-${l.rarity}`;
+        d.innerHTML=`<div><div class="number">${flags[l.country]||''} ${l.number}</div><div class="meta">${l.rarity} • ⏰ ${mins}:${secs.toString().padStart(2,'0')}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="price">${l.current_bid}₽</div>
+        ${isOwner ? `<button class="btn btn-red" onclick="removeAuction(${l.id})">❌</button>` : `<button class="btn btn-blue" onclick="makeBid(${l.id}, ${l.current_bid})">Ставка</button>`}</div>`;
+        list.appendChild(d);
+    });
+}
+async function removeAuction(id) { if (!confirm('Снять лот с аукциона?')) return; const r = await fetch(`/api/auctions/remove/${userId}/${id}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadAuctions(); loadData(); }
 async function makeBid(lotId, current) { const bid = prompt(`Текущая: ${current}₽. Новая:`); if (!bid||isNaN(bid)||bid<=current) return; const r = await fetch(`/api/auctions/bid/${userId}/${lotId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bid:parseFloat(bid)})}); const d = await r.json(); tg.showAlert(d.message); loadAuctions(); loadData(); }
 
-async function loadSafe() { const r = await fetch(`/api/safe/${userId}`); const d = await r.json(); document.getElementById('safe-amount').textContent = `${Math.floor(d.amount)} ₽`; document.getElementById('safe-interest').textContent = `Проценты: +${d.interest} ₽`; }
-async function depositSafe() { const a = prompt('Сколько внести?'); if (!a||isNaN(a)||a<=0) return; const r = await fetch(`/api/safe/deposit/${userId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:parseFloat(a)})}); const d = await r.json(); tg.showAlert(d.message); loadSafe(); loadData(); }
-async function withdrawSafe() { const r = await fetch(`/api/safe/withdraw/${userId}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadSafe(); loadData(); }
+// ===== ЗАДАНИЯ =====
+async function loadTasks() {
+    const r = await fetch(`/api/tasks/${userId}`); const tasks = await r.json();
+    const dailyList = document.getElementById('daily-tasks-list');
+    const weeklyList = document.getElementById('weekly-tasks-list');
+    dailyList.innerHTML = ''; weeklyList.innerHTML = '';
+    tasks.forEach(t => {
+        const pct = Math.min(100,(t.progress/t.target)*100);
+        const html = `<div class="task-card"><div class="task-name">${t.name}</div><div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">${t.progress}/${t.target}</span><span class="reward">+${t.reward}₽</span>${t.completed?'<span style="color:var(--neon-green);">✓</span>':(t.progress>=t.target?`<button class="btn btn-blue" onclick="claimTask('${t.key}')">Забрать</button>`:'')}</div></div>`;
+        if (t.type === 'weekly') weeklyList.innerHTML += html;
+        else dailyList.innerHTML += html;
+    });
+    if (dailyList.innerHTML === '') dailyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
+    if (weeklyList.innerHTML === '') weeklyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
+}
+async function claimTask(key) { const r = await fetch(`/api/tasks/claim/${userId}/${key}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadTasks(); loadData(); }
 
+// ===== СЕЙФ =====
+function selectSafeDays(days) {
+    selectedSafeDays = days;
+    [1,3,7,30].forEach(d => { document.getElementById('safe-d'+d).className = 'btn'; });
+    document.getElementById('safe-d'+days).className = 'btn btn-blue';
+}
+
+async function loadSafe() {
+    const r = await fetch(`/api/safe/${userId}`); const d = await r.json();
+    document.getElementById('safe-amount').textContent = `${Math.floor(d.amount)} ₽`;
+    document.getElementById('safe-interest').textContent = `Проценты: +${d.interest} ₽`;
+    const lockInfo = document.getElementById('safe-lock-info');
+    if (d.locked && d.unlock_time) {
+        const unlock = new Date(d.unlock_time);
+        const diff = unlock - Date.now();
+        if (diff > 0) {
+            const h = Math.floor(diff/3600000);
+            const m = Math.floor((diff%3600000)/60000);
+            lockInfo.textContent = `🔒 Заблокировано ещё ${h}ч ${m}м`;
+            lockInfo.style.color = 'var(--neon-pink)';
+        } else {
+            lockInfo.textContent = '✅ Можно забрать';
+            lockInfo.style.color = 'var(--neon-green)';
+        }
+    } else {
+        lockInfo.textContent = d.amount > 0 ? '✅ Можно забрать' : '';
+        lockInfo.style.color = 'var(--neon-green)';
+    }
+}
+async function depositSafe() {
+    const a = document.getElementById('safe-deposit-amount').value;
+    if (!a||isNaN(a)||a<=0) return tg.showAlert('Введи сумму!');
+    const r = await fetch(`/api/safe/deposit/${userId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:parseFloat(a),days:selectedSafeDays})});
+    const d = await r.json(); tg.showAlert(d.message); loadSafe(); loadData();
+}
+async function withdrawSafe() {
+    const r = await fetch(`/api/safe/withdraw/${userId}`, {method:'POST'});
+    const d = await r.json(); tg.showAlert(d.message); loadSafe(); loadData();
+}
+
+// ===== УЛУЧШЕНИЯ =====
 async function loadUpgrades() { const r = await fetch(`/api/upgrades/${userId}`); const ups = await r.json(); const list = document.getElementById('upgrades-list'); list.innerHTML=''; Object.entries(ups).forEach(([key,u]) => { const d = document.createElement('div'); d.className='upgrade-card'; d.innerHTML=`<div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc}</div><div class="upgrade-bottom"><span style="font-size:13px;opacity:0.7;">Уровень: ${u.level}/${u.max}</span>${u.price?`<button class="btn btn-blue" onclick="buyUp('${key}')">${u.price}₽</button>`:'<span style="color:var(--neon-green);font-weight:600;">MAX</span>'}</div>`; list.appendChild(d); }); }
 async function buyUp(key) { const r = await fetch(`/api/upgrades/buy/${userId}/${key}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadUpgrades(); loadData(); }
 
+// ===== БАЛАНС =====
 async function loadBalance() { const r = await fetch(`/api/user/${userId}`); const d = await r.json(); document.getElementById('balance-big').textContent = `${Math.floor(d.balance)} ₽`; }
 async function getBonus() { const r = await fetch(`/api/bonus/${userId}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadBalance(); loadData(); }
 
+// ===== ТОПЫ =====
 async function loadTops() {
     const r1 = await fetch('/api/top/balance'); const u1 = await r1.json(); const l1 = document.getElementById('top-balance-list'); l1.innerHTML=''; if (u1.length===0) l1.innerHTML='<div class="empty-state">Пока пусто</div>'; u1.forEach(u => { const d = document.createElement('div'); d.className='item-card'; d.innerHTML=`<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${formatNum(u.balance)}₽</div>`; l1.appendChild(d); });
     const r2 = await fetch('/api/top/rare'); const u2 = await r2.json(); const l2 = document.getElementById('top-rare-list'); l2.innerHTML=''; if (u2.length===0) l2.innerHTML='<div class="empty-state">Пока никто не выбил редких</div>'; u2.forEach(u => { const d = document.createElement('div'); d.className='item-card'; d.innerHTML=`<div><div class="number">#${u.rank} ${u.username}</div></div><div class="price">${u.count} редких</div>`; l2.appendChild(d); });
 }
 
+// ===== ЕЖЕДНЕВНЫЙ КЕЙС =====
 async function loadDaily() {
     try {
         const r = await fetch(`/api/daily/${userId}`); const d = await r.json();
@@ -643,65 +745,43 @@ async function loadDaily() {
         document.getElementById('daily-timer').textContent = d.can_claim ? '✅ Кейс готов!' : `⏰ Следующий через ${d.wait}`;
     } catch(e) { console.error(e); }
 }
-async function claimDaily() {
-    const r = await fetch(`/api/daily/claim/${userId}`, {method:'POST'}); const d = await r.json();
-    tg.showAlert(d.message); loadDaily(); loadData();
-}
+async function claimDaily() { const r = await fetch(`/api/daily/claim/${userId}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadDaily(); loadData(); }
 
-async function usePromo() {
-    const code = document.getElementById('promo-input').value.trim();
-    if (!code) return tg.showAlert('Введи промокод!');
-    const r = await fetch(`/api/promo/use/${userId}/${code}`, {method:'POST'}); const d = await r.json();
-    tg.showAlert(d.message); if (d.success) document.getElementById('promo-input').value='';
-}
-
-async function loadReferral() {
+// ===== ПРОМОКОДЫ =====
+async function loadPromos() {
     try {
-        const r = await fetch(`/api/referral/${userId}`); const d = await r.json();
-        refCode = d.code || '';
-        document.getElementById('ref-code').textContent = refCode;
-        document.getElementById('ref-count').textContent = d.count || 0;
+        const r = await fetch('/api/promos/active'); const promos = await r.json();
+        const list = document.getElementById('promo-list'); list.innerHTML='';
+        if (promos.length===0) { list.innerHTML='<div class="empty-state">Нет активных промокодов</div>'; return; }
+        const isAdmin = document.getElementById('admin-btn-container').style.display !== 'none';
+        promos.forEach(p => {
+            const d = document.createElement('div'); d.className='promo-card';
+            d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-weight:700;font-size:16px;color:var(--neon-gold);">${p.code}</div>
+            <div style="font-size:12px;opacity:0.7;">${p.reward_type==='money'?'💰 '+p.reward_value+'₽':'🎁 Кейс'} • ${p.current_uses}/${p.max_uses||'∞'}</div></div>
+            ${isAdmin ? `<button class="btn btn-red" onclick="deletePromo('${p.code}')" style="padding:6px 10px;">❌</button>` : ''}</div>`;
+            list.appendChild(d);
+        });
     } catch(e) { console.error(e); }
 }
-async function copyRef() {
-    if (!refCode) return tg.showAlert('Код не загружен!');
-    const link = `https://t.me/Nombder67_bot?start=ref_${refCode}`;
-    try { await navigator.clipboard.writeText(link); tg.showAlert('✅ Ссылка скопирована!'); }
-    catch(e) { tg.showAlert('Ссылка: ' + link); }
-}
+async function usePromo() { const code = document.getElementById('promo-input').value.trim(); if (!code) return tg.showAlert('Введи промокод!'); const r = await fetch(`/api/promo/use/${userId}/${code}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); if (d.success) document.getElementById('promo-input').value=''; }
+async function deletePromo(code) { if (!confirm(`Удалить промокод ${code}?`)) return; const r = await fetch(`/api/promo/delete/${code}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadPromos(); }
 
-async function loadSeason() {
-    try {
-        const r = await fetch(`/api/season/${userId}`); const d = await r.json();
-        document.getElementById('season-level').textContent = d.level;
-        document.getElementById('season-xp-text').textContent = `${d.xp} / ${d.xp_for_next} XP`;
-        document.getElementById('season-bar').style.width = `${d.progress}%`;
-        document.getElementById('season-reward').textContent = `${(d.level+1)*500}₽`;
-    } catch(e) { console.error(e); }
-}
+// ===== РЕФЕРАЛЫ =====
+async function loadReferral() { try { const r = await fetch(`/api/referral/${userId}`); const d = await r.json(); refCode = d.code || ''; document.getElementById('ref-code').textContent = refCode; document.getElementById('ref-count').textContent = d.count || 0; } catch(e) { console.error(e); } }
+async function copyRef() { if (!refCode) return tg.showAlert('Код не загружен!'); const link = `https://t.me/Nombder67_bot?start=ref_${refCode}`; try { await navigator.clipboard.writeText(link); tg.showAlert('✅ Ссылка скопирована!'); } catch(e) { tg.showAlert('Ссылка: ' + link); } }
 
-async function loadChannel() {
-    try {
-        const r = await fetch(`/api/channel/check/${userId}`); const d = await r.json();
-        const btn = document.getElementById('channel-claim-btn');
-        if (d.subscribed) {
-            btn.textContent = '✅ Бонус уже получен!';
-            btn.disabled = true;
-        } else {
-            btn.textContent = '✅ Проверить подписку и получить бонус';
-            btn.disabled = false;
-        }
-    } catch(e) { console.error(e); }
-}
-async function claimChannelBonus() {
-    const r = await fetch(`/api/channel/claim/${userId}`, {method:'POST'}); const d = await r.json();
-    tg.showAlert(d.message); loadChannel(); loadData();
-}
+// ===== СЕЗОН =====
+async function loadSeason() { try { const r = await fetch(`/api/season/${userId}`); const d = await r.json(); document.getElementById('season-level').textContent = d.level; document.getElementById('season-xp-text').textContent = `${d.xp} / ${d.xp_for_next} XP`; document.getElementById('season-bar').style.width = `${d.progress}%`; document.getElementById('season-reward').textContent = `${(d.level+1)*500}₽`; } catch(e) { console.error(e); } }
+
+// ===== КАНАЛ =====
+async function loadChannel() { try { const r = await fetch(`/api/channel/check/${userId}`); const d = await r.json(); const btn = document.getElementById('channel-claim-btn'); if (d.subscribed) { btn.textContent = '✅ Бонус уже получен!'; btn.disabled = true; } else { btn.textContent = '✅ Проверить подписку и получить бонус'; btn.disabled = false; } } catch(e) { console.error(e); } }
+async function claimChannelBonus() { const r = await fetch(`/api/channel/claim/${userId}`, {method:'POST'}); const d = await r.json(); tg.showAlert(d.message); loadChannel(); loadData(); }
 
 // ===== АДМИН =====
 async function loadAdmin() { await loadAdminStats(); await loadAdminUsers(); }
 async function loadAdminStats() { const r = await fetch('/api/admin/stats'); const d = await r.json(); document.getElementById('admin-stats').innerHTML = `<div class="stat-card"><div class="stat-value">${d.total_users}</div><div class="stat-label">👥 Игроков</div></div><div class="stat-card"><div class="stat-value">${formatNum(d.total_balance)}₽</div><div class="stat-label">💰 Общий баланс</div></div><div class="stat-card"><div class="stat-value">${d.total_inventory}</div><div class="stat-label">🎒 Номеров</div></div><div class="stat-card"><div class="stat-value">${d.total_market}</div><div class="stat-label">🏪 На рынке</div></div>`; }
-async function loadAdminUsers() { const r = await fetch('/api/admin/users'); const users = await r.json(); const l = document.getElementById('adm-users-list'); l.innerHTML=''; if (users.length===0) { l.innerHTML='<div class="empty-state">Нет игроков</div>'; return; } users.forEach(u => { const d = document.createElement('div'); d.className='item-card'; d.innerHTML=`<div><div class="number">@${u.username||'нет'}</div><div class="meta">ID: ${u.user_id}</div></div><div class="price">${formatNum(u.balance)}₽</div>`; l.appendChild(d); }); }
+async function loadAdminUsers() { const r = await fetch('/api/admin/users'); const users = await r.json(); const l = document.getElementById('adm-users-list'); l.innerHTML=''; if (users.length===0) { l.innerHTML='<div class="empty-state">Нет игроков</div>'; return; } users.forEach(u => { const d = document.createElement('div'); d.className='item-card'; const dot = u.online ? '<span class="online-dot online"></span>' : '<span class="online-dot offline"></span>'; d.innerHTML=`<div style="display:flex;align-items:center;gap:8px;">${dot}<div><div class="number">@${u.username||'нет'}</div><div class="meta">ID: ${u.user_id}</div></div></div><div class="price">${formatNum(u.balance)}₽</div>`; l.appendChild(d); }); }
 async function admGiveMoney() { const id=document.getElementById('adm-give-id').value, a=document.getElementById('adm-give-amount').value; if(!id||!a) return tg.showAlert('Заполни поля!'); const r=await fetch('/api/admin/give_money',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}); const d=await r.json(); tg.showAlert(d.message); if(d.success){document.getElementById('adm-give-id').value='';document.getElementById('adm-give-amount').value='';loadAdminUsers();loadAdminStats();} }
 async function admTakeMoney() { const id=document.getElementById('adm-take-id').value, a=document.getElementById('adm-take-amount').value; if(!id||!a) return tg.showAlert('Заполни поля!'); const r=await fetch('/api/admin/take_money',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}); const d=await r.json(); tg.showAlert(d.message); if(d.success){document.getElementById('adm-take-id').value='';document.getElementById('adm-take-amount').value='';loadAdminUsers();loadAdminStats();} }
 async function admSetBalance() { const id=document.getElementById('adm-set-id').value, a=document.getElementById('adm-set-amount').value; if(!id||!a) return tg.showAlert('Заполни поля!'); const r=await fetch('/api/admin/set_balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),amount:parseFloat(a)})}); const d=await r.json(); tg.showAlert(d.message); if(d.success){document.getElementById('adm-set-id').value='';document.getElementById('adm-set-amount').value='';loadAdminUsers();} }
@@ -710,9 +790,10 @@ async function admUserInv() { const id=document.getElementById('adm-inv-id').val
 async function admRemoveNumber(uid, invId) { const r=await fetch('/api/admin/remove_number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,inventory_id:invId})}); const d=await r.json(); tg.showAlert(d.message); admUserInv(); loadAdminStats(); }
 async function admGiveNumber() { const id=document.getElementById('adm-num-id').value, num=document.getElementById('adm-num-number').value, country=document.getElementById('adm-num-country').value, rarity=document.getElementById('adm-num-rarity').value, price=document.getElementById('adm-num-price').value||500; if(!id||!num) return tg.showAlert('Заполни ID и номер!'); const r=await fetch('/api/admin/give_number',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(id),number:num,country:country,rarity:rarity,price:parseFloat(price)})}); const d=await r.json(); tg.showAlert(d.message); if(d.success){document.getElementById('adm-num-id').value='';document.getElementById('adm-num-number').value='';} }
 async function admCreatePromo() { const code=document.getElementById('adm-promo-code').value, type=document.getElementById('adm-promo-type').value, value=document.getElementById('adm-promo-value').value, max=document.getElementById('adm-promo-max').value||0; if(!code||!value) return tg.showAlert('Заполни код и сумму!'); const r=await fetch('/api/admin/create_promo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,type:type,reward_value:parseFloat(value),max_uses:parseInt(max)})}); const d=await r.json(); tg.showAlert(d.message); if(d.success){document.getElementById('adm-promo-code').value='';document.getElementById('adm-promo-value').value='';document.getElementById('adm-promo-max').value='';} }
+async function admDeletePromo() { const code=document.getElementById('adm-del-promo-code').value; if(!code) return tg.showAlert('Введи код!'); const r=await fetch(`/api/admin/delete_promo/${code}`, {method:'POST'}); const d=await r.json(); tg.showAlert(d.message); if(d.success) document.getElementById('adm-del-promo-code').value=''; }
 async function admBroadcast() { const t=document.getElementById('adm-broadcast-text').value; if(!t) return tg.showAlert('Введи текст!'); const r=await fetch('/api/admin/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}); const d=await r.json(); tg.showAlert(d.message); if(d.success) document.getElementById('adm-broadcast-text').value=''; }
 
 loadData(); lucide.createIcons();
 </script>
 </body>
-                                                                                                                                 </html>
+                                                                                                      </html>
