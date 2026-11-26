@@ -15,7 +15,6 @@ def init_db():
     conn = get_conn()
     c = conn.cursor()
     
-    # Основные таблицы
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         user_id BIGINT PRIMARY KEY,
         username TEXT,
@@ -23,7 +22,8 @@ def init_db():
         created_at TEXT,
         last_bonus TEXT,
         referral_code TEXT,
-        referred_by BIGINT
+        referred_by BIGINT,
+        channel_bonus BOOLEAN DEFAULT FALSE
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS inventory (
         id SERIAL PRIMARY KEY,
@@ -73,8 +73,6 @@ def init_db():
         current_bidder BIGINT,
         ends_at TEXT
     )''')
-    
-    # НОВЫЕ ТАБЛИЦЫ ДЛЯ РОСТА
     c.execute('''CREATE TABLE IF NOT EXISTS promo_codes (
         id SERIAL PRIMARY KEY,
         code TEXT UNIQUE,
@@ -128,12 +126,9 @@ def get_or_create_user(user_id, username, referred_by=None):
                   (user_id, username, 1000.0, now, now, ref_code, referred_by))
         c.execute("INSERT INTO upgrades (user_id) VALUES (%s) ON CONFLICT DO NOTHING", (user_id,))
         c.execute("INSERT INTO season_pass (user_id) VALUES (%s) ON CONFLICT DO NOTHING", (user_id,))
-        
-        # Если есть реферер — даём бонус обоим
         if referred_by:
             c.execute("UPDATE users SET balance = balance + 2000 WHERE user_id = %s", (user_id,))
             c.execute("UPDATE users SET balance = balance + 2000 WHERE user_id = %s", (referred_by,))
-        
         conn.commit()
     conn.close()
 
@@ -612,7 +607,7 @@ def make_bid(user_id, lot_id, bid):
     return True, f"Ставка {bid}₽ принята!"
 
 
-# ===== НОВЫЕ ФУНКЦИИ ДЛЯ РОСТА =====
+# ===== РЕФЕРАЛЫ =====
 
 def get_referral_code(user_id):
     conn = get_conn()
@@ -621,6 +616,7 @@ def get_referral_code(user_id):
     r = c.fetchone()
     conn.close()
     return r[0] if r else None
+
 
 def get_referral_stats(user_id):
     conn = get_conn()
@@ -631,10 +627,12 @@ def get_referral_stats(user_id):
     return count
 
 
-def create_promo_code(code, promo_type, reward_type, reward_value, max_uses=0, expires_days=30):
+# ===== ПРОМОКОДЫ =====
+
+def create_promo_code(code, promo_type, reward_type, reward_value, max_uses=0):
     conn = get_conn()
     c = conn.cursor()
-    expires = (datetime.now() + timedelta(days=expires_days)).isoformat()
+    expires = (datetime.now() + timedelta(days=30)).isoformat()
     c.execute("INSERT INTO promo_codes (code, type, reward_type, reward_value, max_uses, created_at, expires_at) "
               "VALUES (%s, %s, %s, %s, %s, %s, %s)",
               (code.upper(), promo_type, reward_type, reward_value, max_uses, datetime.now().isoformat(), expires))
@@ -651,35 +649,26 @@ def use_promo_code(user_id, code):
     if not promo:
         conn.close()
         return False, "Промокод не найден!"
-    
     pid, pcode, ptype, reward_type, reward_value, max_uses, current_uses, created, expires = promo
-    
     if datetime.fromisoformat(expires) < datetime.now():
         conn.close()
         return False, "Промокод истёк!"
-    
     if max_uses > 0 and current_uses >= max_uses:
         conn.close()
         return False, "Лимит использований исчерпан!"
-    
     c.execute("SELECT * FROM promo_uses WHERE user_id = %s AND promo_id = %s", (user_id, pid))
     if c.fetchone():
         conn.close()
         return False, "Ты уже использовал этот промокод!"
-    
     c.execute("INSERT INTO promo_uses (user_id, promo_id, used_at) VALUES (%s, %s, %s)",
               (user_id, pid, datetime.now().isoformat()))
     c.execute("UPDATE promo_codes SET current_uses = current_uses + 1 WHERE id = %s", (pid,))
-    
     if reward_type == "money":
         c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (reward_value, user_id))
         msg = f"Получено {reward_value}₽!"
-    elif reward_type == "case":
+    else:
         number, country, rarity, value, _ = issue_number(user_id, "Россия")
         msg = f"Выбит номер {number} ({rarity})!"
-    else:
-        msg = "Награда получена!"
-    
     conn.commit()
     conn.close()
     add_season_xp(user_id, 25)
@@ -695,6 +684,8 @@ def get_active_promos():
     conn.close()
     return r
 
+
+# ===== ЕЖЕДНЕВНЫЙ КЕЙС =====
 
 def can_claim_daily_case(user_id):
     conn = get_conn()
@@ -718,24 +709,23 @@ def claim_daily_case(user_id):
     can, wait = can_claim_daily_case(user_id)
     if not can:
         return False, f"Следующий кейс через {wait}"
-    
     conn = get_conn()
     c = conn.cursor()
     c.execute("SELECT streak FROM daily_case WHERE user_id = %s", (user_id,))
     r = c.fetchone()
     streak = r[0] if r else 0
-    streak = (streak + 1) % 7  # Цикл 7 дней
-    
-    number, country, rarity, value = issue_number(user_id, "Россия")
+    streak = (streak + 1) % 7
+    number, country, rarity, value, _ = issue_number(user_id, "Россия")
     c.execute("INSERT INTO daily_case (user_id, last_claim, streak) VALUES (%s, %s, %s) "
               "ON CONFLICT (user_id) DO UPDATE SET last_claim = %s, streak = %s",
               (user_id, datetime.now().isoformat(), streak, datetime.now().isoformat(), streak))
     conn.commit()
     conn.close()
-    
-    bonus = streak == 6  # 7-й день — бонус
+    bonus = streak == 6
     return True, f"Выбит {number} ({rarity})!{' Бонусный день!' if bonus else f' Серия: {streak+1}/7'}"
 
+
+# ===== СЕЗОН =====
 
 def get_season_info(user_id):
     conn = get_conn()
@@ -746,7 +736,7 @@ def get_season_info(user_id):
     if r:
         level, xp = r
         xp_for_next = level * 100
-        return {"level": level, "xp": xp, "xp_for_next": xp_for_next, "progress": (xp / xp_for_next) * 100}
+        return {"level": level, "xp": xp, "xp_for_next": xp_for_next, "progress": min(100, (xp / xp_for_next) * 100)}
     return {"level": 1, "xp": 0, "xp_for_next": 100, "progress": 0}
 
 
@@ -764,7 +754,6 @@ def add_season_xp(user_id, amount):
             new_xp = new_xp - xp_for_next
             c.execute("UPDATE season_pass SET level = %s, xp = %s, last_updated = %s WHERE user_id = %s",
                       (new_level, new_xp, datetime.now().isoformat(), user_id))
-            # Награда за уровень
             reward = new_level * 500
             c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (reward, user_id))
         else:
@@ -774,15 +763,29 @@ def add_season_xp(user_id, amount):
     conn.close()
 
 
-def get_active_events():
+# ===== КАНАЛ =====
+
+def check_channel_subscription(user_id):
     conn = get_conn()
     c = conn.cursor()
-    now = datetime.now().isoformat()
-    c.execute("SELECT * FROM events WHERE active = 1 AND start_date <= %s AND end_date >= %s", (now, now))
-    r = c.fetchall()
+    c.execute("SELECT channel_bonus FROM users WHERE user_id = %s", (user_id,))
+    r = c.fetchone()
     conn.close()
-    return r
+    return bool(r and r[0])
 
+
+def give_channel_bonus(user_id):
+    if check_channel_subscription(user_id):
+        return False, "Бонус уже получен!"
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("UPDATE users SET balance = balance + 10000, channel_bonus = TRUE WHERE user_id = %s", (user_id,))
+    conn.commit()
+    conn.close()
+    return True, "🎉 Получено 10000₽ за подписку на канал!"
+
+
+# ===== АДМИН =====
 
 def get_all_users():
     conn = get_conn()
