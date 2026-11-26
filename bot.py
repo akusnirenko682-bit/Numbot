@@ -3,7 +3,8 @@ import os
 from threading import Thread
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.filters import F
 from flask import Flask, jsonify, request
 import database as db
 from config import BOT_TOKEN, ADMIN_IDS, PORT
@@ -22,23 +23,17 @@ def get_user(user_id):
     db.get_or_create_user(user_id, request.args.get("username"))
     db.update_last_seen(user_id)
     can, wait = db.can_issue(user_id)
-    return jsonify({
-        "balance": db.get_balance(user_id),
-        "is_admin": user_id in ADMIN_IDS,
-        "issue_price": db.get_issue_price(user_id),
-        "can_issue": can, "issue_wait": wait
-    })
+    return jsonify({"balance": db.get_balance(user_id), "is_admin": user_id in ADMIN_IDS,
+                    "issue_price": db.get_issue_price(user_id), "can_issue": can, "issue_wait": wait})
 
 @flask_app.route("/api/issue/<int:user_id>/<country>", methods=["POST"])
 def issue_api(user_id, country):
     can, wait = db.can_issue(user_id)
-    if not can:
-        return jsonify({"success": False, "message": f"Подожди {wait} сек!"})
+    if not can: return jsonify({"success": False, "message": f"Подожди {wait} сек!"})
     country_map = {"ru": "Россия", "by": "Беларусь", "ua": "Украина", "kz": "Казахстан"}
     country_name = country_map.get(country, "Россия")
     price = db.get_issue_price(user_id)
-    if db.get_balance(user_id) < price:
-        return jsonify({"success": False, "message": f"Нужно {price}₽"})
+    if db.get_balance(user_id) < price: return jsonify({"success": False, "message": f"Нужно {price}₽"})
     db.add_balance(user_id, -price)
     db.set_last_issue(user_id)
     number, c, rarity, value, _ = db.issue_number(user_id, country_name)
@@ -123,11 +118,6 @@ def deposit_api(user_id):
 def withdraw_api(user_id):
     is_admin = user_id in ADMIN_IDS
     s, m = db.withdraw_safe(user_id, is_admin)
-    return jsonify({"success": s, "message": m})
-
-@flask_app.route("/api/safe/unlock/<int:user_id>", methods=["POST"])
-def unlock_safe_api(user_id):
-    s, m = db.unlock_safe_admin(user_id)
     return jsonify({"success": s, "message": m})
 
 @flask_app.route("/api/upgrades/<int:user_id>")
@@ -221,15 +211,65 @@ def channel_claim(user_id):
 @flask_app.route("/api/users/online")
 def users_online():
     users = db.get_all_users()
+    return jsonify([{"user_id": u[0], "username": u[1], "balance": u[2], "online": db.is_user_online(u[0])} for u in users])
+
+# ===== ТРЕЙДЫ API =====
+
+@flask_app.route("/api/trades/users/<int:user_id>")
+def trade_users(user_id):
+    users = db.get_online_users(user_id)
+    return jsonify(users)
+
+@flask_app.route("/api/trades/inventory/<int:user_id>")
+def trade_inventory(user_id):
+    items = db.get_user_inventory_for_trade(user_id)
+    return jsonify(items)
+
+@flask_app.route("/api/trades/create/<int:user_id>", methods=["POST"])
+def create_trade_api(user_id):
+    d = request.json
+    receiver_id = int(d.get("receiver_id"))
+    money = float(d.get("money", 0))
+    items = d.get("items", [])
+    success, trade_id, msg = db.create_trade(user_id, receiver_id, money, items)
+    if success:
+        conn = db.get_conn(); c = conn.cursor()
+        c.execute("SELECT username FROM users WHERE user_id = %s", (user_id,))
+        sender_name = c.fetchone()[0] or f"User{user_id}"
+        conn.close()
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    send_trade_notification(receiver_id, sender_name, trade_id, money, len(items)),
+                    loop
+                )
+            else:
+                loop.run_until_complete(send_trade_notification(receiver_id, sender_name, trade_id, money, len(items)))
+        except Exception as e:
+            print(f"Trade notification error: {e}")
+    return jsonify({"success": success, "message": msg})
+
+@flask_app.route("/api/trades/pending/<int:user_id>")
+def pending_trades(user_id):
+    trades = db.get_pending_trades(user_id)
     result = []
-    for u in users:
-        result.append({
-            "user_id": u[0], "username": u[1], "balance": u[2],
-            "online": db.is_user_online(u[0])
-        })
+    for t in trades:
+        result.append({"id": t[0], "sender_id": t[1], "sender_name": t[2], "money": t[3], "items": t[4], "expires_at": t[5]})
     return jsonify(result)
 
-# ===== АДМИН =====
+@flask_app.route("/api/trades/accept/<int:user_id>/<int:trade_id>", methods=["POST"])
+def accept_trade_api(user_id, trade_id):
+    s, m = db.accept_trade(trade_id, user_id)
+    return jsonify({"success": s, "message": m})
+
+@flask_app.route("/api/trades/decline/<int:user_id>/<int:trade_id>", methods=["POST"])
+def decline_trade_api(user_id, trade_id):
+    s, m = db.decline_trade(trade_id, user_id)
+    return jsonify({"success": s, "message": m})
+
+# ===== АДМИН API =====
+
 @flask_app.route("/api/admin/stats")
 def admin_stats():
     users = db.get_all_users()
@@ -326,6 +366,39 @@ def run_flask():
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+async def send_trade_notification(receiver_id, sender_name, trade_id, money, items_count):
+    text = f"🤝 <b>Новый трейд!</b>\n\n"
+    text += f"👤 <b>{sender_name}</b> предлагает вам трейд #{trade_id}\n"
+    if money > 0: text += f"💰 Деньги: <b>{int(money)}₽</b>\n"
+    if items_count > 0: text += f"🎒 Номеров: <b>{items_count}</b>\n"
+    text += f"\n⏰ Действует 5 минут"
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✅ Принять", callback_data=f"trade_accept_{trade_id}")],
+        [InlineKeyboardButton(text="❌ Отклонить", callback_data=f"trade_decline_{trade_id}")]
+    ])
+    try:
+        await bot.send_message(receiver_id, text, parse_mode="HTML", reply_markup=keyboard)
+    except Exception as e:
+        print(f"Trade notification error: {e}")
+
+@dp.callback_query(F.data.startswith("trade_accept_"))
+async def trade_accept_callback(callback: CallbackQuery):
+    trade_id = int(callback.data.split("_")[2])
+    user_id = callback.from_user.id
+    success, msg = db.accept_trade(trade_id, user_id)
+    await callback.answer(msg, show_alert=True)
+    if success:
+        await callback.message.edit_text(f"✅ Трейд #{trade_id} принят!")
+
+@dp.callback_query(F.data.startswith("trade_decline_"))
+async def trade_decline_callback(callback: CallbackQuery):
+    trade_id = int(callback.data.split("_")[2])
+    user_id = callback.from_user.id
+    success, msg = db.decline_trade(trade_id, user_id)
+    await callback.answer(msg, show_alert=True)
+    if success:
+        await callback.message.edit_text(f"❌ Трейд #{trade_id} отклонён!")
 
 @dp.message(CommandStart(deep_link=True))
 async def cmd_start_referral(message: Message):
