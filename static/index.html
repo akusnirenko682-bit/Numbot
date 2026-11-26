@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Nova Bot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
 :root{--bg-deep:#0B0F19;--bg-violet:#1A103C;--bg-purple:#2D1B69;--glass-bg:rgba(255,255,255,0.06);--glass-border:rgba(255,255,255,0.12);--neon-blue:#3b82f6;--neon-green:#10b981;--neon-purple:#a855f7;--neon-gold:#ffd700;--neon-pink:#d946ef;--neon-violet:#8b5cf6;--text-primary:#fff;--text-secondary:rgba(255,255,255,0.6)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,var(--bg-deep) 0%,var(--bg-violet) 50%,var(--bg-purple) 100%);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,var(--bg-deep) 0%,var(--bg-violet) 50%,var(--bg-purple) 100%);color:var(--text-primary);min-height:100vh;overflow-x:hidden;position:relative}
 .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.4;z-index:0;pointer-events:none}
 .glow-1{width:300px;height:300px;background:var(--neon-violet);top:-100px;right:-50px}
 .glow-2{width:250px;height:250px;background:var(--neon-pink);bottom:10%;left:-80px;opacity:0.25}
 .container{position:relative;z-index:1;padding:20px;padding-bottom:30px;max-width:480px;margin:0 auto}
 .header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
 .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--neon-violet),var(--neon-pink));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;box-shadow:0 0 20px rgba(139,92,246,0.4);border:2px solid rgba(255,255,255,0.2)}
-.greeting h1{font-size:22px;font-weight:700}
+.greeting h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
 .greeting p{font-size:14px;color:var(--text-secondary);margin-top:4px}
 .profile-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:24px;margin-bottom:28px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
 .profile-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -29,13 +30,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .menu-item{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px 14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all 0.3s;min-height:110px}
 .menu-item:active{transform:scale(0.96);background:rgba(255,255,255,0.1)}
-.menu-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.15);border-radius:12px;color:var(--neon-violet);font-size:22px}
-.menu-text{font-size:15px;font-weight:600;color:var(--text-primary)}
-.menu-subtext{font-size:12px;color:var(--text-secondary);margin-top:-6px}
+.menu-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.15);border-radius:12px;color:var(--neon-violet);filter:drop-shadow(0 0 8px rgba(139,92,246,0.5))}
+.menu-icon i,.menu-icon svg{width:22px;height:22px;stroke-width:2}
+.menu-text{font-size:15px;font-weight:600;color:var(--text-primary);z-index:1}
+.menu-subtext{font-size:12px;color:var(--text-secondary);margin-top:-6px;z-index:1}
 .screen{display:none;padding-bottom:20px}
 .screen.active{display:block}
 .back-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);color:white;padding:12px 20px;border-radius:14px;cursor:pointer;margin-bottom:20px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-.screen-title{font-size:24px;font-weight:700;margin-bottom:20px}
+.screen-title{font-size:24px;font-weight:700;margin-bottom:20px;letter-spacing:-0.5px}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px;margin-bottom:12px}
 .countries-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .country-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:20px;text-align:center;cursor:pointer;transition:all 0.3s}
@@ -43,9 +45,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .country-btn .flag{font-size:2.5em;margin-bottom:8px}
 .country-btn .name{font-size:14px;font-weight:600;margin-bottom:4px}
 .country-btn .price{font-size:13px;color:var(--neon-gold);font-weight:600}
-.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s}
 .item-card.selected{border-color:var(--neon-violet);box-shadow:0 0 15px rgba(139,92,246,0.4)}
-.item-card .number{font-weight:700;font-size:15px}
+.item-card .number{font-weight:700;font-size:15px;letter-spacing:0.5px}
 .item-card .meta{font-size:12px;color:var(--text-secondary);margin-top:3px}
 .item-card .price{color:var(--neon-gold);font-weight:700;font-size:14px}
 .rarity-Обычный{border-left:3px solid var(--neon-blue)}
@@ -59,15 +61,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-red{background:linear-gradient(135deg,#ff416c,#ff4b2b)}
 .btn-group{display:flex;gap:6px;flex-wrap:wrap}
 .task-card,.upgrade-card,.promo-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px}
-.task-name{font-weight:600;margin-bottom:4px;font-size:15px}
+.task-name,.upgrade-name{font-weight:600;margin-bottom:4px;font-size:15px}
 .task-progress{background:rgba(0,0,0,0.3);height:8px;border-radius:4px;margin:10px 0;overflow:hidden}
 .task-progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));transition:width 0.3s}
-.task-bottom{display:flex;justify-content:space-between;align-items:center}
+.task-bottom,.upgrade-bottom{display:flex;justify-content:space-between;align-items:center}
 .reward{color:var(--neon-gold);font-size:13px;font-weight:600}
+.upgrade-desc{font-size:13px;color:var(--text-secondary);margin-bottom:10px}
 .adm-section{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:18px;margin-bottom:14px}
-.adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600}
+.adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.adm-section h3 i,.adm-section h3 svg{width:18px;height:18px}
 .adm-input{width:100%;padding:12px;margin-bottom:10px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);color:white;font-size:14px}
 .adm-input::placeholder{color:var(--text-secondary)}
+.adm-input:focus{outline:none;border-color:var(--neon-violet)}
 .adm-btn{width:100%;padding:12px;border:none;border-radius:12px;color:white;font-weight:600;cursor:pointer;font-size:14px}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat-card{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:14px;text-align:center}
@@ -80,21 +85,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .streak-dot.bonus{border-color:var(--neon-gold)}
 .season-bar{background:rgba(0,0,0,0.3);height:12px;border-radius:6px;overflow:hidden;margin:10px 0}
 .season-bar-fill{height:100%;background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));transition:width 0.3s}
-.roulette-container{background:linear-gradient(180deg,#1A103C 0%,#0B0F19 100%);border:2px solid var(--glass-border);border-radius:24px;padding:25px 15px;margin:20px 0}
+.roulette-container{background:linear-gradient(180deg,#1A103C 0%,#0B0F19 100%);border:2px solid var(--glass-border);border-radius:24px;padding:25px 15px;margin:20px 0;position:relative;overflow:hidden}
 .roulette-label{text-align:center;font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:2px;margin-bottom:15px}
 .roulette-slots{display:flex;justify-content:center;gap:6px;margin:15px 0;flex-wrap:wrap}
 .roulette-slot{width:42px;height:60px;background:rgba(0,0,0,0.6);border:2px solid var(--glass-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;font-family:'Arial Black',sans-serif;color:rgba(255,255,255,0.3);transition:all 0.3s}
 .roulette-slot.spinning{animation:slotBlur 0.08s infinite;color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2)}
 .roulette-slot.stopping{animation:slotBounce 0.4s ease-out;transform:scale(1.15)}
 .roulette-slot.final{transform:scale(1)}
-.roulette-slot.rarity-Обычный{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 12px var(--neon-blue)}
-.roulette-slot.rarity-Необычный{border-color:var(--neon-green);color:var(--neon-green);box-shadow:0 0 12px var(--neon-green)}
-.roulette-slot.rarity-Редкий{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 20px var(--neon-blue)}
-.roulette-slot.rarity-Эпический{border-color:var(--neon-purple);color:var(--neon-purple);box-shadow:0 0 25px var(--neon-purple)}
-.roulette-slot.rarity-Легендарный{border-color:var(--neon-gold);color:var(--neon-gold);box-shadow:0 0 30px var(--neon-gold);animation:legendarySlot 1s infinite}
+.roulette-slot.rarity-Обычный{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 12px var(--neon-blue),inset 0 0 10px rgba(59,130,246,0.2)}
+.roulette-slot.rarity-Необычный{border-color:var(--neon-green);color:var(--neon-green);box-shadow:0 0 12px var(--neon-green),inset 0 0 10px rgba(16,185,129,0.2)}
+.roulette-slot.rarity-Редкий{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 20px var(--neon-blue),inset 0 0 15px rgba(59,130,246,0.3)}
+.roulette-slot.rarity-Эпический{border-color:var(--neon-purple);color:var(--neon-purple);box-shadow:0 0 25px var(--neon-purple),inset 0 0 15px rgba(168,85,247,0.3)}
+.roulette-slot.rarity-Легендарный{border-color:var(--neon-gold);color:var(--neon-gold);box-shadow:0 0 30px var(--neon-gold),inset 0 0 20px rgba(255,215,0,0.3);animation:legendarySlot 1s infinite}
 @keyframes slotBlur{0%{transform:translateY(-3px);filter:blur(1px)}100%{transform:translateY(3px);filter:blur(1px)}}
 @keyframes slotBounce{0%{transform:scale(1.3) translateY(-10px)}50%{transform:scale(1.1) translateY(5px)}100%{transform:scale(1) translateY(0)}}
-@keyframes legendarySlot{0%,100%{box-shadow:0 0 30px var(--neon-gold)}50%{box-shadow:0 0 50px var(--neon-gold),0 0 80px rgba(255,215,0,0.5)}}
+@keyframes legendarySlot{0%,100%{box-shadow:0 0 30px var(--neon-gold),inset 0 0 20px rgba(255,215,0,0.3)}50%{box-shadow:0 0 50px var(--neon-gold),0 0 80px rgba(255,215,0,0.5),inset 0 0 25px rgba(255,215,0,0.4)}}
 .rarity-display{text-align:center;margin-top:20px;padding:15px;border-radius:16px;background:rgba(0,0,0,0.3);display:none}
 .rarity-display.rarity-Обычный{border:2px solid var(--neon-blue);box-shadow:0 0 20px var(--neon-blue)}
 .rarity-display.rarity-Необычный{border:2px solid var(--neon-green);box-shadow:0 0 20px var(--neon-green)}
@@ -130,7 +135,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-title">👤 Ваш профиль</div>
+            <div class="profile-title"><i data-lucide="user" style="width:20px;height:20px;color:var(--neon-violet);"></i>Ваш профиль</div>
             <div class="status-badge"><div class="status-dot"></div>Активен</div>
         </div>
         <div class="profile-stats">
@@ -140,25 +145,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
     </div>
     <div class="menu-grid">
-        <div class="menu-item" onclick="showScreen('screen-generator')"><div class="menu-icon">🎲</div><span class="menu-text">Генератор</span><span class="menu-subtext">Получить новый</span></div>
-        <div class="menu-item" onclick="showScreen('screen-daily')"><div class="menu-icon">🎁</div><span class="menu-text">Ежедневный</span><span class="menu-subtext">Бесплатный кейс</span></div>
-        <div class="menu-item" onclick="showScreen('screen-channel')"><div class="menu-icon">📢</div><span class="menu-text">Канал</span><span class="menu-subtext">+10000₽ бонус</span></div>
-        <div class="menu-item" onclick="showScreen('screen-tasks')"><div class="menu-icon">✅</div><span class="menu-text">Задания</span><span class="menu-subtext">Ежедневные</span></div>
-        <div class="menu-item" onclick="showScreen('screen-promo')"><div class="menu-icon">🎟️</div><span class="menu-text">Промокод</span><span class="menu-subtext">Ввести код</span></div>
-        <div class="menu-item" onclick="showScreen('screen-referral')"><div class="menu-icon">👥</div><span class="menu-text">Рефералы</span><span class="menu-subtext">Пригласить друга</span></div>
-        <div class="menu-item" onclick="showScreen('screen-season')"><div class="menu-icon">⭐</div><span class="menu-text">Сезон</span><span class="menu-subtext">Уровень и XP</span></div>
-        <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon">🏎️</div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
-        <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon">💰</div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
-        <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon">🎒</div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
-        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon">🔒</div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
-        <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon">🏪</div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
-        <div class="menu-item" onclick="showScreen('screen-trades')"><div class="menu-icon">🔄</div><span class="menu-text">Трейды</span><span class="menu-subtext">Обмен с игроками</span></div>
-        <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon">⚡</div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
-        <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon">🏆</div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
+        <div class="menu-item" onclick="showScreen('screen-generator')"><div class="menu-icon"><i data-lucide="dices"></i></div><span class="menu-text">Генератор</span><span class="menu-subtext">Получить новый</span></div>
+        <div class="menu-item" onclick="showScreen('screen-daily')"><div class="menu-icon"><i data-lucide="gift"></i></div><span class="menu-text">Ежедневный</span><span class="menu-subtext">Бесплатный кейс</span></div>
+        <div class="menu-item" onclick="showScreen('screen-channel')"><div class="menu-icon"><i data-lucide="megaphone"></i></div><span class="menu-text">Канал</span><span class="menu-subtext">+10000₽ бонус</span></div>
+        <div class="menu-item" onclick="showScreen('screen-tasks')"><div class="menu-icon"><i data-lucide="check-square"></i></div><span class="menu-text">Задания</span><span class="menu-subtext">Ежедневные</span></div>
+        <div class="menu-item" onclick="showScreen('screen-promo')"><div class="menu-icon"><i data-lucide="ticket"></i></div><span class="menu-text">Промокод</span><span class="menu-subtext">Ввести код</span></div>
+        <div class="menu-item" onclick="showScreen('screen-referral')"><div class="menu-icon"><i data-lucide="users"></i></div><span class="menu-text">Рефералы</span><span class="menu-subtext">Пригласить друга</span></div>
+        <div class="menu-item" onclick="showScreen('screen-season')"><div class="menu-icon"><i data-lucide="star"></i></div><span class="menu-text">Сезон</span><span class="menu-subtext">Уровень и XP</span></div>
+        <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon"><i data-lucide="gavel"></i></div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
+        <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon"><i data-lucide="wallet"></i></div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
+        <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon"><i data-lucide="briefcase"></i></div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
+        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
+        <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon"><i data-lucide="store"></i></div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
+        <div class="menu-item" onclick="showScreen('screen-trades')"><div class="menu-icon"><i data-lucide="repeat"></i></div><span class="menu-text">Трейды</span><span class="menu-subtext">Обмен с игроками</span></div>
+        <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon"><i data-lucide="zap"></i></div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
+        <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon"><i data-lucide="trophy"></i></div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
     </div>
     <div id="admin-btn-container" style="display:none;margin-top:14px;">
         <div class="menu-item" onclick="showScreen('screen-admin')" style="background:linear-gradient(135deg,rgba(217,70,239,0.15),rgba(139,92,246,0.15));border-color:rgba(217,70,239,0.4);">
-            <div class="menu-icon" style="background:rgba(217,70,239,0.2);color:var(--neon-pink);">⚙️</div>
+            <div class="menu-icon" style="background:rgba(217,70,239,0.2);color:var(--neon-pink);filter:drop-shadow(0 0 8px rgba(217,70,239,0.5));"><i data-lucide="settings"></i></div>
             <span class="menu-text">Админ-панель</span><span class="menu-subtext">Управление ботом</span>
         </div>
     </div>
@@ -166,7 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div id="screen-generator" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎯 Выбери страну</h2>
     <div id="issue-timer" style="display:none;text-align:center;padding:10px;background:rgba(255,65,108,0.15);border:1px solid var(--neon-pink);border-radius:12px;margin-bottom:15px;color:var(--neon-pink);font-weight:600;"></div>
     <div class="countries-grid">
@@ -190,7 +195,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-channel" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">📢 Telegram канал</h2>
     <div class="channel-card">
         <div class="channel-icon">📢</div>
@@ -208,7 +213,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-daily" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎁 Ежедневный кейс</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твоя серия</div>
@@ -219,17 +224,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-promo" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎟️ Промокод</h2>
     <div class="glass-card">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;text-align:center;">Промокоды публикуются в нашем <b style="color:var(--neon-gold);">Telegram канале</b></div>
         <input type="text" class="adm-input" id="promo-input" placeholder="Введи промокод" style="text-transform:uppercase;">
         <button class="btn btn-blue" onclick="usePromo()" style="width:100%;padding:14px;font-size:15px;">Активировать</button>
     </div>
+    <a href="https://t.me/Numbernomi" target="_blank" style="text-decoration:none;">
+        <div class="glass-card" style="text-align:center;cursor:pointer;margin-top:15px;">
+            <div style="font-size:1.5em;margin-bottom:8px;">📢</div>
+            <div style="font-weight:600;">Подпишись на канал</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:5px;">Чтобы получать промокоды</div>
+        </div>
+    </a>
 </div></div>
 
 <div id="screen-referral" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">👥 Рефералы</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твой код</div>
@@ -241,7 +253,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-season" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">⭐ Сезонный пропуск</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Уровень</div>
@@ -253,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-inventory" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🎒 Твоя коллекция</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;text-align:center;">⚡ Быстрая продажа</div>
@@ -268,7 +280,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tasks" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">📋 Задания</h2>
     <h3 style="color:var(--neon-gold);margin:10px 0;font-size:16px;">📅 Ежедневные</h3>
     <div id="daily-tasks-list"></div>
@@ -277,19 +289,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-auction" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🏎️ Аукцион</h2>
     <div id="auction-list"></div>
 </div></div>
 
 <div id="screen-market" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🏪 Рынок</h2>
     <div id="market-list"></div>
 </div></div>
 
 <div id="screen-trades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🤝 Трейды</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">📥 Входящие трейды</div>
@@ -306,7 +318,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-safe" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🔒 Сейф</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">В сейфе</div>
@@ -331,13 +343,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-upgrades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">⚡ Улучшения</h2>
     <div id="upgrades-list"></div>
 </div></div>
 
 <div id="screen-balance" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">💰 Баланс</h2>
     <div class="glass-card" style="text-align:center;padding:30px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Текущий баланс</div>
@@ -348,7 +360,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tops" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">🏆 Топы</h2>
     <h3 style="color:var(--neon-gold);margin:15px 0 10px;font-size:16px;">💰 По деньгам</h3>
     <div id="top-balance-list"></div>
@@ -357,19 +369,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-admin" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')">◀️ Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
     <h2 class="screen-title">⚙️ Админ-панель</h2>
-    <div class="adm-section"><h3>📊 Статистика</h3><div class="stats-grid" id="admin-stats"></div></div>
-    <div class="adm-section"><h3>💰 Выдать деньги</h3><input type="number" class="adm-input" id="adm-give-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-give-amount" placeholder="Сумма"><button class="adm-btn btn-blue" onclick="admGiveMoney()">Выдать</button></div>
-    <div class="adm-section"><h3>📉 Списать деньги</h3><input type="number" class="adm-input" id="adm-take-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-take-amount" placeholder="Сумма"><button class="adm-btn btn-red" onclick="admTakeMoney()">Списать</button></div>
-    <div class="adm-section"><h3>⚖️ Установить баланс</h3><input type="number" class="adm-input" id="adm-set-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-set-amount" placeholder="Новый баланс"><button class="adm-btn btn-blue" onclick="admSetBalance()">Установить</button></div>
-    <div class="adm-section"><h3>👤 Инфо о пользователе</h3><input type="number" class="adm-input" id="adm-info-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInfo()">Показать</button><div id="adm-info-result" style="margin-top:10px;"></div></div>
-    <div class="adm-section"><h3>🎒 Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
-    <div class="adm-section"><h3>🚗 Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
-    <div class="adm-section"><h3>🎟️ Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать</button></div>
-    <div class="adm-section"><h3>🗑️ Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить</button></div>
-    <div class="adm-section"><h3>📢 Рассылка</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить</button></div>
-    <div class="adm-section"><h3>👥 Все пользователи</h3><div id="adm-users-list"></div></div>
+    <div class="adm-section"><h3><i data-lucide="bar-chart-3"></i>Статистика</h3><div class="stats-grid" id="admin-stats"></div></div>
+    <div class="adm-section"><h3><i data-lucide="banknote"></i>Выдать деньги</h3><input type="number" class="adm-input" id="adm-give-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-give-amount" placeholder="Сумма"><button class="adm-btn btn-blue" onclick="admGiveMoney()">Выдать</button></div>
+    <div class="adm-section"><h3><i data-lucide="trending-down"></i>Списать деньги</h3><input type="number" class="adm-input" id="adm-take-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-take-amount" placeholder="Сумма"><button class="adm-btn btn-red" onclick="admTakeMoney()">Списать</button></div>
+    <div class="adm-section"><h3><i data-lucide="scale"></i>Установить баланс</h3><input type="number" class="adm-input" id="adm-set-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-set-amount" placeholder="Новый баланс"><button class="adm-btn btn-blue" onclick="admSetBalance()">Установить</button></div>
+    <div class="adm-section"><h3><i data-lucide="user-search"></i>Инфо о пользователе</h3><input type="number" class="adm-input" id="adm-info-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInfo()">Показать</button><div id="adm-info-result" style="margin-top:10px;"></div></div>
+    <div class="adm-section"><h3><i data-lucide="backpack"></i>Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
+    <div class="adm-section"><h3><i data-lucide="car"></i>Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
+    <div class="adm-section"><h3><i data-lucide="ticket"></i>Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать</button></div>
+    <div class="adm-section"><h3><i data-lucide="trash-2"></i>Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить</button></div>
+    <div class="adm-section"><h3><i data-lucide="megaphone"></i>Рассылка</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить</button></div>
+    <div class="adm-section"><h3><i data-lucide="users"></i>Все пользователи</h3><div id="adm-users-list"></div></div>
 </div></div>
 
 <script>
@@ -379,18 +391,28 @@ tg.expand();
 tg.setHeaderColor('#0B0F19');
 tg.setBackgroundColor('#0B0F19');
 
-const userId = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
-const username = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : '';
-const firstName = tg.initDataUnsafe && tg.initDataUnsafe.user ? (tg.initDataUnsafe.user.first_name || 'Игрок') : 'Игрок';
+const userId = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : null;
+const username = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? (tg.initDataUnsafe.user.username || '') : '';
+const firstName = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? (tg.initDataUnsafe.user.first_name || 'Игрок') : 'Игрок';
 const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
-let issuePrice = 500, refCode = '', selectedSafeDays = 7, tradeSelectedItems = [], skipRoulette = false, currentRouletteData = null;
+let issuePrice = 500, refCode = '', selectedSafeDays = 7, tradeSelectedItems = [];
+let skipRoulette = false, currentRouletteData = null;
+
+console.log('Nova Bot init. userId =', userId);
 
 document.getElementById('greeting-text').textContent = 'Привет, ' + firstName + ' 👋';
 document.getElementById('user-avatar').textContent = firstName.charAt(0).toUpperCase();
 
+function renderIcons() {
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        try { lucide.createIcons(); } catch(e) { console.error('lucide error:', e); }
+    }
+}
+
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-    document.getElementById(id).classList.add('active');
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
     const map = {
         'screen-main': loadData,
         'screen-inventory': loadInventory,
@@ -403,7 +425,7 @@ function showScreen(id) {
         'screen-balance': loadBalance,
         'screen-admin': loadAdmin,
         'screen-daily': loadDaily,
-        'screen-promo': loadPromos,
+        'screen-promo': null,
         'screen-referral': loadReferral,
         'screen-season': loadSeason,
         'screen-channel': loadChannel,
@@ -411,6 +433,7 @@ function showScreen(id) {
         'screen-trades': loadTrades
     };
     if (map[id]) map[id]();
+    renderIcons();
     window.scrollTo(0, 0);
 }
 
@@ -421,22 +444,34 @@ function formatNum(n) {
 }
 
 async function loadData() {
+    if (!userId) { console.error('userId is null'); return; }
     try {
-        const r = await fetch('/api/user/' + userId + '?username=' + (username || ''));
+        const r = await fetch('/api/user/' + userId + '?username=' + encodeURIComponent(username));
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
+        console.log('loadData response:', d);
         issuePrice = d.issue_price || 500;
         ['ru','by','ua','kz'].forEach(function(c) {
             const el = document.getElementById('price-' + c);
             if (el) el.textContent = issuePrice + ' ₽';
         });
         document.getElementById('stat-balance').textContent = formatNum(d.balance);
-        if (d.is_admin) document.getElementById('admin-btn-container').style.display = 'block';
-    } catch(e) { console.error('loadData error:', e); }
+        if (d.is_admin) {
+            document.getElementById('admin-btn-container').style.display = 'block';
+            console.log('ADMIN MODE ON');
+        } else {
+            document.getElementById('admin-btn-container').style.display = 'none';
+        }
+    } catch(e) {
+        console.error('loadData error:', e);
+    }
 }
 
 function checkIssueTimer() {
+    if (!userId) return;
     fetch('/api/user/' + userId).then(r => r.json()).then(d => {
         const t = document.getElementById('issue-timer');
+        if (!t) return;
         if (!d.can_issue && d.issue_wait > 0) {
             t.style.display = 'block';
             t.textContent = '⏳ Подожди ' + d.issue_wait + ' сек...';
@@ -448,36 +483,30 @@ function checkIssueTimer() {
 }
 
 async function startRoulette(country) {
+    if (!userId) return;
     try {
         const r = await fetch('/api/user/' + userId);
         const d = await r.json();
         if (!d.can_issue) { tg.showAlert('Подожди ' + d.issue_wait + ' сек!'); return; }
         if (d.balance < issuePrice) { tg.showAlert('Недостаточно средств! Нужно ' + issuePrice + '₽'); return; }
-        
         skipRoulette = false;
         document.getElementById('roulette-display').style.display = 'block';
         document.getElementById('rarity-display').style.display = 'none';
         document.getElementById('skip-btn').style.display = 'block';
-        
         const apiR = await fetch('/api/issue/' + userId + '/' + country, { method: 'POST' });
         const apiD = await apiR.json();
-        
         if (!apiD.success) {
             tg.showAlert(apiD.message);
             document.getElementById('roulette-display').style.display = 'none';
             return;
         }
-        
         currentRouletteData = apiD;
-        const number = apiD.number;
-        const chars = number.split('');
+        const chars = apiD.number.split('');
         const letters = 'АВЕКМНОРСТУХІ';
         const digits = '0123456789';
-        
         const slotsContainer = document.getElementById('roulette-slots');
         slotsContainer.innerHTML = '';
         const slots = [];
-        
         for (let i = 0; i < chars.length; i++) {
             const slot = document.createElement('div');
             slot.className = 'roulette-slot spinning';
@@ -485,7 +514,6 @@ async function startRoulette(country) {
             slotsContainer.appendChild(slot);
             slots.push(slot);
         }
-        
         const spinIntervals = [];
         for (let i = 0; i < chars.length; i++) {
             const isLetter = letters.indexOf(chars[i].toUpperCase()) !== -1;
@@ -496,27 +524,25 @@ async function startRoulette(country) {
             }, 40);
             spinIntervals.push(interval);
         }
-        
         for (let i = 0; i < chars.length; i++) {
             if (skipRoulette) break;
-            await new Promise(function(resolve) { setTimeout(resolve, 300 + i * 200); });
+            await new Promise(function(res) { setTimeout(res, 300 + i * 200); });
             clearInterval(spinIntervals[i]);
             slots[i].textContent = chars[i];
             slots[i].classList.remove('spinning');
             slots[i].classList.add('stopping');
-            await new Promise(function(resolve) { setTimeout(resolve, 200); });
+            await new Promise(function(res) { setTimeout(res, 200); });
             slots[i].classList.remove('stopping');
             slots[i].classList.add('final', 'rarity-' + apiD.rarity);
         }
-        
         if (!skipRoulette) {
-            await new Promise(function(resolve) { setTimeout(resolve, 200); });
+            await new Promise(function(res) { setTimeout(res, 200); });
             showRarityResult(apiD);
         }
         loadData();
     } catch(e) {
         console.error('startRoulette error:', e);
-        tg.showAlert('Ошибка: ' + e.message);
+        tg.showAlert('Ошибка сети');
     }
 }
 
@@ -545,15 +571,13 @@ function showRarityResult(apiD) {
 }
 
 async function loadInventory() {
+    if (!userId) return;
     try {
         const r = await fetch('/api/inventory/' + userId);
         const items = await r.json();
         const list = document.getElementById('inventory-list');
         list.innerHTML = '';
-        if (items.length === 0) {
-            list.innerHTML = '<div class="empty-state">Пусто. Открой номер!</div>';
-            return;
-        }
+        if (items.length === 0) { list.innerHTML = '<div class="empty-state">Пусто. Открой номер!</div>'; return; }
         document.getElementById('stat-items').textContent = items.length;
         items.forEach(function(i) {
             const sp = Math.floor(i.buy_price * 0.8);
@@ -583,11 +607,7 @@ async function autoSellByRarity(rarity) {
     const names = {'Обычный':'⚪ Обычные','Необычный':'🟢 Необычные','Редкий':'🔵 Редкие','Эпический':'🟣 Эпические','Легендарный':'🟡 Легендарные','all':'💥 Все'};
     if (!confirm('Продать ' + (names[rarity]||'все') + ' номера?')) return;
     try {
-        const r = await fetch('/api/auto_sell/' + userId, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ rarity: rarity })
-        });
+        const r = await fetch('/api/auto_sell/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rarity: rarity }) });
         const d = await r.json();
         tg.showAlert(d.message);
         loadInventory();
@@ -599,11 +619,7 @@ async function listMarket(id) {
     const p = prompt('Цена продажи:');
     if (!p || isNaN(p) || p <= 0) return;
     try {
-        const r = await fetch('/api/market/sell/' + userId + '/' + id, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ price: parseFloat(p) })
-        });
+        const r = await fetch('/api/market/sell/' + userId + '/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ price: parseFloat(p) }) });
         const d = await r.json();
         tg.showAlert(d.message);
         loadInventory();
@@ -614,11 +630,7 @@ async function auctionLot(id) {
     const p = prompt('Мин. цена:');
     if (!p || isNaN(p) || p <= 0) return;
     try {
-        const r = await fetch('/api/auctions/create/' + userId + '/' + id, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ min_price: parseFloat(p) })
-        });
+        const r = await fetch('/api/auctions/create/' + userId + '/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ min_price: parseFloat(p) }) });
         const d = await r.json();
         tg.showAlert(d.message);
         loadInventory();
@@ -699,11 +711,7 @@ async function makeBid(lotId, current) {
     const bid = prompt('Текущая: ' + current + '₽. Новая:');
     if (!bid || isNaN(bid) || bid <= current) return;
     try {
-        const r = await fetch('/api/auctions/bid/' + userId + '/' + lotId, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bid: parseFloat(bid) })
-        });
+        const r = await fetch('/api/auctions/bid/' + userId + '/' + lotId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bid: parseFloat(bid) }) });
         const d = await r.json();
         tg.showAlert(d.message);
         loadAuctions();
@@ -743,9 +751,11 @@ async function claimTask(key) {
 function selectSafeDays(days) {
     selectedSafeDays = days;
     [1, 3, 7, 30].forEach(function(d) {
-        document.getElementById('safe-d' + d).className = 'btn';
+        const el = document.getElementById('safe-d' + d);
+        if (el) el.className = 'btn';
     });
-    document.getElementById('safe-d' + days).className = 'btn btn-blue';
+    const sel = document.getElementById('safe-d' + days);
+    if (sel) sel.className = 'btn btn-blue';
 }
 
 async function loadSafe() {
@@ -778,11 +788,7 @@ async function depositSafe() {
     const a = document.getElementById('safe-deposit-amount').value;
     if (!a || isNaN(a) || a <= 0) return tg.showAlert('Введи сумму!');
     try {
-        const r = await fetch('/api/safe/deposit/' + userId, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: parseFloat(a), days: selectedSafeDays })
-        });
+        const r = await fetch('/api/safe/deposit/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: parseFloat(a), days: selectedSafeDays }) });
         const d = await r.json();
         tg.showAlert(d.message);
         loadSafe();
@@ -810,7 +816,7 @@ async function loadUpgrades() {
             const u = ups[key];
             const d = document.createElement('div');
             d.className = 'upgrade-card';
-            d.innerHTML = '<div class="task-name">' + u.name + '</div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">' + u.desc + '</div><div class="task-bottom"><span style="font-size:13px;opacity:0.7;">Уровень: ' + u.level + '/' + u.max + '</span>' + (u.price ? '<button class="btn btn-blue" onclick="buyUp(\'' + key + '\')">' + u.price + '₽</button>' : '<span style="color:var(--neon-green);font-weight:600;">MAX</span>') + '</div>';
+            d.innerHTML = '<div class="upgrade-name">' + u.name + '</div><div class="upgrade-desc">' + u.desc + '</div><div class="upgrade-bottom"><span style="font-size:13px;opacity:0.7;">Уровень: ' + u.level + '/' + u.max + '</span>' + (u.price ? '<button class="btn btn-blue" onclick="buyUp(\'' + key + '\')">' + u.price + '₽</button>' : '<span style="color:var(--neon-green);font-weight:600;">MAX</span>') + '</div>';
             list.appendChild(d);
         });
     } catch(e) { console.error(e); }
@@ -897,43 +903,20 @@ async function claimDaily() {
     } catch(e) { console.error(e); }
 }
 
-async function loadPromos() {
-    try {
-        const r = await fetch('/api/promos/active');
-        const promos = await r.json();
-        const list = document.getElementById('promo-list');
-        if (!list) return;
-        list.innerHTML = '';
-        if (promos.length === 0) { list.innerHTML = '<div class="empty-state">Нет активных промокодов</div>'; return; }
-        const isAdmin = document.getElementById('admin-btn-container').style.display !== 'none';
-        promos.forEach(function(p) {
-            const d = document.createElement('div');
-            d.className = 'promo-card';
-            d.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:16px;color:var(--neon-gold);">' + p.code + '</div><div style="font-size:12px;opacity:0.7;">' + (p.reward_type === 'money' ? '💰 ' + p.reward_value + '₽' : '🎁 Кейс') + ' • ' + p.current_uses + '/' + (p.max_uses || '∞') + '</div></div>' + (isAdmin ? '<button class="btn btn-red" onclick="deletePromo(\'' + p.code + '\')" style="padding:6px 10px;">❌</button>' : '') + '</div>';
-            list.appendChild(d);
-        });
-    } catch(e) { console.error(e); }
-}
-
+// ===== ИСПРАВЛЕНО: теперь обновляет баланс =====
 async function usePromo() {
     const code = document.getElementById('promo-input').value.trim();
     if (!code) return tg.showAlert('Введи промокод!');
     try {
-        const r = await fetch('/api/promo/use/' + userId + '/' + code, { method: 'POST' });
+        const r = await fetch('/api/promo/use/' + userId + '/' + encodeURIComponent(code), { method: 'POST' });
         const d = await r.json();
         tg.showAlert(d.message);
-        if (d.success) document.getElementById('promo-input').value = '';
-    } catch(e) { console.error(e); }
-}
-
-async function deletePromo(code) {
-    if (!confirm('Удалить промокод ' + code + '?')) return;
-    try {
-        const r = await fetch('/api/promo/delete/' + code, { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        loadPromos();
-    } catch(e) { console.error(e); }
+        if (d.success) {
+            document.getElementById('promo-input').value = '';
+            loadData();
+            loadBalance();
+        }
+    } catch(e) { console.error(e); tg.showAlert('Ошибка сети'); }
 }
 
 async function loadReferral() {
@@ -1005,7 +988,6 @@ async function loadTrades() {
             opt.textContent = u.username + ' (' + Math.floor(u.balance) + '₽)';
             select.appendChild(opt);
         });
-        
         const invR = await fetch('/api/trades/inventory/' + userId);
         const items = await invR.json();
         const list = document.getElementById('trade-items-list');
@@ -1019,7 +1001,6 @@ async function loadTrades() {
             d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.rarity + ' • ' + Math.floor(i.buy_price) + '₽</div></div>';
             list.appendChild(d);
         });
-        
         const tradesR = await fetch('/api/trades/pending/' + userId);
         const trades = await tradesR.json();
         const pendingList = document.getElementById('pending-trades-list');
@@ -1056,11 +1037,7 @@ async function createTrade() {
     if (money === 0 && tradeSelectedItems.length === 0) return tg.showAlert('Добавь деньги или номера!');
     if (!confirm('Отправить трейд? ' + (money > 0 ? money + '₽' : '') + ' ' + (tradeSelectedItems.length > 0 ? tradeSelectedItems.length + ' номеров' : ''))) return;
     try {
-        const r = await fetch('/api/trades/create/' + userId, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ receiver_id: parseInt(receiverId), money: money, items: tradeSelectedItems })
-        });
+        const r = await fetch('/api/trades/create/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ receiver_id: parseInt(receiverId), money: money, items: tradeSelectedItems }) });
         const d = await r.json();
         tg.showAlert(d.message);
         if (d.success) {
@@ -1235,7 +1212,7 @@ async function admDeletePromo() {
     const code = document.getElementById('adm-del-promo-code').value;
     if (!code) return tg.showAlert('Введи код!');
     try {
-        const r = await fetch('/api/admin/delete_promo/' + code, { method: 'POST' });
+        const r = await fetch('/api/admin/delete_promo/' + encodeURIComponent(code), { method: 'POST' });
         const d = await r.json();
         tg.showAlert(d.message);
         if (d.success) document.getElementById('adm-del-promo-code').value = '';
@@ -1254,11 +1231,8 @@ async function admBroadcast() {
 }
 
 // Запуск
-if (userId) {
-    loadData();
-} else {
-    document.getElementById('greeting-text').textContent = 'Ошибка: не удалось получить ID';
-}
+loadData();
+renderIcons();
 </script>
 </body>
     </html>
