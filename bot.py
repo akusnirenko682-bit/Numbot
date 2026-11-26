@@ -1,10 +1,9 @@
 import asyncio
 import os
-import sqlite3
 from threading import Thread
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from flask import Flask, jsonify, request
 
@@ -13,9 +12,11 @@ from config import BOT_TOKEN, ADMIN_IDS, PORT
 
 flask_app = Flask(__name__, static_folder='static')
 
+# ===== ОСНОВНЫЕ РОУТЫ =====
+
 @flask_app.route("/")
 def home():
-    return "✅ NumBot работает!"
+    return "✅ Nova Bot работает!"
 
 @flask_app.route("/health")
 def health():
@@ -146,10 +147,52 @@ def bid_api(user_id, lot_id):
     return jsonify({"success": s, "message": m})
 
 
-# ===== АДМИН API (ВСЕ ФУНКЦИИ) =====
+# ===== НОВЫЕ API ДЛЯ РОСТА =====
 
-def check_admin(user_id):
-    return user_id in ADMIN_IDS
+@flask_app.route("/api/daily/<int:user_id>")
+def daily_api(user_id):
+    can, wait = db.can_claim_daily_case(user_id)
+    conn = db.get_conn()
+    c = conn.cursor()
+    c.execute("SELECT streak FROM daily_case WHERE user_id = %s", (user_id,))
+    r = c.fetchone()
+    conn.close()
+    streak = r[0] if r else 0
+    return jsonify({"can_claim": can, "wait": wait, "streak": streak})
+
+@flask_app.route("/api/daily/claim/<int:user_id>", methods=["POST"])
+def daily_claim_api(user_id):
+    success, msg = db.claim_daily_case(user_id)
+    if success and "Выбит" in msg:
+        # Парсим номер из сообщения
+        parts = msg.split()
+        number = parts[1] if len(parts) > 1 else ""
+        rarity = parts[2].replace("(", "").replace(")", "") if len(parts) > 2 else ""
+        return jsonify({"success": True, "number": number, "rarity": rarity, "country": "Россия", "message": msg})
+    return jsonify({"success": False, "message": msg})
+
+@flask_app.route("/api/promos/active")
+def active_promos():
+    promos = db.get_active_promos()
+    return jsonify([{"code": p[0], "type": p[1], "reward_type": p[2], "reward_value": p[3], "max_uses": p[4], "current_uses": p[5]} for p in promos])
+
+@flask_app.route("/api/promo/use/<int:user_id>/<code>", methods=["POST"])
+def use_promo_api(user_id, code):
+    s, m = db.use_promo_code(user_id, code)
+    return jsonify({"success": s, "message": m})
+
+@flask_app.route("/api/referral/<int:user_id>")
+def referral_api(user_id):
+    code = db.get_referral_code(user_id)
+    count = db.get_referral_stats(user_id)
+    return jsonify({"code": code, "count": count})
+
+@flask_app.route("/api/season/<int:user_id>")
+def season_api(user_id):
+    return jsonify(db.get_season_info(user_id))
+
+
+# ===== АДМИН API =====
 
 @flask_app.route("/api/admin/stats")
 def admin_stats():
@@ -160,15 +203,12 @@ def admin_stats():
     total_inv = c.fetchone()[0]
     c.execute("SELECT COUNT(*) FROM market")
     total_market = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM auction")
-    total_auction = c.fetchone()[0]
     conn.close()
     return jsonify({
         "total_users": len(users),
         "total_balance": sum(u[2] for u in users),
         "total_inventory": total_inv,
-        "total_market": total_market,
-        "total_auction": total_auction
+        "total_market": total_market
     })
 
 @flask_app.route("/api/admin/users")
@@ -239,6 +279,18 @@ def admin_give_number():
     db.give_number_to_user(int(d["user_id"]), d["number"].upper(), d["country"], d["rarity"], float(d["price"]))
     return jsonify({"success": True, "message": f"Номер {d['number'].upper()} выдан!"})
 
+@flask_app.route("/api/admin/create_promo", methods=["POST"])
+def admin_create_promo():
+    d = request.json
+    code = d.get("code", "").strip().upper()
+    promo_type = d.get("type", "money")
+    reward_value = float(d.get("reward_value", 0))
+    max_uses = int(d.get("max_uses", 0))
+    if not code or reward_value <= 0:
+        return jsonify({"success": False, "message": "Заполни код и сумму!"})
+    s, m = db.create_promo_code(code, promo_type, "money" if promo_type == "money" else "case", reward_value, max_uses)
+    return jsonify({"success": s, "message": m})
+
 @flask_app.route("/api/admin/broadcast", methods=["POST"])
 def admin_broadcast():
     text = request.json.get("text", "").strip()
@@ -256,8 +308,46 @@ def admin_broadcast():
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT)
 
+
+# ===== TELEGRAM БОТ =====
+
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+@dp.message(CommandStart(deep_link=True))
+async def cmd_start_referral(message: Message):
+    """Обработка реферальных ссылок /start?start=ref_CODE"""
+    args = message.text.split(maxsplit=1)
+    referred_by = None
+    
+    if len(args) > 1 and args[1].startswith("ref_"):
+        ref_code = args[1][4:]
+        # Ищем пользователя по коду
+        conn = db.get_conn()
+        c = conn.cursor()
+        c.execute("SELECT user_id FROM users WHERE referral_code = %s", (ref_code,))
+        r = c.fetchone()
+        conn.close()
+        if r:
+            referred_by = r[0]
+    
+    db.get_or_create_user(message.from_user.id, message.from_user.username, referred_by)
+    
+    hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🎮 Играть", web_app=WebAppInfo(url=f"https://{hostname}/app"))]
+    ])
+    
+    ref_text = ""
+    if referred_by:
+        ref_text = "\n\n🎁 Твой друг пригласил тебя! Вы оба получили по 2000₽!"
+    
+    await message.answer(
+        f"🚗 <b>Добро пожаловать в Nova Bot!</b>{ref_text}\n\n"
+        f"🇷🇺 Россия | 🇧🇾 Беларусь | 🇺🇦 Украина | 🇰🇿 Казахстан\n\n"
+        f"Открывай номера, продавай на рынке, соревнуйся в топе!",
+        parse_mode="HTML", reply_markup=keyboard
+    )
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message):
@@ -267,11 +357,14 @@ async def cmd_start(message: Message):
         [InlineKeyboardButton(text="🎮 Играть", web_app=WebAppInfo(url=f"https://{hostname}/app"))]
     ])
     await message.answer(
-        f"🚗 <b>Добро пожаловать в Numbers Bot!</b>\n\n"
+        f"🚗 <b>Добро пожаловать в Nova Bot!</b>\n\n"
         f"🇷🇺 Россия | 🇧🇾 Беларусь | 🇺🇦 Украина | 🇰🇿 Казахстан\n\n"
         f"Открывай номера, продавай на рынке, соревнуйся в топе!",
         parse_mode="HTML", reply_markup=keyboard
     )
+
+
+# ===== ФОНОВАЯ РАССЫЛКА =====
 
 async def broadcast_sender():
     while True:
@@ -298,6 +391,7 @@ async def broadcast_sender():
         except Exception as e:
             print(f"Broadcast error: {e}")
         await asyncio.sleep(30)
+
 
 async def main():
     flask_thread = Thread(target=run_flask, daemon=True)
