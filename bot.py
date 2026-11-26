@@ -1,10 +1,9 @@
 import asyncio
 import os
 from threading import Thread
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from aiogram.filters import F
 from flask import Flask, jsonify, request
 import database as db
 from config import BOT_TOKEN, ADMIN_IDS, PORT
