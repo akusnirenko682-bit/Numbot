@@ -22,7 +22,8 @@ def init_db():
         last_bonus TEXT,
         referral_code TEXT,
         referred_by BIGINT,
-        channel_bonus BOOLEAN DEFAULT FALSE
+        channel_bonus BOOLEAN DEFAULT FALSE,
+        last_issue DOUBLE PRECISION DEFAULT 0
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS inventory (
         id SERIAL PRIMARY KEY,
@@ -203,6 +204,29 @@ def get_issue_price(user_id):
     return max(200, 500 - up["discount"] * 50)
 
 
+def can_issue(user_id):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT last_issue FROM users WHERE user_id = %s", (user_id,))
+    r = c.fetchone()
+    conn.close()
+    if not r or not r[0]:
+        return True, 0
+    diff = datetime.now().timestamp() - float(r[0])
+    if diff >= 10:
+        return True, 0
+    return False, int(10 - diff)
+
+
+def set_last_issue(user_id):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("UPDATE users SET last_issue = %s WHERE user_id = %s",
+              (datetime.now().timestamp(), user_id))
+    conn.commit()
+    conn.close()
+
+
 def issue_number(user_id, country):
     number = generate_number(country)
     up = get_upgrades(user_id)
@@ -265,6 +289,27 @@ def auto_sell(user_id):
     return True, f"Продано {len(items)} номеров за {total}₽!"
 
 
+def auto_sell_by_rarity(user_id, rarity):
+    conn = get_conn()
+    c = conn.cursor()
+    if rarity == "all":
+        c.execute("SELECT id, buy_price FROM inventory WHERE user_id = %s", (user_id,))
+    else:
+        c.execute("SELECT id, buy_price FROM inventory WHERE user_id = %s AND rarity = %s", (user_id, rarity))
+    items = c.fetchall()
+    if not items:
+        conn.close()
+        return False, "Нет номеров для продажи!"
+    total = 0
+    for iid, bp in items:
+        total += int(bp * 0.8)
+        c.execute("DELETE FROM inventory WHERE id = %s", (iid,))
+    c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (total, user_id))
+    conn.commit()
+    conn.close()
+    return True, f"Продано {len(items)} номеров за {total}₽!"
+
+
 def create_market_listing(user_id, inventory_id, price):
     conn = get_conn()
     c = conn.cursor()
@@ -280,6 +325,26 @@ def create_market_listing(user_id, inventory_id, price):
     conn.commit()
     conn.close()
     return True, f"Номер {number} выставлен за {price}₽!"
+
+
+def remove_market_listing(listing_id, user_id, is_admin=False):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT * FROM market WHERE id = %s", (listing_id,))
+    item = c.fetchone()
+    if not item:
+        conn.close()
+        return False, "Товар не найден!"
+    lid, seller_id, number, country, rarity, price, _ = item
+    if seller_id != user_id and not is_admin:
+        conn.close()
+        return False, "Это не твой товар!"
+    c.execute("DELETE FROM market WHERE id = %s", (listing_id,))
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
+              (seller_id, number, country, rarity, price, datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    return True, f"Товар {number} снят с продажи!"
 
 
 def get_market_listings(limit=30):
@@ -567,6 +632,28 @@ def get_auctions():
     return r
 
 
+def remove_auction_listing(lot_id, user_id, is_admin=False):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT * FROM auction WHERE id = %s", (lot_id,))
+    lot = c.fetchone()
+    if not lot:
+        conn.close()
+        return False, "Лот не найден!"
+    lid, seller_id, number, country, rarity, min_p, cur_bid, bidder, ends = lot
+    if seller_id != user_id and not is_admin:
+        conn.close()
+        return False, "Это не твой лот!"
+    if bidder:
+        c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (cur_bid, bidder))
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
+              (seller_id, number, country, rarity, min_p, datetime.now().isoformat()))
+    c.execute("DELETE FROM auction WHERE id = %s", (lot_id,))
+    conn.commit()
+    conn.close()
+    return True, f"Лот {number} снят с аукциона!"
+
+
 def make_bid(user_id, lot_id, bid):
     conn = get_conn()
     c = conn.cursor()
@@ -646,6 +733,15 @@ def use_promo_code(user_id, code):
     conn.close()
     add_season_xp(user_id, 25)
     return True, msg
+
+
+def delete_promo_code(code):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("DELETE FROM promo_codes WHERE code = %s", (code.upper(),))
+    conn.commit()
+    conn.close()
+    return True, f"Промокод {code.upper()} удалён!"
 
 
 def can_claim_daily_case(user_id):
