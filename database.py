@@ -17,9 +17,7 @@ def init_db():
         balance DOUBLE PRECISION DEFAULT 1000.0,
         created_at TEXT, last_bonus TEXT,
         referral_code TEXT, referred_by BIGINT,
-        channel_bonus BOOLEAN DEFAULT FALSE,
-        last_issue DOUBLE PRECISION DEFAULT 0,
-        last_seen DOUBLE PRECISION DEFAULT 0
+        channel_bonus BOOLEAN DEFAULT FALSE
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS inventory (
         id SERIAL PRIMARY KEY, user_id BIGINT, number TEXT,
@@ -35,20 +33,16 @@ def init_db():
         current_bid DOUBLE PRECISION, current_bidder BIGINT, ends_at TEXT
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS safe (
-        user_id BIGINT PRIMARY KEY, amount DOUBLE PRECISION DEFAULT 0,
-        deposit_time TEXT, duration_days INTEGER DEFAULT 7,
-        unlock_time TEXT
+        user_id BIGINT PRIMARY KEY, amount DOUBLE PRECISION DEFAULT 0, deposit_time TEXT
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS upgrades (
-        user_id BIGINT PRIMARY KEY,
-        bonus_level INTEGER DEFAULT 0, discount_level INTEGER DEFAULT 0,
-        luck_level INTEGER DEFAULT 0
+        user_id BIGINT PRIMARY KEY, bonus_level INTEGER DEFAULT 0,
+        discount_level INTEGER DEFAULT 0, luck_level INTEGER DEFAULT 0
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS promo_codes (
-        id SERIAL PRIMARY KEY, code TEXT UNIQUE, type TEXT,
-        reward_type TEXT, reward_value DOUBLE PRECISION,
-        max_uses INTEGER DEFAULT 0, current_uses INTEGER DEFAULT 0,
-        created_at TEXT, expires_at TEXT
+        id SERIAL PRIMARY KEY, code TEXT UNIQUE, reward_type TEXT,
+        reward_value DOUBLE PRECISION, max_uses INTEGER DEFAULT 0,
+        current_uses INTEGER DEFAULT 0, created_at TEXT, expires_at TEXT
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS promo_uses (
         id SERIAL PRIMARY KEY, user_id BIGINT, promo_id INTEGER, used_at TEXT
@@ -64,49 +58,22 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS daily_case (
         user_id BIGINT PRIMARY KEY, last_claim TEXT, streak INTEGER DEFAULT 0
     )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS trades (
-        id SERIAL PRIMARY KEY,
-        sender_id BIGINT,
-        receiver_id BIGINT,
-        money DOUBLE PRECISION DEFAULT 0,
-        items INTEGER[] DEFAULT '{}',
-        expires_at TEXT,
-        status TEXT DEFAULT 'pending'
-    )''')
     conn.commit()
     conn.close()
-
-def update_last_seen(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("UPDATE users SET last_seen = %s WHERE user_id = %s",
-              (datetime.now().timestamp(), user_id))
-    conn.commit(); conn.close()
-
-def is_user_online(user_id, threshold_minutes=5):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT last_seen FROM users WHERE user_id = %s", (user_id,))
-    r = c.fetchone(); conn.close()
-    if not r or not r[0]: return False
-    return (datetime.now().timestamp() - float(r[0])) < (threshold_minutes * 60)
 
 def get_or_create_user(user_id, username, referred_by=None):
     conn = get_conn(); c = conn.cursor()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
-    user = c.fetchone()
-    if not user:
+    if not c.fetchone():
         now = datetime.now().isoformat()
         ref_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        c.execute("INSERT INTO users (user_id, username, balance, created_at, last_bonus, referral_code, referred_by, last_seen) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                  (user_id, username, 1000.0, now, now, ref_code, referred_by, datetime.now().timestamp()))
+        c.execute("INSERT INTO users (user_id, username, balance, created_at, last_bonus, referral_code, referred_by) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+                  (user_id, username, 1000.0, now, now, ref_code, referred_by))
         c.execute("INSERT INTO upgrades (user_id) VALUES (%s) ON CONFLICT DO NOTHING", (user_id,))
         c.execute("INSERT INTO season_pass (user_id) VALUES (%s) ON CONFLICT DO NOTHING", (user_id,))
         if referred_by:
             c.execute("UPDATE users SET balance = balance + 2000 WHERE user_id = %s", (user_id,))
             c.execute("UPDATE users SET balance = balance + 2000 WHERE user_id = %s", (referred_by,))
-        conn.commit()
-    else:
-        c.execute("UPDATE users SET last_seen = %s WHERE user_id = %s",
-                  (datetime.now().timestamp(), user_id))
         conn.commit()
     conn.close()
 
@@ -171,28 +138,13 @@ def get_issue_price(user_id):
     up = get_upgrades(user_id)
     return max(200, 500 - up["discount"] * 50)
 
-def can_issue(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT last_issue FROM users WHERE user_id = %s", (user_id,))
-    r = c.fetchone(); conn.close()
-    if not r or not r[0]: return True, 0
-    diff = datetime.now().timestamp() - float(r[0])
-    if diff >= 10: return True, 0
-    return False, int(10 - diff)
-
-def set_last_issue(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("UPDATE users SET last_issue = %s WHERE user_id = %s",
-              (datetime.now().timestamp(), user_id))
-    conn.commit(); conn.close()
-
 def issue_number(user_id, country):
     number = generate_number(country)
     up = get_upgrades(user_id)
     rarity, value = get_rarity(number, up["luck"])
     price = get_issue_price(user_id)
     conn = get_conn(); c = conn.cursor()
-    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
               (user_id, number, country, rarity, value, datetime.now().isoformat()))
     conn.commit(); conn.close()
     update_task(user_id, "open", 1)
@@ -219,14 +171,11 @@ def sell_number(user_id, inventory_id):
     add_season_xp(user_id, 5)
     return True, f"Номер {number} ({country}) продан за {sell_price}₽!"
 
-def auto_sell_by_rarity(user_id, rarity):
+def auto_sell(user_id):
     conn = get_conn(); c = conn.cursor()
-    if rarity == "all":
-        c.execute("SELECT id, buy_price FROM inventory WHERE user_id = %s", (user_id,))
-    else:
-        c.execute("SELECT id, buy_price FROM inventory WHERE user_id = %s AND rarity = %s", (user_id, rarity))
+    c.execute("SELECT id, buy_price FROM inventory WHERE user_id = %s AND rarity = 'Обычный'", (user_id,))
     items = c.fetchall()
-    if not items: conn.close(); return False, f"Нет номеров!"
+    if not items: conn.close(); return False, "Нет обычных номеров для продажи!"
     total = 0
     for iid, bp in items:
         total += int(bp * 0.8)
@@ -242,24 +191,10 @@ def create_market_listing(user_id, inventory_id, price):
     if not item: conn.close(); return False, "Этот номер тебе не принадлежит!"
     _, _, number, country, rarity, _, _ = item
     c.execute("DELETE FROM inventory WHERE id = %s", (inventory_id,))
-    c.execute("INSERT INTO market (seller_id, number, country, rarity, price, created_at) VALUES (%s, %s, %s, %s, %s, %s)",
+    c.execute("INSERT INTO market (seller_id, number, country, rarity, price, created_at) VALUES (%s,%s,%s,%s,%s,%s)",
               (user_id, number, country, rarity, price, datetime.now().isoformat()))
     conn.commit(); conn.close()
     return True, f"Номер {number} выставлен за {price}₽!"
-
-def remove_market_listing(listing_id, user_id, is_admin=False):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT * FROM market WHERE id = %s", (listing_id,))
-    item = c.fetchone()
-    if not item: conn.close(); return False, "Товар не найден!"
-    lid, seller_id, number, country, rarity, price, _ = item
-    if seller_id != user_id and not is_admin:
-        conn.close(); return False, "Это не твой товар!"
-    c.execute("DELETE FROM market WHERE id = %s", (listing_id,))
-    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
-              (seller_id, number, country, rarity, price, datetime.now().isoformat()))
-    conn.commit(); conn.close()
-    return True, f"Товар {number} снят с продажи!"
 
 def get_market_listings(limit=30):
     conn = get_conn(); c = conn.cursor()
@@ -279,11 +214,10 @@ def buy_from_market(buyer_id, listing_id):
     c.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (price, buyer_id))
     c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (price, seller_id))
     c.execute("DELETE FROM market WHERE id = %s", (listing_id,))
-    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
               (buyer_id, number, country, rarity, price, datetime.now().isoformat()))
     conn.commit(); conn.close()
     add_season_xp(buyer_id, 15)
-    update_task(buyer_id, "market_buy", 1)
     return True, f"Куплен номер {number} за {price}₽!"
 
 def can_get_bonus(user_id):
@@ -295,9 +229,7 @@ def can_get_bonus(user_id):
     diff = datetime.now() - last
     if diff >= timedelta(hours=24): return True, 0
     remaining = timedelta(hours=24) - diff
-    hours = int(remaining.total_seconds() // 3600)
-    minutes = int((remaining.total_seconds() % 3600) // 60)
-    return False, f"{hours}ч {minutes}м"
+    return False, f"{int(remaining.total_seconds()//3600)}ч {int((remaining.total_seconds()%3600)//60)}м"
 
 def give_bonus(user_id):
     up = get_upgrades(user_id)
@@ -310,160 +242,94 @@ def give_bonus(user_id):
     add_season_xp(user_id, 20)
     return bonus
 
-DAILY_TASKS = [
-    {"key": "open3", "name": "Открой 3 номера", "target": 3, "reward": 500},
-    {"key": "sell2", "name": "Продай 2 номера", "target": 2, "reward": 300},
+TASKS = [
+    {"key": "open", "name": "Открой 3 номера", "target": 3, "reward": 500},
+    {"key": "sell", "name": "Продай 2 номера", "target": 2, "reward": 300},
     {"key": "bonus", "name": "Забери бонус", "target": 1, "reward": 200},
-    {"key": "market_buy", "name": "Купи на рынке", "target": 1, "reward": 400},
-    {"key": "deposit", "name": "Внеси в сейф", "target": 1, "reward": 300},
-    {"key": "upgrade", "name": "Купи улучшение", "target": 1, "reward": 500},
-    {"key": "invite", "name": "Пригласи друга", "target": 1, "reward": 1000},
-    {"key": "promo", "name": "Используй промокод", "target": 1, "reward": 250},
-    {"key": "auction", "name": "Сделай ставку", "target": 1, "reward": 350},
-    {"key": "sell5", "name": "Продай 5 номеров", "target": 5, "reward": 800},
 ]
-
-WEEKLY_TASKS = [
-    {"key": "w_open20", "name": "Открой 20 номеров", "target": 20, "reward": 3000},
-    {"key": "w_sell15", "name": "Продай 15 номеров", "target": 15, "reward": 2500},
-    {"key": "w_legendary", "name": "Выбей легендарный", "target": 1, "reward": 5000},
-    {"key": "w_market", "name": "Купи 5 на рынке", "target": 5, "reward": 2000},
-    {"key": "w_balance", "name": "Накопи 50000₽", "target": 50000, "reward": 4000},
-]
-
-def get_week_key():
-    now = datetime.now()
-    return f"week_{now.year}_{now.isocalendar()[1]}"
 
 def get_or_create_tasks(user_id):
     today = datetime.now().strftime("%Y-%m-%d")
-    week = get_week_key()
     conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT task_key, progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key NOT LIKE 'w_%'", (user_id, today))
-    daily_rows = {r[0]: (r[1], r[2]) for r in c.fetchall()}
+    c.execute("SELECT task_key, progress, completed FROM tasks WHERE user_id = %s AND date = %s", (user_id, today))
+    existing = {r[0]: (r[1], r[2]) for r in c.fetchall()}
     result = []
-    for t in DAILY_TASKS:
-        if t["key"] not in daily_rows:
-            c.execute("INSERT INTO tasks (user_id, date, task_key, progress, completed) VALUES (%s, %s, %s, 0, 0)",
-                      (user_id, today, t["key"]))
+    for t in TASKS:
+        if t["key"] not in existing:
+            c.execute("INSERT INTO tasks (user_id, date, task_key, progress, completed) VALUES (%s,%s,%s,0,0)", (user_id, today, t["key"]))
             conn.commit()
-            result.append({**t, "progress": 0, "completed": False, "type": "daily"})
+            result.append({**t, "progress": 0, "completed": False})
         else:
-            p, comp = daily_rows[t["key"]]
-            result.append({**t, "progress": p, "completed": bool(comp), "type": "daily"})
-    c.execute("SELECT task_key, progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key LIKE 'w_%'", (user_id, week))
-    weekly_rows = {r[0]: (r[1], r[2]) for r in c.fetchall()}
-    for t in WEEKLY_TASKS:
-        if t["key"] not in weekly_rows:
-            c.execute("INSERT INTO tasks (user_id, date, task_key, progress, completed) VALUES (%s, %s, %s, 0, 0)",
-                      (user_id, week, t["key"]))
-            conn.commit()
-            result.append({**t, "progress": 0, "completed": False, "type": "weekly"})
-        else:
-            p, comp = weekly_rows[t["key"]]
-            result.append({**t, "progress": p, "completed": bool(comp), "type": "weekly"})
+            p, comp = existing[t["key"]]
+            result.append({**t, "progress": p, "completed": bool(comp)})
     conn.close()
     return result
 
 def update_task(user_id, key, amount=1):
     today = datetime.now().strftime("%Y-%m-%d")
-    week = get_week_key()
     conn = get_conn(); c = conn.cursor()
-    all_tasks = DAILY_TASKS + WEEKLY_TASKS
-    task = next((t for t in all_tasks if t["key"] == key), None)
-    if not task:
-        conn.close(); return
-    for date_key in [today, week]:
-        c.execute("SELECT progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key = %s",
-                  (user_id, date_key, key))
-        r = c.fetchone()
-        if r and not r[1]:
+    c.execute("SELECT progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key = %s", (user_id, today, key))
+    r = c.fetchone()
+    if r and not r[1]:
+        task = next((t for t in TASKS if t["key"] == key), None)
+        if task:
             new_progress = min(r[0] + amount, task["target"])
             completed = 1 if new_progress >= task["target"] else 0
             c.execute("UPDATE tasks SET progress = %s, completed = %s WHERE user_id = %s AND date = %s AND task_key = %s",
-                      (new_progress, completed, user_id, date_key, key))
+                      (new_progress, completed, user_id, today, key))
             conn.commit()
     conn.close()
 
 def claim_task(user_id, key):
     today = datetime.now().strftime("%Y-%m-%d")
-    week = get_week_key()
-    all_tasks = DAILY_TASKS + WEEKLY_TASKS
-    task = next((t for t in all_tasks if t["key"] == key), None)
+    task = next((t for t in TASKS if t["key"] == key), None)
     if not task: return False, "Задание не найдено!"
     conn = get_conn(); c = conn.cursor()
-    for date_key in [today, week]:
-        c.execute("SELECT progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key = %s",
-                  (user_id, date_key, key))
-        r = c.fetchone()
-        if r:
-            progress, completed = r
-            if completed: conn.close(); return False, "Награда уже получена!"
-            if progress < task["target"]: conn.close(); return False, f"Прогресс: {progress}/{task['target']}"
-            c.execute("UPDATE tasks SET completed = 1 WHERE user_id = %s AND date = %s AND task_key = %s",
-                      (user_id, date_key, key))
-            c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (task["reward"], user_id))
-            conn.commit(); conn.close()
-            add_season_xp(user_id, 30)
-            return True, f"Получено {task['reward']}₽!"
-    conn.close()
-    return False, "Задание не найдено!"
+    c.execute("SELECT progress, completed FROM tasks WHERE user_id = %s AND date = %s AND task_key = %s", (user_id, today, key))
+    r = c.fetchone()
+    if not r: conn.close(); return False, "Задание не найдено!"
+    progress, completed = r
+    if completed: conn.close(); return False, "Награда уже получена!"
+    if progress < task["target"]: conn.close(); return False, f"Прогресс: {progress}/{task['target']}"
+    c.execute("UPDATE tasks SET completed = 1 WHERE user_id = %s AND date = %s AND task_key = %s", (user_id, today, key))
+    c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (task["reward"], user_id))
+    conn.commit(); conn.close()
+    add_season_xp(user_id, 30)
+    return True, f"Получено {task['reward']}₽!"
 
-SAFE_OPTIONS = {1: 0.25, 3: 0.75, 7: 1.75, 30: 7.5}
-
-def deposit_safe(user_id, amount, days=7):
+def deposit_safe(user_id, amount):
     if amount <= 0: return False, "Сумма должна быть больше 0!"
-    if days not in SAFE_OPTIONS: return False, "Неверный срок!"
     balance = get_balance(user_id)
     if balance < amount: return False, f"Недостаточно средств! Баланс: {balance}₽"
-    unlock = (datetime.now() + timedelta(days=days)).isoformat()
     conn = get_conn(); c = conn.cursor()
-    c.execute("INSERT INTO safe (user_id, amount, deposit_time, duration_days, unlock_time) VALUES (%s, %s, %s, %s, %s) "
-              "ON CONFLICT (user_id) DO UPDATE SET amount = safe.amount + %s, unlock_time = %s",
-              (user_id, amount, datetime.now().isoformat(), days, unlock, amount, unlock))
+    c.execute("INSERT INTO safe (user_id, amount, deposit_time) VALUES (%s,%s,%s) ON CONFLICT (user_id) DO UPDATE SET amount = safe.amount + %s",
+              (user_id, amount, datetime.now().isoformat(), amount))
     c.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (amount, user_id))
     conn.commit(); conn.close()
-    update_task(user_id, "deposit", 1)
-    return True, f"Внесено {amount}₽ на {days} дн. ({SAFE_OPTIONS[days]}%)"
+    return True, f"Внесено {amount}₽ в сейф!"
 
 def get_safe(user_id):
     conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT amount, deposit_time, duration_days, unlock_time FROM safe WHERE user_id = %s", (user_id,))
+    c.execute("SELECT amount, deposit_time FROM safe WHERE user_id = %s", (user_id,))
     r = c.fetchone(); conn.close()
-    if not r: return {"amount": 0, "interest": 0, "locked": False, "unlock_time": None}
-    amount, dep_time, days, unlock = r
+    if not r: return {"amount": 0, "interest": 0}
+    amount, dep_time = r
     hours = (datetime.now() - datetime.fromisoformat(dep_time)).total_seconds() / 3600
-    interest = int(amount * (SAFE_OPTIONS.get(days, 1.75) / 100) * (hours / 24))
-    locked = datetime.fromisoformat(unlock) > datetime.now() if unlock else False
-    return {"amount": amount, "interest": interest, "locked": locked, "unlock_time": unlock, "days": days}
+    return {"amount": amount, "interest": int(amount * 0.005 * hours)}
 
-def withdraw_safe(user_id, is_admin=False):
+def withdraw_safe(user_id):
     conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT amount, deposit_time, duration_days, unlock_time FROM safe WHERE user_id = %s", (user_id,))
+    c.execute("SELECT amount, deposit_time FROM safe WHERE user_id = %s", (user_id,))
     r = c.fetchone()
     if not r: conn.close(); return False, "Сейф пуст!"
-    amount, dep_time, days, unlock = r
-    if not is_admin and datetime.fromisoformat(unlock) > datetime.now():
-        conn.close()
-        remaining = datetime.fromisoformat(unlock) - datetime.now()
-        h = int(remaining.total_seconds() // 3600)
-        m = int((remaining.total_seconds() % 3600) // 60)
-        return False, f"Сейф заблокирован ещё {h}ч {m}м!"
+    amount, dep_time = r
     hours = (datetime.now() - datetime.fromisoformat(dep_time)).total_seconds() / 3600
-    interest = int(amount * (SAFE_OPTIONS.get(days, 1.75) / 100) * (hours / 24))
+    interest = int(amount * 0.005 * hours)
     total = amount + interest
     c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (total, user_id))
-    c.execute("UPDATE safe SET amount = 0, unlock_time = %s WHERE user_id = %s",
-              (datetime.now().isoformat(), user_id))
+    c.execute("UPDATE safe SET amount = 0, deposit_time = %s WHERE user_id = %s", (datetime.now().isoformat(), user_id))
     conn.commit(); conn.close()
     return True, f"Забрано {total}₽ (включая {interest}₽ процентов)!"
-
-def unlock_safe_admin(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("UPDATE safe SET unlock_time = %s WHERE user_id = %s",
-              (datetime.now().isoformat(), user_id))
-    conn.commit(); conn.close()
-    return True, "Сейф разблокирован!"
 
 UPGRADES_INFO = {
     "bonus": {"name": "💰 Бонус+", "desc": "Увеличивает ежедневный бонус", "base_price": 2000, "max": 5},
@@ -477,10 +343,7 @@ def buy_upgrade(user_id, key):
     conn = get_conn(); c = conn.cursor()
     c.execute(f"SELECT {key}_level FROM upgrades WHERE user_id = %s", (user_id,))
     r = c.fetchone()
-    if not r:
-        c.execute("INSERT INTO upgrades (user_id) VALUES (%s) ON CONFLICT DO NOTHING", (user_id,))
-        conn.commit(); current = 0
-    else: current = r[0]
+    current = r[0] if r else 0
     if current >= info["max"]: conn.close(); return False, "Максимум!"
     price = info["base_price"] * (current + 1)
     c.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
@@ -490,7 +353,6 @@ def buy_upgrade(user_id, key):
     c.execute(f"UPDATE upgrades SET {key}_level = {key}_level + 1 WHERE user_id = %s", (user_id,))
     conn.commit(); conn.close()
     add_season_xp(user_id, 50)
-    update_task(user_id, "upgrade", 1)
     return True, f"{info['name']} куплено за {price}₽! Уровень: {current + 1}"
 
 def get_upgrades_status(user_id):
@@ -510,10 +372,9 @@ def create_auction(user_id, inventory_id, min_price):
     _, _, number, country, rarity, _, _ = item
     c.execute("DELETE FROM inventory WHERE id = %s", (inventory_id,))
     ends = (datetime.now() + timedelta(hours=1)).isoformat()
-    c.execute("INSERT INTO auction (seller_id, number, country, rarity, min_price, current_bid, current_bidder, ends_at) VALUES (%s, %s, %s, %s, %s, %s, NULL, %s)",
+    c.execute("INSERT INTO auction (seller_id, number, country, rarity, min_price, current_bid, current_bidder, ends_at) VALUES (%s,%s,%s,%s,%s,%s,NULL,%s)",
               (user_id, number, country, rarity, min_price, min_price, ends))
     conn.commit(); conn.close()
-    update_task(user_id, "auction", 1)
     return True, "Лот выставлен на 1 час!"
 
 def get_auctions():
@@ -522,34 +383,17 @@ def get_auctions():
     c.execute("SELECT * FROM auction WHERE ends_at > %s ORDER BY ends_at ASC", (now,))
     r = c.fetchall()
     c.execute("SELECT * FROM auction WHERE ends_at <= %s", (now,))
-    expired = c.fetchall()
-    for lot in expired:
+    for lot in c.fetchall():
         lid, seller_id, number, country, rarity, min_p, cur_bid, bidder, ends = lot
         if bidder:
-            c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
+            c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
                       (bidder, number, country, rarity, cur_bid, datetime.now().isoformat()))
         else:
-            c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
+            c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
                       (seller_id, number, country, rarity, min_p, datetime.now().isoformat()))
         c.execute("DELETE FROM auction WHERE id = %s", (lid,))
     conn.commit(); conn.close()
     return r
-
-def remove_auction_listing(lot_id, user_id, is_admin=False):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT * FROM auction WHERE id = %s", (lot_id,))
-    lot = c.fetchone()
-    if not lot: conn.close(); return False, "Лот не найден!"
-    lid, seller_id, number, country, rarity, min_p, cur_bid, bidder, ends = lot
-    if seller_id != user_id and not is_admin:
-        conn.close(); return False, "Это не твой лот!"
-    if bidder:
-        c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (cur_bid, bidder))
-    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
-              (seller_id, number, country, rarity, min_p, datetime.now().isoformat()))
-    c.execute("DELETE FROM auction WHERE id = %s", (lot_id,))
-    conn.commit(); conn.close()
-    return True, f"Лот {number} снят с аукциона!"
 
 def make_bid(user_id, lot_id, bid):
     conn = get_conn(); c = conn.cursor()
@@ -567,7 +411,6 @@ def make_bid(user_id, lot_id, bid):
     c.execute("UPDATE auction SET current_bid = %s, current_bidder = %s WHERE id = %s", (bid, user_id, lot_id))
     c.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (bid, user_id))
     conn.commit(); conn.close()
-    update_task(user_id, "auction", 1)
     return True, f"Ставка {bid}₽ принята!"
 
 def get_referral_code(user_id):
@@ -582,87 +425,59 @@ def get_referral_stats(user_id):
     count = c.fetchone()[0]; conn.close()
     return count
 
-def create_promo_code(code, promo_type, reward_type, reward_value, max_uses=0):
+def create_promo_code(code, reward_type, reward_value, max_uses=0):
     conn = get_conn(); c = conn.cursor()
     expires = (datetime.now() + timedelta(days=30)).isoformat()
-    c.execute("INSERT INTO promo_codes (code, type, reward_type, reward_value, max_uses, created_at, expires_at) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-              (code.upper(), promo_type, reward_type, reward_value, max_uses, datetime.now().isoformat(), expires))
+    c.execute("INSERT INTO promo_codes (code, reward_type, reward_value, max_uses, created_at, expires_at) VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT (code) DO NOTHING",
+              (code.upper(), reward_type, reward_value, max_uses, datetime.now().isoformat(), expires))
     conn.commit(); conn.close()
     return True, f"Промокод {code.upper()} создан!"
-
-def delete_promo_code(code):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("DELETE FROM promo_codes WHERE code = %s", (code.upper(),))
-    conn.commit(); conn.close()
-    return True, f"Промокод {code.upper()} удалён!"
 
 def use_promo_code(user_id, code):
     conn = get_conn(); c = conn.cursor()
     c.execute("SELECT * FROM promo_codes WHERE code = %s", (code.upper(),))
     promo = c.fetchone()
     if not promo: conn.close(); return False, "Промокод не найден!"
-    pid, pcode, ptype, reward_type, reward_value, max_uses, current_uses, created, expires = promo
+    pid, pcode, reward_type, reward_value, max_uses, current_uses, created, expires = promo
     if datetime.fromisoformat(expires) < datetime.now(): conn.close(); return False, "Промокод истёк!"
     if max_uses > 0 and current_uses >= max_uses: conn.close(); return False, "Лимит исчерпан!"
     c.execute("SELECT * FROM promo_uses WHERE user_id = %s AND promo_id = %s", (user_id, pid))
     if c.fetchone(): conn.close(); return False, "Ты уже использовал этот промокод!"
-    c.execute("INSERT INTO promo_uses (user_id, promo_id, used_at) VALUES (%s, %s, %s)",
-              (user_id, pid, datetime.now().isoformat()))
+    c.execute("INSERT INTO promo_uses (user_id, promo_id, used_at) VALUES (%s,%s,%s)", (user_id, pid, datetime.now().isoformat()))
     c.execute("UPDATE promo_codes SET current_uses = current_uses + 1 WHERE id = %s", (pid,))
     if reward_type == "money":
         c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (reward_value, user_id))
-        msg = f"Получено {reward_value}₽!"
+        msg = f"Получено {int(reward_value)}₽!"
     else:
         number, country, rarity, value, _ = issue_number(user_id, "Россия")
         msg = f"Выбит номер {number} ({rarity})!"
     conn.commit(); conn.close()
     add_season_xp(user_id, 25)
-    update_task(user_id, "promo", 1)
     return True, msg
-
-def get_active_promos():
-    conn = get_conn(); c = conn.cursor()
-    now = datetime.now().isoformat()
-    c.execute("SELECT id, code, type, reward_type, reward_value, max_uses, current_uses FROM promo_codes WHERE expires_at > %s AND (max_uses = 0 OR current_uses < max_uses)", (now,))
-    r = c.fetchall(); conn.close()
-    return r
 
 def can_claim_daily_case(user_id):
     conn = get_conn(); c = conn.cursor()
-    try:
-        c.execute("SELECT last_claim FROM daily_case WHERE user_id = %s", (user_id,))
-        r = c.fetchone()
-    except:
-        conn.close(); return True, 0
-    conn.close()
+    c.execute("SELECT last_claim FROM daily_case WHERE user_id = %s", (user_id,))
+    r = c.fetchone(); conn.close()
     if not r or not r[0]: return True, 0
     last = datetime.fromisoformat(r[0])
     diff = datetime.now() - last
     if diff >= timedelta(hours=24): return True, 0
     remaining = timedelta(hours=24) - diff
-    hours = int(remaining.total_seconds() // 3600)
-    minutes = int((remaining.total_seconds() % 3600) // 60)
-    return False, f"{hours}ч {minutes}м"
+    return False, f"{int(remaining.total_seconds()//3600)}ч {int((remaining.total_seconds()%3600)//60)}м"
 
 def claim_daily_case(user_id):
     can, wait = can_claim_daily_case(user_id)
     if not can: return False, f"Следующий кейс через {wait}"
     conn = get_conn(); c = conn.cursor()
-    try:
-        c.execute("SELECT streak FROM daily_case WHERE user_id = %s", (user_id,))
-        r = c.fetchone()
-        streak = r[0] if r else 0
-        streak = (streak + 1) % 7
-        number, country, rarity, value, _ = issue_number(user_id, "Россия")
-        c.execute("INSERT INTO daily_case (user_id, last_claim, streak) VALUES (%s, %s, %s) ON CONFLICT (user_id) DO UPDATE SET last_claim = %s, streak = %s",
-                  (user_id, datetime.now().isoformat(), streak, datetime.now().isoformat(), streak))
-        conn.commit(); conn.close()
-        bonus = streak == 6
-        return True, f"Выбит {number} ({rarity})!{' Бонусный день!' if bonus else f' Серия: {streak+1}/7'}"
-    except:
-        conn.close()
-        number, country, rarity, value, _ = issue_number(user_id, "Россия")
-        return True, f"Выбит {number} ({rarity})!"
+    c.execute("SELECT streak FROM daily_case WHERE user_id = %s", (user_id,))
+    r = c.fetchone()
+    streak = (r[0] + 1) % 7 if r else 1
+    number, country, rarity, value, _ = issue_number(user_id, "Россия")
+    c.execute("INSERT INTO daily_case (user_id, last_claim, streak) VALUES (%s,%s,%s) ON CONFLICT (user_id) DO UPDATE SET last_claim = %s, streak = %s",
+              (user_id, datetime.now().isoformat(), streak, datetime.now().isoformat(), streak))
+    conn.commit(); conn.close()
+    return True, f"Выбит {number} ({rarity})! Серия: {streak}/7"
 
 def get_season_info(user_id):
     conn = get_conn(); c = conn.cursor()
@@ -687,8 +502,7 @@ def add_season_xp(user_id, amount):
             new_xp = new_xp - xp_for_next
             c.execute("UPDATE season_pass SET level = %s, xp = %s, last_updated = %s WHERE user_id = %s",
                       (new_level, new_xp, datetime.now().isoformat(), user_id))
-            reward = new_level * 500
-            c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (reward, user_id))
+            c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (new_level * 500, user_id))
         else:
             c.execute("UPDATE season_pass SET xp = %s, last_updated = %s WHERE user_id = %s",
                       (new_xp, datetime.now().isoformat(), user_id))
@@ -725,7 +539,7 @@ def get_user_info(user_id):
 
 def give_number_to_user(user_id, number, country, rarity, price):
     conn = get_conn(); c = conn.cursor()
-    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s, %s, %s, %s, %s, %s)",
+    c.execute("INSERT INTO inventory (user_id, number, country, rarity, buy_price, buy_date) VALUES (%s,%s,%s,%s,%s,%s)",
               (user_id, number, country, rarity, price, datetime.now().isoformat()))
     conn.commit(); conn.close()
 
@@ -756,88 +570,5 @@ def get_top_rare_numbers(limit=10):
     c.execute("SELECT user_id, COUNT(*) as rare_count FROM inventory WHERE rarity IN ('Легендарный', 'Эпический') GROUP BY user_id ORDER BY rare_count DESC LIMIT %s", (limit,))
     r = c.fetchall(); conn.close()
     return r
-
-# ===== ТРЕЙДЫ =====
-
-def create_trade(sender_id, receiver_id, money=0, items=None):
-    if items is None: items = []
-    if sender_id == receiver_id:
-        return False, None, "Нельзя отправить трейд себе!"
-    conn = get_conn(); c = conn.cursor()
-    if money > 0:
-        c.execute("SELECT balance FROM users WHERE user_id = %s", (sender_id,))
-        balance = c.fetchone()[0]
-        if balance < money:
-            conn.close(); return False, None, f"Недостаточно средств! Нужно {money}₽"
-    if items:
-        c.execute("SELECT id FROM inventory WHERE id = ANY(%s::int[]) AND user_id = %s", (items, sender_id))
-        found = c.fetchall()
-        if len(found) != len(items):
-            conn.close(); return False, None, "Некоторые номера не найдены!"
-    if money > 0:
-        c.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (money, sender_id))
-    for item_id in items:
-        c.execute("UPDATE inventory SET user_id = 0 WHERE id = %s", (item_id,))
-    expires = (datetime.now() + timedelta(minutes=5)).isoformat()
-    c.execute("INSERT INTO trades (sender_id, receiver_id, money, items, expires_at, status) VALUES (%s, %s, %s, %s, %s, 'pending') RETURNING id",
-              (sender_id, receiver_id, money, items, expires))
-    trade_id = c.fetchone()[0]
-    conn.commit(); conn.close()
-    return True, trade_id, f"Трейд #{trade_id} отправлен!"
-
-def get_pending_trades(user_id):
-    conn = get_conn(); c = conn.cursor()
-    now = datetime.now().isoformat()
-    c.execute("""
-        SELECT t.id, t.sender_id, u.username, t.money, t.items, t.expires_at
-        FROM trades t JOIN users u ON t.sender_id = u.user_id
-        WHERE t.receiver_id = %s AND t.status = 'pending' AND t.expires_at > %s
-        ORDER BY t.id DESC
-    """, (user_id, now))
-    trades = c.fetchall(); conn.close()
-    return trades
-
-def accept_trade(trade_id, user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT * FROM trades WHERE id = %s AND receiver_id = %s AND status = 'pending'", (trade_id, user_id))
-    trade = c.fetchone()
-    if not trade: conn.close(); return False, "Трейд не найден!"
-    tid, sender_id, receiver_id, money, items, expires, status = trade
-    if money > 0:
-        c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (money, receiver_id))
-    if items:
-        c.execute("UPDATE inventory SET user_id = %s WHERE id = ANY(%s::int[])", (receiver_id, items))
-    c.execute("UPDATE trades SET status = 'accepted' WHERE id = %s", (trade_id,))
-    conn.commit(); conn.close()
-    return True, "Трейд принят!"
-
-def decline_trade(trade_id, user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT * FROM trades WHERE id = %s AND receiver_id = %s AND status = 'pending'", (trade_id, user_id))
-    trade = c.fetchone()
-    if not trade: conn.close(); return False, "Трейд не найден!"
-    tid, sender_id, receiver_id, money, items, expires, status = trade
-    if money > 0:
-        c.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (money, sender_id))
-    if items:
-        c.execute("UPDATE inventory SET user_id = %s WHERE id = ANY(%s::int[])", (sender_id, items))
-    c.execute("UPDATE trades SET status = 'declined' WHERE id = %s", (trade_id,))
-    conn.commit(); conn.close()
-    return True, "Трейд отклонён!"
-
-def get_online_users(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT user_id, username, balance FROM users WHERE user_id != %s", (user_id,))
-    users = c.fetchall(); conn.close()
-    result = []
-    for u in users:
-        result.append({"user_id": u[0], "username": u[1] or f"User{u[0]}", "balance": u[2], "online": is_user_online(u[0])})
-    return result
-
-def get_user_inventory_for_trade(user_id):
-    conn = get_conn(); c = conn.cursor()
-    c.execute("SELECT id, number, country, rarity, buy_price FROM inventory WHERE user_id = %s", (user_id,))
-    items = c.fetchall(); conn.close()
-    return [{"id": i[0], "number": i[1], "country": i[2], "rarity": i[3], "buy_price": i[4]} for i in items]
 
 init_db()
