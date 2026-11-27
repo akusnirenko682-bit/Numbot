@@ -11,32 +11,54 @@ from config import BOT_TOKEN, ADMIN_IDS, PORT
 flask_app = Flask(__name__, static_folder='static')
 
 @flask_app.route("/")
-def home(): return "✅ Nova Bot работает!"
+def home():
+    return "✅ Nova Bot работает!"
+
 @flask_app.route("/health")
-def health(): return "OK"
+def health():
+    return "OK"
+
 @flask_app.route("/app")
-def webapp(): return flask_app.send_static_file('index.html')
+def webapp():
+    return flask_app.send_static_file('index.html')
 
 @flask_app.route("/api/user/<int:user_id>")
 def get_user(user_id):
-    db.get_or_create_user(user_id, request.args.get("username"))
-    db.update_last_seen(user_id)
-    can, wait = db.can_issue(user_id)
-    return jsonify({"balance": db.get_balance(user_id), "is_admin": user_id in ADMIN_IDS,
-                    "issue_price": db.get_issue_price(user_id), "can_issue": can, "issue_wait": wait})
+    try:
+        db.get_or_create_user(user_id, request.args.get("username"))
+        db.update_last_seen(user_id)
+        can, wait = db.can_issue(user_id)
+        return jsonify({
+            "balance": db.get_balance(user_id),
+            "is_admin": user_id in ADMIN_IDS,
+            "issue_price": db.get_issue_price(user_id),
+            "can_issue": can,
+            "issue_wait": wait
+        })
+    except Exception as e:
+        print(f"Error in get_user: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @flask_app.route("/api/issue/<int:user_id>/<country>", methods=["POST"])
 def issue_api(user_id, country):
-    can, wait = db.can_issue(user_id)
-    if not can: return jsonify({"success": False, "message": f"Подожди {wait} сек!"})
-    country_map = {"ru": "Россия", "by": "Беларусь", "ua": "Украина", "kz": "Казахстан"}
-    country_name = country_map.get(country, "Россия")
-    price = db.get_issue_price(user_id)
-    if db.get_balance(user_id) < price: return jsonify({"success": False, "message": f"Нужно {price}₽"})
-    db.add_balance(user_id, -price)
-    db.set_last_issue(user_id)
-    number, c, rarity, value, _ = db.issue_number(user_id, country_name)
-    return jsonify({"success": True, "number": number, "country": c, "rarity": rarity, "price": value})
+    try:
+        print(f"Issue request: user={user_id}, country={country}")
+        can, wait = db.can_issue(user_id)
+        if not can:
+            return jsonify({"success": False, "message": f"Подожди {wait} сек!"})
+        country_map = {"ru": "Россия", "by": "Беларусь", "ua": "Украина", "kz": "Казахстан"}
+        country_name = country_map.get(country, "Россия")
+        price = db.get_issue_price(user_id)
+        balance = db.get_balance(user_id)
+        if balance < price:
+            return jsonify({"success": False, "message": f"Нужно {price}₽"})
+        db.add_balance(user_id, -price)
+        db.set_last_issue(user_id)
+        number, c, rarity, value, _ = db.issue_number(user_id, country_name)
+        return jsonify({"success": True, "number": number, "country": c, "rarity": rarity, "price": value})
+    except Exception as e:
+        print(f"Error in issue_api: {e}")
+        return jsonify({"success": False, "message": f"Ошибка сервера: {str(e)}"}), 500
 
 @flask_app.route("/api/inventory/<int:user_id>")
 def get_inventory(user_id):
@@ -79,7 +101,8 @@ def buy_from_market_api(buyer_id, listing_id):
 @flask_app.route("/api/bonus/<int:user_id>", methods=["POST"])
 def bonus_api(user_id):
     can, wait = db.can_get_bonus(user_id)
-    if not can: return jsonify({"success": False, "message": f"Бонус через {wait}"})
+    if not can:
+        return jsonify({"success": False, "message": f"Бонус через {wait}"})
     bonus = db.give_bonus(user_id)
     return jsonify({"success": True, "message": f"Получено {bonus}₽!"})
 
@@ -155,11 +178,14 @@ def bid_api(user_id, lot_id):
 @flask_app.route("/api/daily/<int:user_id>")
 def daily_api(user_id):
     can, wait = db.can_claim_daily_case(user_id)
-    conn = db.get_conn(); c = conn.cursor()
+    conn = db.get_conn()
+    c = conn.cursor()
     try:
         c.execute("SELECT streak FROM daily_case WHERE user_id = %s", (user_id,))
-        r = c.fetchone(); streak = r[0] if r else 0
-    except: streak = 0
+        r = c.fetchone()
+        streak = r[0] if r else 0
+    except:
+        streak = 0
     conn.close()
     return jsonify({"can_claim": can, "wait": wait, "streak": streak})
 
@@ -212,8 +238,6 @@ def users_online():
     users = db.get_all_users()
     return jsonify([{"user_id": u[0], "username": u[1], "balance": u[2], "online": db.is_user_online(u[0])} for u in users])
 
-# ===== ТРЕЙДЫ API =====
-
 @flask_app.route("/api/trades/users/<int:user_id>")
 def trade_users(user_id):
     users = db.get_online_users(user_id)
@@ -232,7 +256,8 @@ def create_trade_api(user_id):
     items = d.get("items", [])
     success, trade_id, msg = db.create_trade(user_id, receiver_id, money, items)
     if success:
-        conn = db.get_conn(); c = conn.cursor()
+        conn = db.get_conn()
+        c = conn.cursor()
         c.execute("SELECT username FROM users WHERE user_id = %s", (user_id,))
         sender_name = c.fetchone()[0] or f"User{user_id}"
         conn.close()
@@ -243,8 +268,6 @@ def create_trade_api(user_id):
                     send_trade_notification(receiver_id, sender_name, trade_id, money, len(items)),
                     loop
                 )
-            else:
-                loop.run_until_complete(send_trade_notification(receiver_id, sender_name, trade_id, money, len(items)))
         except Exception as e:
             print(f"Trade notification error: {e}")
     return jsonify({"success": success, "message": msg})
@@ -267,14 +290,15 @@ def decline_trade_api(user_id, trade_id):
     s, m = db.decline_trade(trade_id, user_id)
     return jsonify({"success": s, "message": m})
 
-# ===== АДМИН API =====
-
 @flask_app.route("/api/admin/stats")
 def admin_stats():
     users = db.get_all_users()
-    conn = db.get_conn(); c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM inventory"); total_inv = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM market"); total_market = c.fetchone()[0]
+    conn = db.get_conn()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM inventory")
+    total_inv = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM market")
+    total_market = c.fetchone()[0]
     conn.close()
     return jsonify({"total_users": len(users), "total_balance": sum(u[2] for u in users),
                     "total_inventory": total_inv, "total_market": total_market})
@@ -286,33 +310,42 @@ def admin_users():
 
 @flask_app.route("/api/admin/give_money", methods=["POST"])
 def admin_give_money():
-    d = request.json; amount = float(d["amount"])
-    if amount <= 0: return jsonify({"success": False, "message": "Сумма > 0!"})
+    d = request.json
+    amount = float(d["amount"])
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Сумма > 0!"})
     db.add_balance(int(d["user_id"]), amount)
     nb = db.get_balance(int(d["user_id"]))
     return jsonify({"success": True, "message": f"Выдано {amount}₽. Баланс: {nb}₽"})
 
 @flask_app.route("/api/admin/take_money", methods=["POST"])
 def admin_take_money():
-    d = request.json; user_id = int(d["user_id"]); amount = float(d["amount"])
-    if amount <= 0: return jsonify({"success": False, "message": "Сумма > 0!"})
+    d = request.json
+    user_id = int(d["user_id"])
+    amount = float(d["amount"])
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Сумма > 0!"})
     cur = db.get_balance(user_id)
-    if cur < amount: return jsonify({"success": False, "message": f"У игрока только {cur}₽!"})
+    if cur < amount:
+        return jsonify({"success": False, "message": f"У игрока только {cur}₽!"})
     db.add_balance(user_id, -amount)
     nb = db.get_balance(user_id)
     return jsonify({"success": True, "message": f"Списано {amount}₽. Баланс: {nb}₽"})
 
 @flask_app.route("/api/admin/set_balance", methods=["POST"])
 def admin_set_balance():
-    d = request.json; amount = float(d["amount"])
-    if amount < 0: return jsonify({"success": False, "message": "Баланс >= 0!"})
+    d = request.json
+    amount = float(d["amount"])
+    if amount < 0:
+        return jsonify({"success": False, "message": "Баланс >= 0!"})
     db.set_balance(int(d["user_id"]), amount)
     return jsonify({"success": True, "message": f"Баланс: {amount}₽"})
 
 @flask_app.route("/api/admin/user_info/<int:user_id>")
 def admin_user_info(user_id):
     user, cnt = db.get_user_info(user_id)
-    if not user: return jsonify({"success": False, "message": f"Игрок {user_id} не найден!"})
+    if not user:
+        return jsonify({"success": False, "message": f"Игрок {user_id} не найден!"})
     return jsonify({"success": True, "user_id": user[0], "username": user[1] or "нет",
                     "balance": user[2], "created_at": user[3][:10] if user[3] else "?", "items_count": cnt})
 
@@ -340,7 +373,8 @@ def admin_create_promo():
     promo_type = d.get("type", "money")
     reward_value = float(d.get("reward_value", 0))
     max_uses = int(d.get("max_uses", 0))
-    if not code or reward_value <= 0: return jsonify({"success": False, "message": "Заполни код и сумму!"})
+    if not code or reward_value <= 0:
+        return jsonify({"success": False, "message": "Заполни код и сумму!"})
     reward_type = "money" if promo_type == "money" else "case"
     s, m = db.create_promo_code(code, promo_type, reward_type, reward_value, max_uses)
     return jsonify({"success": s, "message": m})
@@ -353,11 +387,14 @@ def admin_delete_promo(code):
 @flask_app.route("/api/admin/broadcast", methods=["POST"])
 def admin_broadcast():
     text = request.json.get("text", "").strip()
-    if not text: return jsonify({"success": False, "message": "Текст пуст!"})
-    conn = db.get_conn(); c = conn.cursor()
+    if not text:
+        return jsonify({"success": False, "message": "Текст пуст!"})
+    conn = db.get_conn()
+    c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id SERIAL PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
     c.execute("INSERT INTO pending_broadcasts (text) VALUES (%s)", (text,))
-    conn.commit(); conn.close()
+    conn.commit()
+    conn.close()
     return jsonify({"success": True, "message": "Рассылка в очереди!"})
 
 def run_flask():
@@ -369,8 +406,10 @@ dp = Dispatcher()
 async def send_trade_notification(receiver_id, sender_name, trade_id, money, items_count):
     text = f"🤝 <b>Новый трейд!</b>\n\n"
     text += f"👤 <b>{sender_name}</b> предлагает вам трейд #{trade_id}\n"
-    if money > 0: text += f"💰 Деньги: <b>{int(money)}₽</b>\n"
-    if items_count > 0: text += f"🎒 Номеров: <b>{items_count}</b>\n"
+    if money > 0:
+        text += f"💰 Деньги: <b>{int(money)}₽</b>\n"
+    if items_count > 0:
+        text += f"🎒 Номеров: <b>{items_count}</b>\n"
     text += f"\n⏰ Действует 5 минут"
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="✅ Принять", callback_data=f"trade_accept_{trade_id}")],
@@ -405,10 +444,13 @@ async def cmd_start_referral(message: Message):
     referred_by = None
     if len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1][4:]
-        conn = db.get_conn(); c = conn.cursor()
+        conn = db.get_conn()
+        c = conn.cursor()
         c.execute("SELECT user_id FROM users WHERE referral_code = %s", (ref_code,))
-        r = c.fetchone(); conn.close()
-        if r: referred_by = r[0]
+        r = c.fetchone()
+        conn.close()
+        if r:
+            referred_by = r[0]
     db.get_or_create_user(message.from_user.id, message.from_user.username, referred_by)
     hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -431,7 +473,8 @@ async def cmd_start(message: Message):
 async def broadcast_sender():
     while True:
         try:
-            conn = db.get_conn(); c = conn.cursor()
+            conn = db.get_conn()
+            c = conn.cursor()
             c.execute("CREATE TABLE IF NOT EXISTS pending_broadcasts (id SERIAL PRIMARY KEY, text TEXT, sent INTEGER DEFAULT 0)")
             c.execute("SELECT id, text FROM pending_broadcasts WHERE sent = 0 LIMIT 1")
             row = c.fetchone()
@@ -443,18 +486,21 @@ async def broadcast_sender():
                     try:
                         await bot.send_message(uid, f"📢 <b>Рассылка:</b>\n\n{text}", parse_mode="HTML")
                         sent += 1
-                    except: failed += 1
+                    except:
+                        failed += 1
                 c.execute("UPDATE pending_broadcasts SET sent = 1 WHERE id = %s", (bid,))
                 conn.commit()
                 print(f"📢 Рассылка #{bid}: {sent} ок, {failed} ошибок")
             conn.close()
-        except Exception as e: print(f"Broadcast error: {e}")
+        except Exception as e:
+            print(f"Broadcast error: {e}")
         await asyncio.sleep(30)
 
 async def main():
     flask_thread = Thread(target=run_flask, daemon=True)
     flask_thread.start()
-    print("🌐 Веб-сервер запущен"); print("🤖 Бот запущен!")
+    print("🌐 Веб-сервер запущен")
+    print("🤖 Бот запущен!")
     asyncio.create_task(broadcast_sender())
     await dp.start_polling(bot)
 
