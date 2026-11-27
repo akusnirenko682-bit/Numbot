@@ -31,21 +31,28 @@ def webapp():
 @flask_app.route("/api/user/<int:user_id>")
 def get_user(user_id):
     db.get_or_create_user(user_id, request.args.get("username"))
+    can, wait = db.can_issue(user_id)
     return jsonify({
         "balance": db.get_balance(user_id),
         "is_admin": user_id in ADMIN_IDS,
-        "issue_price": db.get_issue_price(user_id)
+        "issue_price": db.get_issue_price(user_id),
+        "can_issue": can,
+        "issue_wait": wait
     })
 
 
 @flask_app.route("/api/issue/<int:user_id>/<country>", methods=["POST"])
 def issue_api(user_id, country):
+    can, wait = db.can_issue(user_id)
+    if not can:
+        return jsonify({"success": False, "message": f"Подожди {wait} сек!"})
     country_map = {"ru": "Россия", "by": "Беларусь", "ua": "Украина", "kz": "Казахстан"}
     country_name = country_map.get(country, "Россия")
     price = db.get_issue_price(user_id)
     if db.get_balance(user_id) < price:
         return jsonify({"success": False, "message": f"Нужно {price}₽"})
     db.add_balance(user_id, -price)
+    db.set_last_issue(user_id)
     number, c, rarity, value, _ = db.issue_number(user_id, country_name)
     return jsonify({"success": True, "number": number, "country": c, "rarity": rarity, "price": value})
 
@@ -64,7 +71,8 @@ def sell_api(user_id, item_id):
 
 @flask_app.route("/api/auto_sell/<int:user_id>", methods=["POST"])
 def auto_sell_api(user_id):
-    s, m = db.auto_sell(user_id)
+    rarity = request.json.get("rarity", "all")
+    s, m = db.auto_sell_by_rarity(user_id, rarity)
     return jsonify({"success": s, "message": m})
 
 
@@ -78,6 +86,13 @@ def get_market():
 def sell_to_market(user_id, item_id):
     price = float(request.json.get("price", 0))
     s, m = db.create_market_listing(user_id, item_id, price)
+    return jsonify({"success": s, "message": m})
+
+
+@flask_app.route("/api/market/remove/<int:user_id>/<int:listing_id>", methods=["POST"])
+def remove_market_api(user_id, listing_id):
+    is_admin = user_id in ADMIN_IDS
+    s, m = db.remove_market_listing(listing_id, user_id, is_admin)
     return jsonify({"success": s, "message": m})
 
 
@@ -159,6 +174,13 @@ def auctions_api():
 def create_auction_api(user_id, item_id):
     price = float(request.json.get("min_price", 100))
     s, m = db.create_auction(user_id, item_id, price)
+    return jsonify({"success": s, "message": m})
+
+
+@flask_app.route("/api/auctions/remove/<int:user_id>/<int:lot_id>", methods=["POST"])
+def remove_auction_api(user_id, lot_id):
+    is_admin = user_id in ADMIN_IDS
+    s, m = db.remove_auction_listing(lot_id, user_id, is_admin)
     return jsonify({"success": s, "message": m})
 
 
@@ -328,6 +350,7 @@ def admin_create_promo():
     reward_type = "money" if promo_type == "money" else "case"
     conn = db.get_conn()
     c = conn.cursor()
+    from datetime import datetime, timedelta
     expires = (datetime.now() + timedelta(days=30)).isoformat()
     c.execute("INSERT INTO promo_codes (code, reward_type, reward_value, max_uses, created_at, expires_at) "
               "VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT (code) DO NOTHING",
@@ -335,6 +358,12 @@ def admin_create_promo():
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"Промокод {code} создан!"})
+
+
+@flask_app.route("/api/admin/delete_promo/<code>", methods=["POST"])
+def admin_delete_promo(code):
+    s, m = db.delete_promo_code(code)
+    return jsonify({"success": s, "message": m})
 
 
 @flask_app.route("/api/admin/broadcast", methods=["POST"])
