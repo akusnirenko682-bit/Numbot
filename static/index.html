@@ -31,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .menu-item{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px 14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all 0.3s;min-height:110px}
 .menu-item:active{transform:scale(0.96);background:rgba(255,255,255,0.1)}
 .menu-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.15);border-radius:12px;color:var(--neon-violet);filter:drop-shadow(0 0 8px rgba(139,92,246,0.5))}
-.menu-icon i,.menu-icon svg{width:22px;height:22px;stroke-width:2}
+.menu-icon svg{width:22px;height:22px;stroke-width:2}
 .menu-text{font-size:15px;font-weight:600;color:var(--text-primary);z-index:1}
 .menu-subtext{font-size:12px;color:var(--text-secondary);margin-top:-6px;z-index:1}
 .screen{display:none;padding-bottom:20px}
@@ -69,7 +69,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .upgrade-desc{font-size:13px;color:var(--text-secondary);margin-bottom:10px}
 .adm-section{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:18px;margin-bottom:14px}
 .adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-.adm-section h3 i,.adm-section h3 svg{width:18px;height:18px}
 .adm-input{width:100%;padding:12px;margin-bottom:10px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);color:white;font-size:14px}
 .adm-input::placeholder{color:var(--text-secondary)}
 .adm-input:focus{outline:none;border-color:var(--neon-violet)}
@@ -135,7 +134,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-title"><i data-lucide="user" style="width:20px;height:20px;color:var(--neon-violet);"></i>Ваш профиль</div>
+            <div class="profile-title"><i data-lucide="user"></i>Ваш профиль</div>
             <div class="status-badge"><div class="status-dot"></div>Активен</div>
         </div>
         <div class="profile-stats">
@@ -171,7 +170,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div id="screen-generator" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎯 Выбери страну</h2>
     <div id="issue-timer" style="display:none;text-align:center;padding:10px;background:rgba(255,65,108,0.15);border:1px solid var(--neon-pink);border-radius:12px;margin-bottom:15px;color:var(--neon-pink);font-weight:600;"></div>
     <div class="countries-grid">
@@ -195,7 +194,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-channel" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">📢 Telegram канал</h2>
     <div class="channel-card">
         <div class="channel-icon">📢</div>
@@ -213,7 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-daily" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎁 Ежедневный кейс</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твоя серия</div>
@@ -224,24 +223,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-promo" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎟️ Промокод</h2>
     <div class="glass-card">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;text-align:center;">Промокоды публикуются в нашем <b style="color:var(--neon-gold);">Telegram канале</b></div>
         <input type="text" class="adm-input" id="promo-input" placeholder="Введи промокод" style="text-transform:uppercase;">
         <button class="btn btn-blue" onclick="usePromo()" style="width:100%;padding:14px;font-size:15px;">Активировать</button>
     </div>
-    <a href="https://t.me/Numbernomi" target="_blank" style="text-decoration:none;">
-        <div class="glass-card" style="text-align:center;cursor:pointer;margin-top:15px;">
-            <div style="font-size:1.5em;margin-bottom:8px;">📢</div>
-            <div style="font-weight:600;">Подпишись на канал</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:5px;">Чтобы получать промокоды</div>
-        </div>
-    </a>
 </div></div>
 
 <div id="screen-referral" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">👥 Рефералы</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Твой код</div>
@@ -253,7 +245,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-season" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">⭐ Сезонный пропуск</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Уровень</div>
@@ -265,7 +257,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-inventory" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎒 Твоя коллекция</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;text-align:center;">⚡ Быстрая продажа</div>
@@ -280,7 +272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tasks" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">📋 Задания</h2>
     <h3 style="color:var(--neon-gold);margin:10px 0;font-size:16px;">📅 Ежедневные</h3>
     <div id="daily-tasks-list"></div>
@@ -289,19 +281,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-auction" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🏎️ Аукцион</h2>
     <div id="auction-list"></div>
 </div></div>
 
 <div id="screen-market" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🏪 Рынок</h2>
     <div id="market-list"></div>
 </div></div>
 
 <div id="screen-trades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🤝 Трейды</h2>
     <div class="glass-card" style="margin-bottom:15px;">
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">📥 Входящие трейды</div>
@@ -318,7 +310,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-safe" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🔒 Сейф</h2>
     <div class="glass-card" style="text-align:center;padding:24px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">В сейфе</div>
@@ -343,13 +335,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-upgrades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">⚡ Улучшения</h2>
     <div id="upgrades-list"></div>
 </div></div>
 
 <div id="screen-balance" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">💰 Баланс</h2>
     <div class="glass-card" style="text-align:center;padding:30px;">
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Текущий баланс</div>
@@ -360,7 +352,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-tops" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🏆 Топы</h2>
     <h3 style="color:var(--neon-gold);margin:15px 0 10px;font-size:16px;">💰 По деньгам</h3>
     <div id="top-balance-list"></div>
@@ -369,7 +361,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div id="screen-admin" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i>Назад</button>
+    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">⚙️ Админ-панель</h2>
     <div class="adm-section"><h3><i data-lucide="bar-chart-3"></i>Статистика</h3><div class="stats-grid" id="admin-stats"></div></div>
     <div class="adm-section"><h3><i data-lucide="banknote"></i>Выдать деньги</h3><input type="number" class="adm-input" id="adm-give-id" placeholder="ID игрока"><input type="number" class="adm-input" id="adm-give-amount" placeholder="Сумма"><button class="adm-btn btn-blue" onclick="admGiveMoney()">Выдать</button></div>
@@ -398,7 +390,10 @@ const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Укра
 let issuePrice = 500, refCode = '', selectedSafeDays = 7, tradeSelectedItems = [];
 let skipRoulette = false, currentRouletteData = null;
 
-console.log('Nova Bot init. userId =', userId);
+console.log('=== Nova Bot Init ===');
+console.log('userId:', userId);
+console.log('username:', username);
+console.log('firstName:', firstName);
 
 document.getElementById('greeting-text').textContent = 'Привет, ' + firstName + ' 👋';
 document.getElementById('user-avatar').textContent = firstName.charAt(0).toUpperCase();
@@ -425,7 +420,6 @@ function showScreen(id) {
         'screen-balance': loadBalance,
         'screen-admin': loadAdmin,
         'screen-daily': loadDaily,
-        'screen-promo': null,
         'screen-referral': loadReferral,
         'screen-season': loadSeason,
         'screen-channel': loadChannel,
@@ -449,7 +443,7 @@ async function loadData() {
         const r = await fetch('/api/user/' + userId + '?username=' + encodeURIComponent(username));
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
-        console.log('loadData response:', d);
+        console.log('loadData OK:', d);
         issuePrice = d.issue_price || 500;
         ['ru','by','ua','kz'].forEach(function(c) {
             const el = document.getElementById('price-' + c);
@@ -483,18 +477,27 @@ function checkIssueTimer() {
 }
 
 async function startRoulette(country) {
-    if (!userId) return;
+    console.log('startRoulette called, country:', country, 'userId:', userId);
+    if (!userId) { tg.showAlert('Ошибка: не удалось получить ID'); return; }
     try {
         const r = await fetch('/api/user/' + userId);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
+        console.log('User data:', d);
         if (!d.can_issue) { tg.showAlert('Подожди ' + d.issue_wait + ' сек!'); return; }
         if (d.balance < issuePrice) { tg.showAlert('Недостаточно средств! Нужно ' + issuePrice + '₽'); return; }
         skipRoulette = false;
         document.getElementById('roulette-display').style.display = 'block';
         document.getElementById('rarity-display').style.display = 'none';
         document.getElementById('skip-btn').style.display = 'block';
+        
+        console.log('Calling issue API...');
         const apiR = await fetch('/api/issue/' + userId + '/' + country, { method: 'POST' });
+        console.log('Issue API response status:', apiR.status);
+        if (!apiR.ok) throw new Error('HTTP ' + apiR.status);
         const apiD = await apiR.json();
+        console.log('Issue API response:', apiD);
+        
         if (!apiD.success) {
             tg.showAlert(apiD.message);
             document.getElementById('roulette-display').style.display = 'none';
@@ -542,7 +545,7 @@ async function startRoulette(country) {
         loadData();
     } catch(e) {
         console.error('startRoulette error:', e);
-        tg.showAlert('Ошибка сети');
+        tg.showAlert('Ошибка: ' + e.message);
     }
 }
 
@@ -903,7 +906,6 @@ async function claimDaily() {
     } catch(e) { console.error(e); }
 }
 
-// ===== ИСПРАВЛЕНО: теперь обновляет баланс =====
 async function usePromo() {
     const code = document.getElementById('promo-input').value.trim();
     if (!code) return tg.showAlert('Введи промокод!');
@@ -1230,9 +1232,8 @@ async function admBroadcast() {
     } catch(e) { console.error(e); }
 }
 
-// Запуск
 loadData();
 renderIcons();
 </script>
 </body>
-    </html>
+            </html>
