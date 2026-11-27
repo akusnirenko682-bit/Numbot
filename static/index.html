@@ -16,7 +16,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .container{position:relative;z-index:1;padding:20px;padding-bottom:30px;max-width:480px;margin:0 auto}
 .header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
 .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--neon-violet),var(--neon-pink));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;box-shadow:0 0 20px rgba(139,92,246,0.4);border:2px solid rgba(255,255,255,0.2)}
-.greeting h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.greeting h1{font-size:22px;font-weight:700}
 .greeting p{font-size:14px;color:var(--text-secondary);margin-top:4px}
 .profile-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:24px;margin-bottom:28px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
 .profile-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -37,7 +37,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .screen{display:none;padding-bottom:20px}
 .screen.active{display:block}
 .back-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);color:white;padding:12px 20px;border-radius:14px;cursor:pointer;margin-bottom:20px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-.screen-title{font-size:24px;font-weight:700;margin-bottom:20px;letter-spacing:-0.5px}
+.screen-title{font-size:24px;font-weight:700;margin-bottom:20px}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:18px;margin-bottom:12px}
 .countries-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .country-btn{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:20px;text-align:center;cursor:pointer;transition:all 0.3s}
@@ -45,8 +45,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .country-btn .flag{font-size:2.5em;margin-bottom:8px}
 .country-btn .name{font-size:14px;font-weight:600;margin-bottom:4px}
 .country-btn .price{font-size:13px;color:var(--neon-gold);font-weight:600}
-.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s}
-.item-card.selected{border-color:var(--neon-violet);box-shadow:0 0 15px rgba(139,92,246,0.4)}
+.item-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 .item-card .number{font-weight:700;font-size:15px;letter-spacing:0.5px}
 .item-card .meta{font-size:12px;color:var(--text-secondary);margin-top:3px}
 .item-card .price{color:var(--neon-gold);font-weight:700;font-size:14px}
@@ -60,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-blue{background:linear-gradient(135deg,var(--neon-violet),var(--neon-pink))}
 .btn-red{background:linear-gradient(135deg,#ff416c,#ff4b2b)}
 .btn-group{display:flex;gap:6px;flex-wrap:wrap}
-.task-card,.upgrade-card,.promo-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px}
+.task-card,.upgrade-card{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px}
 .task-name,.upgrade-name{font-weight:600;margin-bottom:4px;font-size:15px}
 .task-progress{background:rgba(0,0,0,0.3);height:8px;border-radius:4px;margin:10px 0;overflow:hidden}
 .task-progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));transition:width 0.3s}
@@ -69,6 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .upgrade-desc{font-size:13px;color:var(--text-secondary);margin-bottom:10px}
 .adm-section{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:18px;padding:18px;margin-bottom:14px}
 .adm-section h3{color:var(--neon-pink);margin-bottom:12px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.adm-section h3 svg{width:18px;height:18px}
 .adm-input{width:100%;padding:12px;margin-bottom:10px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);color:white;font-size:14px}
 .adm-input::placeholder{color:var(--text-secondary)}
 .adm-input:focus{outline:none;border-color:var(--neon-violet)}
@@ -117,9 +117,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .channel-card .channel-title{font-size:18px;font-weight:700;margin-bottom:8px}
 .channel-card .channel-desc{font-size:13px;color:var(--text-secondary);margin-bottom:15px}
 .channel-card .channel-reward{font-size:20px;font-weight:700;color:var(--neon-gold);margin-bottom:15px}
-.online-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.online-dot.online{background:var(--neon-green);box-shadow:0 0 8px var(--neon-green)}
-.online-dot.offline{background:#ff4444;box-shadow:0 0 8px #ff4444}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.1)}}
 </style>
 </head>
@@ -154,9 +151,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="menu-item" onclick="showScreen('screen-auction')"><div class="menu-icon"><i data-lucide="gavel"></i></div><span class="menu-text">Аукцион</span><span class="menu-subtext">Текущие торги</span></div>
         <div class="menu-item" onclick="showScreen('screen-balance')"><div class="menu-icon"><i data-lucide="wallet"></i></div><span class="menu-text">Баланс</span><span class="menu-subtext">Пополнить</span></div>
         <div class="menu-item" onclick="showScreen('screen-inventory')"><div class="menu-icon"><i data-lucide="briefcase"></i></div><span class="menu-text">Коллекция</span><span class="menu-subtext">Ваши номера</span></div>
-        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">0.25% в день</span></div>
+        <div class="menu-item" onclick="showScreen('screen-safe')"><div class="menu-icon"><i data-lucide="vault"></i></div><span class="menu-text">Сейф</span><span class="menu-subtext">0.5% в час</span></div>
         <div class="menu-item" onclick="showScreen('screen-market')"><div class="menu-icon"><i data-lucide="store"></i></div><span class="menu-text">Рынок</span><span class="menu-subtext">Купить / Продать</span></div>
-        <div class="menu-item" onclick="showScreen('screen-trades')"><div class="menu-icon"><i data-lucide="repeat"></i></div><span class="menu-text">Трейды</span><span class="menu-subtext">Обмен с игроками</span></div>
+        <div class="menu-item" onclick="autoSell()"><div class="menu-icon"><i data-lucide="refresh-cw"></i></div><span class="menu-text">Автопродажа</span><span class="menu-subtext">Быстрая продажа</span></div>
         <div class="menu-item" onclick="showScreen('screen-upgrades')"><div class="menu-icon"><i data-lucide="zap"></i></div><span class="menu-text">Улучшения</span><span class="menu-subtext">Прокачать аккаунт</span></div>
         <div class="menu-item" onclick="showScreen('screen-tops')"><div class="menu-icon"><i data-lucide="trophy"></i></div><span class="menu-text">Топы</span><span class="menu-subtext">Рейтинг игроков</span></div>
     </div>
@@ -172,7 +169,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div id="screen-generator" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎯 Выбери страну</h2>
-    <div id="issue-timer" style="display:none;text-align:center;padding:10px;background:rgba(255,65,108,0.15);border:1px solid var(--neon-pink);border-radius:12px;margin-bottom:15px;color:var(--neon-pink);font-weight:600;"></div>
     <div class="countries-grid">
         <div class="country-btn" onclick="startRoulette('ru')"><div class="flag">🇷🇺</div><div class="name">Россия</div><div class="price" id="price-ru">500 ₽</div></div>
         <div class="country-btn" onclick="startRoulette('by')"><div class="flag">🇧🇾</div><div class="name">Беларусь</div><div class="price" id="price-by">500 ₽</div></div>
@@ -259,25 +255,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div id="screen-inventory" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🎒 Твоя коллекция</h2>
-    <div class="glass-card" style="margin-bottom:15px;">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;text-align:center;">⚡ Быстрая продажа</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button class="btn btn-pink" onclick="autoSellByRarity('Обычный')" style="padding:10px;font-size:13px;">⚪ Обычные</button>
-            <button class="btn" onclick="autoSellByRarity('Необычный')" style="padding:10px;font-size:13px;">🟢 Необычные</button>
-            <button class="btn btn-blue" onclick="autoSellByRarity('Редкий')" style="padding:10px;font-size:13px;">🔵 Редкие</button>
-            <button class="btn btn-red" onclick="autoSellByRarity('all')" style="padding:10px;font-size:13px;">💥 Все</button>
-        </div>
-    </div>
     <div id="inventory-list"></div>
 </div></div>
 
 <div id="screen-tasks" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
-    <h2 class="screen-title">📋 Задания</h2>
-    <h3 style="color:var(--neon-gold);margin:10px 0;font-size:16px;">📅 Ежедневные</h3>
-    <div id="daily-tasks-list"></div>
-    <h3 style="color:var(--neon-pink);margin:20px 0 10px;font-size:16px;">🗓️ Еженедельные</h3>
-    <div id="weekly-tasks-list"></div>
+    <h2 class="screen-title">📋 Ежедневные задания</h2>
+    <div id="tasks-list"></div>
 </div></div>
 
 <div id="screen-auction" class="screen"><div class="container">
@@ -292,23 +276,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div id="market-list"></div>
 </div></div>
 
-<div id="screen-trades" class="screen"><div class="container">
-    <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
-    <h2 class="screen-title">🤝 Трейды</h2>
-    <div class="glass-card" style="margin-bottom:15px;">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">📥 Входящие трейды</div>
-        <div id="pending-trades-list"></div>
-    </div>
-    <div class="glass-card">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">📤 Создать трейд</div>
-        <select class="adm-input" id="trade-receiver"><option value="">Выбери игрока...</option></select>
-        <input type="number" class="adm-input" id="trade-money" placeholder="Сумма денег (0 если не нужно)">
-        <div style="font-size:13px;color:var(--text-secondary);margin:10px 0;">🎒 Выбери номера (нажми чтобы выбрать):</div>
-        <div id="trade-items-list" style="max-height:200px;overflow-y:auto;margin-bottom:10px;"></div>
-        <button class="btn btn-blue" onclick="createTrade()" style="width:100%;padding:12px;">📤 Отправить трейд</button>
-    </div>
-</div></div>
-
 <div id="screen-safe" class="screen"><div class="container">
     <button class="back-btn" onclick="showScreen('screen-main')"><i data-lucide="arrow-left"></i>Назад</button>
     <h2 class="screen-title">🔒 Сейф</h2>
@@ -316,22 +283,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div style="font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">В сейфе</div>
         <div style="font-size:2.2em;font-weight:700;color:var(--neon-gold);margin-bottom:8px;" id="safe-amount">0 ₽</div>
         <div style="font-size:13px;color:var(--text-secondary);" id="safe-interest">Проценты: +0 ₽</div>
-        <div style="font-size:12px;color:var(--neon-pink);margin-top:8px;" id="safe-lock-info"></div>
     </div>
-    <p style="opacity:0.7;font-size:13px;margin-bottom:15px;text-align:center;">0.25% в день • Выбери срок</p>
-    <div class="glass-card">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">💰 Внести сумму</div>
-        <input type="number" class="adm-input" id="safe-deposit-amount" placeholder="Сумма">
-        <div style="font-size:13px;color:var(--text-secondary);margin:10px 0;">⏰ Срок хранения</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-            <button class="btn" onclick="selectSafeDays(1)" id="safe-d1" style="padding:10px;">1 д<br><small>0.25%</small></button>
-            <button class="btn btn-blue" onclick="selectSafeDays(3)" id="safe-d3" style="padding:10px;">3 д<br><small>0.75%</small></button>
-            <button class="btn" onclick="selectSafeDays(7)" id="safe-d7" style="padding:10px;">7 д<br><small>1.75%</small></button>
-            <button class="btn" onclick="selectSafeDays(30)" id="safe-d30" style="padding:10px;">30 д<br><small>7.5%</small></button>
-        </div>
-        <button class="btn btn-blue" onclick="depositSafe()" style="width:100%;padding:12px;">Внести</button>
+    <p style="opacity:0.7;font-size:13px;margin-bottom:15px;text-align:center;">0.5% в час за хранение</p>
+    <div class="countries-grid">
+        <div class="country-btn" onclick="depositSafe()"><div class="name" style="font-size:15px;">💰 Внести</div></div>
+        <div class="country-btn" onclick="withdrawSafe()"><div class="name" style="font-size:15px;">📤 Забрать</div></div>
     </div>
-    <button class="btn btn-pink" onclick="withdrawSafe()" style="width:100%;padding:14px;font-size:15px;margin-top:10px;">📤 Забрать</button>
 </div></div>
 
 <div id="screen-upgrades" class="screen"><div class="container">
@@ -371,36 +328,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="adm-section"><h3><i data-lucide="backpack"></i>Инвентарь пользователя</h3><input type="number" class="adm-input" id="adm-inv-id" placeholder="ID игрока"><button class="adm-btn btn-blue" onclick="admUserInv()">Показать</button><div id="adm-inv-result" style="margin-top:10px;"></div></div>
     <div class="adm-section"><h3><i data-lucide="car"></i>Выдать номер</h3><input type="number" class="adm-input" id="adm-num-id" placeholder="ID игрока"><input type="text" class="adm-input" id="adm-num-number" placeholder="Номер (А777АА77)"><select class="adm-input" id="adm-num-country"><option value="Россия">🇷🇺 Россия</option><option value="Беларусь">🇧🇾 Беларусь</option><option value="Украина">🇺🇦 Украина</option><option value="Казахстан">🇰🇿 Казахстан</option></select><select class="adm-input" id="adm-num-rarity"><option value="Обычный">⚪ Обычный</option><option value="Необычный">🟢 Необычный</option><option value="Редкий">🔵 Редкий</option><option value="Эпический">🟣 Эпический</option><option value="Легендарный">🟡 Легендарный</option></select><input type="number" class="adm-input" id="adm-num-price" placeholder="Цена" value="500"><button class="adm-btn btn-blue" onclick="admGiveNumber()">Выдать номер</button></div>
     <div class="adm-section"><h3><i data-lucide="ticket"></i>Создать промокод</h3><input type="text" class="adm-input" id="adm-promo-code" placeholder="Код"><select class="adm-input" id="adm-promo-type"><option value="money">💰 Деньги</option><option value="case">🎁 Кейс</option></select><input type="number" class="adm-input" id="adm-promo-value" placeholder="Сумма"><input type="number" class="adm-input" id="adm-promo-max" placeholder="Макс. (0=∞)"><button class="adm-btn btn-blue" onclick="admCreatePromo()">Создать</button></div>
-    <div class="adm-section"><h3><i data-lucide="trash-2"></i>Удалить промокод</h3><input type="text" class="adm-input" id="adm-del-promo-code" placeholder="Код"><button class="adm-btn btn-red" onclick="admDeletePromo()">Удалить</button></div>
     <div class="adm-section"><h3><i data-lucide="megaphone"></i>Рассылка</h3><textarea class="adm-input" id="adm-broadcast-text" placeholder="Текст" rows="3"></textarea><button class="adm-btn btn-pink" onclick="admBroadcast()">Отправить</button></div>
     <div class="adm-section"><h3><i data-lucide="users"></i>Все пользователи</h3><div id="adm-users-list"></div></div>
 </div></div>
 
 <script>
 const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
-tg.setHeaderColor('#0B0F19');
-tg.setBackgroundColor('#0B0F19');
+tg.ready(); tg.expand();
+tg.setHeaderColor('#0B0F19'); tg.setBackgroundColor('#0B0F19');
 
 const userId = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : null;
 const username = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? (tg.initDataUnsafe.user.username || '') : '';
 const firstName = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? (tg.initDataUnsafe.user.first_name || 'Игрок') : 'Игрок';
 const flags = {'Россия':'🇷🇺','Беларусь':'🇧🇾','Украина':'🇺🇦','Казахстан':'🇰🇿'};
-let issuePrice = 500, refCode = '', selectedSafeDays = 7, tradeSelectedItems = [];
+let issuePrice = 500, refCode = '';
 let skipRoulette = false, currentRouletteData = null;
-
-console.log('=== Nova Bot Init ===');
-console.log('userId:', userId);
-console.log('username:', username);
-console.log('firstName:', firstName);
 
 document.getElementById('greeting-text').textContent = 'Привет, ' + firstName + ' 👋';
 document.getElementById('user-avatar').textContent = firstName.charAt(0).toUpperCase();
 
 function renderIcons() {
     if (window.lucide && typeof lucide.createIcons === 'function') {
-        try { lucide.createIcons(); } catch(e) { console.error('lucide error:', e); }
+        try { lucide.createIcons(); } catch(e) { console.error(e); }
     }
 }
 
@@ -409,22 +358,11 @@ function showScreen(id) {
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
     const map = {
-        'screen-main': loadData,
-        'screen-inventory': loadInventory,
-        'screen-tasks': loadTasks,
-        'screen-market': loadMarket,
-        'screen-auction': loadAuctions,
-        'screen-safe': loadSafe,
-        'screen-upgrades': loadUpgrades,
-        'screen-tops': loadTops,
-        'screen-balance': loadBalance,
-        'screen-admin': loadAdmin,
-        'screen-daily': loadDaily,
-        'screen-referral': loadReferral,
-        'screen-season': loadSeason,
-        'screen-channel': loadChannel,
-        'screen-generator': checkIssueTimer,
-        'screen-trades': loadTrades
+        'screen-main': loadData, 'screen-inventory': loadInventory, 'screen-tasks': loadTasks,
+        'screen-market': loadMarket, 'screen-auction': loadAuctions, 'screen-safe': loadSafe,
+        'screen-upgrades': loadUpgrades, 'screen-tops': loadTops, 'screen-balance': loadBalance,
+        'screen-admin': loadAdmin, 'screen-daily': loadDaily, 'screen-referral': loadReferral,
+        'screen-season': loadSeason, 'screen-channel': loadChannel
     };
     if (map[id]) map[id]();
     renderIcons();
@@ -438,66 +376,29 @@ function formatNum(n) {
 }
 
 async function loadData() {
-    if (!userId) { console.error('userId is null'); return; }
+    if (!userId) return;
     try {
         const r = await fetch('/api/user/' + userId + '?username=' + encodeURIComponent(username));
-        if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
-        console.log('loadData OK:', d);
         issuePrice = d.issue_price || 500;
         ['ru','by','ua','kz'].forEach(function(c) {
             const el = document.getElementById('price-' + c);
             if (el) el.textContent = issuePrice + ' ₽';
         });
         document.getElementById('stat-balance').textContent = formatNum(d.balance);
-        if (d.is_admin) {
-            document.getElementById('admin-btn-container').style.display = 'block';
-            console.log('ADMIN MODE ON');
-        } else {
-            document.getElementById('admin-btn-container').style.display = 'none';
-        }
-    } catch(e) {
-        console.error('loadData error:', e);
-    }
-}
-
-function checkIssueTimer() {
-    if (!userId) return;
-    fetch('/api/user/' + userId).then(r => r.json()).then(d => {
-        const t = document.getElementById('issue-timer');
-        if (!t) return;
-        if (!d.can_issue && d.issue_wait > 0) {
-            t.style.display = 'block';
-            t.textContent = '⏳ Подожди ' + d.issue_wait + ' сек...';
-            setTimeout(checkIssueTimer, 1000);
-        } else {
-            t.style.display = 'none';
-        }
-    }).catch(e => console.error(e));
+        document.getElementById('admin-btn-container').style.display = d.is_admin ? 'block' : 'none';
+    } catch(e) { console.error(e); }
 }
 
 async function startRoulette(country) {
-    console.log('startRoulette called, country:', country, 'userId:', userId);
-    if (!userId) { tg.showAlert('Ошибка: не удалось получить ID'); return; }
+    if (!userId) { tg.showAlert('Ошибка ID'); return; }
     try {
-        const r = await fetch('/api/user/' + userId);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const d = await r.json();
-        console.log('User data:', d);
-        if (!d.can_issue) { tg.showAlert('Подожди ' + d.issue_wait + ' сек!'); return; }
-        if (d.balance < issuePrice) { tg.showAlert('Недостаточно средств! Нужно ' + issuePrice + '₽'); return; }
         skipRoulette = false;
         document.getElementById('roulette-display').style.display = 'block';
         document.getElementById('rarity-display').style.display = 'none';
         document.getElementById('skip-btn').style.display = 'block';
-        
-        console.log('Calling issue API...');
         const apiR = await fetch('/api/issue/' + userId + '/' + country, { method: 'POST' });
-        console.log('Issue API response status:', apiR.status);
-        if (!apiR.ok) throw new Error('HTTP ' + apiR.status);
         const apiD = await apiR.json();
-        console.log('Issue API response:', apiD);
-        
         if (!apiD.success) {
             tg.showAlert(apiD.message);
             document.getElementById('roulette-display').style.display = 'none';
@@ -545,7 +446,7 @@ async function startRoulette(country) {
         loadData();
     } catch(e) {
         console.error('startRoulette error:', e);
-        tg.showAlert('Ошибка: ' + e.message);
+        tg.showAlert('Ошибка сети: ' + e.message);
     }
 }
 
@@ -601,20 +502,16 @@ async function sellNumber(id) {
         const r = await fetch('/api/sell/' + userId + '/' + id, { method: 'POST' });
         const d = await r.json();
         tg.showAlert(d.message);
-        loadInventory();
-        loadData();
+        loadInventory(); loadData();
     } catch(e) { console.error(e); }
 }
 
-async function autoSellByRarity(rarity) {
-    const names = {'Обычный':'⚪ Обычные','Необычный':'🟢 Необычные','Редкий':'🔵 Редкие','Эпический':'🟣 Эпические','Легендарный':'🟡 Легендарные','all':'💥 Все'};
-    if (!confirm('Продать ' + (names[rarity]||'все') + ' номера?')) return;
+async function autoSell() {
+    if (!confirm('Продать все обычные номера?')) return;
     try {
-        const r = await fetch('/api/auto_sell/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rarity: rarity }) });
+        const r = await fetch('/api/auto_sell/' + userId, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadInventory();
-        loadData();
+        tg.showAlert(d.message); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -624,8 +521,7 @@ async function listMarket(id) {
     try {
         const r = await fetch('/api/market/sell/' + userId + '/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ price: parseFloat(p) }) });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadInventory();
+        tg.showAlert(d.message); loadInventory();
     } catch(e) { console.error(e); }
 }
 
@@ -635,8 +531,7 @@ async function auctionLot(id) {
     try {
         const r = await fetch('/api/auctions/create/' + userId + '/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ min_price: parseFloat(p) }) });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadInventory();
+        tg.showAlert(d.message); loadInventory();
     } catch(e) { console.error(e); }
 }
 
@@ -648,23 +543,11 @@ async function loadMarket() {
         list.innerHTML = '';
         if (items.length === 0) { list.innerHTML = '<div class="empty-state">Рынок пуст</div>'; return; }
         items.forEach(function(i) {
-            const isOwner = i.seller_id === userId;
             const d = document.createElement('div');
             d.className = 'item-card rarity-' + i.rarity;
-            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.country + ' • ' + i.rarity + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + i.price + '₽</div>' + (isOwner ? '<button class="btn btn-red" onclick="removeMarket(' + i.id + ')">❌</button>' : '<button class="btn" onclick="buyMarket(' + i.id + ')">Купить</button>') + '</div>';
+            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.country + ' • ' + i.rarity + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + i.price + '₽</div><button class="btn" onclick="buyMarket(' + i.id + ')">Купить</button></div>';
             list.appendChild(d);
         });
-    } catch(e) { console.error(e); }
-}
-
-async function removeMarket(id) {
-    if (!confirm('Снять товар с продажи?')) return;
-    try {
-        const r = await fetch('/api/market/remove/' + userId + '/' + id, { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        loadMarket();
-        loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -672,9 +555,7 @@ async function buyMarket(id) {
     try {
         const r = await fetch('/api/market/buy/' + userId + '/' + id, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadMarket();
-        loadData();
+        tg.showAlert(d.message); loadMarket(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -690,23 +571,11 @@ async function loadAuctions() {
             const diff = Math.max(0, ends - Date.now());
             const mins = Math.floor(diff / 60000);
             const secs = Math.floor((diff % 60000) / 1000);
-            const isOwner = l.seller_id === userId;
             const d = document.createElement('div');
             d.className = 'item-card rarity-' + l.rarity;
-            d.innerHTML = '<div><div class="number">' + (flags[l.country]||'') + ' ' + l.number + '</div><div class="meta">' + l.rarity + ' • ⏰ ' + mins + ':' + secs.toString().padStart(2, '0') + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + l.current_bid + '₽</div>' + (isOwner ? '<button class="btn btn-red" onclick="removeAuction(' + l.id + ')">❌</button>' : '<button class="btn btn-blue" onclick="makeBid(' + l.id + ',' + l.current_bid + ')">Ставка</button>') + '</div>';
+            d.innerHTML = '<div><div class="number">' + (flags[l.country]||'') + ' ' + l.number + '</div><div class="meta">' + l.rarity + ' • ⏰ ' + mins + ':' + secs.toString().padStart(2, '0') + '</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="price">' + l.current_bid + '₽</div><button class="btn btn-blue" onclick="makeBid(' + l.id + ',' + l.current_bid + ')">Ставка</button></div>';
             list.appendChild(d);
         });
-    } catch(e) { console.error(e); }
-}
-
-async function removeAuction(id) {
-    if (!confirm('Снять лот с аукциона?')) return;
-    try {
-        const r = await fetch('/api/auctions/remove/' + userId + '/' + id, { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        loadAuctions();
-        loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -716,9 +585,7 @@ async function makeBid(lotId, current) {
     try {
         const r = await fetch('/api/auctions/bid/' + userId + '/' + lotId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bid: parseFloat(bid) }) });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadAuctions();
-        loadData();
+        tg.showAlert(d.message); loadAuctions(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -726,18 +593,15 @@ async function loadTasks() {
     try {
         const r = await fetch('/api/tasks/' + userId);
         const tasks = await r.json();
-        const dailyList = document.getElementById('daily-tasks-list');
-        const weeklyList = document.getElementById('weekly-tasks-list');
-        dailyList.innerHTML = '';
-        weeklyList.innerHTML = '';
+        const list = document.getElementById('tasks-list');
+        list.innerHTML = '';
         tasks.forEach(function(t) {
             const pct = Math.min(100, (t.progress / t.target) * 100);
-            const html = '<div class="task-card"><div class="task-name">' + t.name + '</div><div class="task-progress"><div class="task-progress-fill" style="width:' + pct + '%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">' + t.progress + '/' + t.target + '</span><span class="reward">+' + t.reward + '₽</span>' + (t.completed ? '<span style="color:var(--neon-green);">✓</span>' : (t.progress >= t.target ? '<button class="btn btn-blue" onclick="claimTask(\'' + t.key + '\')">Забрать</button>' : '')) + '</div></div>';
-            if (t.type === 'weekly') weeklyList.innerHTML += html;
-            else dailyList.innerHTML += html;
+            const d = document.createElement('div');
+            d.className = 'task-card';
+            d.innerHTML = '<div class="task-name">' + t.name + '</div><div class="task-progress"><div class="task-progress-fill" style="width:' + pct + '%"></div></div><div class="task-bottom"><span style="opacity:0.7;font-size:13px;">' + t.progress + '/' + t.target + '</span><span class="reward">+' + t.reward + '₽</span>' + (t.completed ? '<span style="color:var(--neon-green);">✓ Получено</span>' : (t.progress >= t.target ? '<button class="btn btn-blue" onclick="claimTask(\'' + t.key + '\')">Забрать</button>' : '')) + '</div>';
+            list.appendChild(d);
         });
-        if (dailyList.innerHTML === '') dailyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
-        if (weeklyList.innerHTML === '') weeklyList.innerHTML = '<div class="empty-state">Нет заданий</div>';
     } catch(e) { console.error(e); }
 }
 
@@ -745,20 +609,8 @@ async function claimTask(key) {
     try {
         const r = await fetch('/api/tasks/claim/' + userId + '/' + key, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadTasks();
-        loadData();
+        tg.showAlert(d.message); loadTasks(); loadData();
     } catch(e) { console.error(e); }
-}
-
-function selectSafeDays(days) {
-    selectedSafeDays = days;
-    [1, 3, 7, 30].forEach(function(d) {
-        const el = document.getElementById('safe-d' + d);
-        if (el) el.className = 'btn';
-    });
-    const sel = document.getElementById('safe-d' + days);
-    if (sel) sel.className = 'btn btn-blue';
 }
 
 async function loadSafe() {
@@ -767,35 +619,16 @@ async function loadSafe() {
         const d = await r.json();
         document.getElementById('safe-amount').textContent = Math.floor(d.amount) + ' ₽';
         document.getElementById('safe-interest').textContent = 'Проценты: +' + d.interest + ' ₽';
-        const li = document.getElementById('safe-lock-info');
-        if (d.locked && d.unlock_time) {
-            const unlock = new Date(d.unlock_time);
-            const diff = unlock - Date.now();
-            if (diff > 0) {
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                li.textContent = '🔒 Заблокировано ещё ' + h + 'ч ' + m + 'м';
-                li.style.color = 'var(--neon-pink)';
-            } else {
-                li.textContent = '✅ Можно забрать';
-                li.style.color = 'var(--neon-green)';
-            }
-        } else {
-            li.textContent = d.amount > 0 ? '✅ Можно забрать' : '';
-            li.style.color = 'var(--neon-green)';
-        }
     } catch(e) { console.error(e); }
 }
 
 async function depositSafe() {
-    const a = document.getElementById('safe-deposit-amount').value;
-    if (!a || isNaN(a) || a <= 0) return tg.showAlert('Введи сумму!');
+    const a = prompt('Сколько внести?');
+    if (!a || isNaN(a) || a <= 0) return;
     try {
-        const r = await fetch('/api/safe/deposit/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: parseFloat(a), days: selectedSafeDays }) });
+        const r = await fetch('/api/safe/deposit/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: parseFloat(a) }) });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadSafe();
-        loadData();
+        tg.showAlert(d.message); loadSafe(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -803,9 +636,7 @@ async function withdrawSafe() {
     try {
         const r = await fetch('/api/safe/withdraw/' + userId, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadSafe();
-        loadData();
+        tg.showAlert(d.message); loadSafe(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -829,9 +660,7 @@ async function buyUp(key) {
     try {
         const r = await fetch('/api/upgrades/buy/' + userId + '/' + key, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadUpgrades();
-        loadData();
+        tg.showAlert(d.message); loadUpgrades(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -847,9 +676,7 @@ async function getBonus() {
     try {
         const r = await fetch('/api/bonus/' + userId, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadBalance();
-        loadData();
+        tg.showAlert(d.message); loadBalance(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -900,9 +727,7 @@ async function claimDaily() {
     try {
         const r = await fetch('/api/daily/claim/' + userId, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadDaily();
-        loadData();
+        tg.showAlert(d.message); loadDaily(); loadData();
     } catch(e) { console.error(e); }
 }
 
@@ -913,12 +738,8 @@ async function usePromo() {
         const r = await fetch('/api/promo/use/' + userId + '/' + encodeURIComponent(code), { method: 'POST' });
         const d = await r.json();
         tg.showAlert(d.message);
-        if (d.success) {
-            document.getElementById('promo-input').value = '';
-            loadData();
-            loadBalance();
-        }
-    } catch(e) { console.error(e); tg.showAlert('Ошибка сети'); }
+        if (d.success) { document.getElementById('promo-input').value = ''; loadData(); loadBalance(); }
+    } catch(e) { console.error(e); }
 }
 
 async function loadReferral() {
@@ -937,9 +758,7 @@ async function copyRef() {
     try {
         await navigator.clipboard.writeText(link);
         tg.showAlert('✅ Ссылка скопирована!');
-    } catch(e) {
-        tg.showAlert('Ссылка: ' + link);
-    }
+    } catch(e) { tg.showAlert('Ссылка: ' + link); }
 }
 
 async function loadSeason() {
@@ -958,13 +777,8 @@ async function loadChannel() {
         const r = await fetch('/api/channel/check/' + userId);
         const d = await r.json();
         const btn = document.getElementById('channel-claim-btn');
-        if (d.subscribed) {
-            btn.textContent = '✅ Бонус уже получен!';
-            btn.disabled = true;
-        } else {
-            btn.textContent = '✅ Проверить подписку и получить бонус';
-            btn.disabled = false;
-        }
+        if (d.subscribed) { btn.textContent = '✅ Бонус уже получен!'; btn.disabled = true; }
+        else { btn.textContent = '✅ Проверить подписку и получить бонус'; btn.disabled = false; }
     } catch(e) { console.error(e); }
 }
 
@@ -972,110 +786,11 @@ async function claimChannelBonus() {
     try {
         const r = await fetch('/api/channel/claim/' + userId, { method: 'POST' });
         const d = await r.json();
-        tg.showAlert(d.message);
-        loadChannel();
-        loadData();
+        tg.showAlert(d.message); loadChannel(); loadData();
     } catch(e) { console.error(e); }
 }
 
-async function loadTrades() {
-    try {
-        const usersR = await fetch('/api/trades/users/' + userId);
-        const users = await usersR.json();
-        const select = document.getElementById('trade-receiver');
-        select.innerHTML = '<option value="">Выбери игрока...</option>';
-        users.filter(function(u) { return u.online; }).forEach(function(u) {
-            const opt = document.createElement('option');
-            opt.value = u.user_id;
-            opt.textContent = u.username + ' (' + Math.floor(u.balance) + '₽)';
-            select.appendChild(opt);
-        });
-        const invR = await fetch('/api/trades/inventory/' + userId);
-        const items = await invR.json();
-        const list = document.getElementById('trade-items-list');
-        list.innerHTML = '';
-        tradeSelectedItems = [];
-        items.forEach(function(i) {
-            const d = document.createElement('div');
-            d.className = 'item-card';
-            d.style.cursor = 'pointer';
-            d.onclick = function() { toggleTradeItem(i.id, d); };
-            d.innerHTML = '<div><div class="number">' + (flags[i.country]||'') + ' ' + i.number + '</div><div class="meta">' + i.rarity + ' • ' + Math.floor(i.buy_price) + '₽</div></div>';
-            list.appendChild(d);
-        });
-        const tradesR = await fetch('/api/trades/pending/' + userId);
-        const trades = await tradesR.json();
-        const pendingList = document.getElementById('pending-trades-list');
-        pendingList.innerHTML = '';
-        if (trades.length === 0) {
-            pendingList.innerHTML = '<div style="opacity:0.7;text-align:center;padding:10px;">Нет входящих трейдов</div>';
-        } else {
-            trades.forEach(function(t) {
-                const d = document.createElement('div');
-                d.className = 'item-card';
-                d.style.cursor = 'default';
-                d.innerHTML = '<div><div class="number">От: ' + t.sender_name + '</div><div class="meta">' + (t.money > 0 ? '💰 ' + t.money + '₽' : '') + ' ' + (t.items && t.items.length > 0 ? '🎒 ' + t.items.length + ' номеров' : '') + '</div></div><div style="display:flex;gap:6px;"><button class="btn" onclick="acceptTrade(' + t.id + ')">✅</button><button class="btn btn-red" onclick="declineTrade(' + t.id + ')">❌</button></div>';
-                pendingList.appendChild(d);
-            });
-        }
-    } catch(e) { console.error(e); }
-}
-
-function toggleTradeItem(itemId, element) {
-    const idx = tradeSelectedItems.indexOf(itemId);
-    if (idx > -1) {
-        tradeSelectedItems.splice(idx, 1);
-        element.classList.remove('selected');
-    } else {
-        tradeSelectedItems.push(itemId);
-        element.classList.add('selected');
-    }
-}
-
-async function createTrade() {
-    const receiverId = document.getElementById('trade-receiver').value;
-    const money = parseFloat(document.getElementById('trade-money').value) || 0;
-    if (!receiverId) return tg.showAlert('Выбери игрока!');
-    if (money === 0 && tradeSelectedItems.length === 0) return tg.showAlert('Добавь деньги или номера!');
-    if (!confirm('Отправить трейд? ' + (money > 0 ? money + '₽' : '') + ' ' + (tradeSelectedItems.length > 0 ? tradeSelectedItems.length + ' номеров' : ''))) return;
-    try {
-        const r = await fetch('/api/trades/create/' + userId, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ receiver_id: parseInt(receiverId), money: money, items: tradeSelectedItems }) });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        if (d.success) {
-            document.getElementById('trade-money').value = '';
-            tradeSelectedItems = [];
-            loadTrades();
-            loadData();
-        }
-    } catch(e) { console.error(e); }
-}
-
-async function acceptTrade(tradeId) {
-    if (!confirm('Принять трейд?')) return;
-    try {
-        const r = await fetch('/api/trades/accept/' + userId + '/' + tradeId, { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        loadTrades();
-        loadData();
-    } catch(e) { console.error(e); }
-}
-
-async function declineTrade(tradeId) {
-    if (!confirm('Отклонить трейд?')) return;
-    try {
-        const r = await fetch('/api/trades/decline/' + userId + '/' + tradeId, { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        loadTrades();
-    } catch(e) { console.error(e); }
-}
-
-async function loadAdmin() {
-    await loadAdminStats();
-    await loadAdminUsers();
-}
+async function loadAdmin() { await loadAdminStats(); await loadAdminUsers(); }
 
 async function loadAdminStats() {
     try {
@@ -1095,8 +810,7 @@ async function loadAdminUsers() {
         users.forEach(function(u) {
             const d = document.createElement('div');
             d.className = 'item-card';
-            const dot = u.online ? '<span class="online-dot online"></span>' : '<span class="online-dot offline"></span>';
-            d.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + dot + '<div><div class="number">@' + (u.username || 'нет') + '</div><div class="meta">ID: ' + u.user_id + '</div></div></div><div class="price">' + formatNum(u.balance) + '₽</div>';
+            d.innerHTML = '<div><div class="number">@' + (u.username || 'нет') + '</div><div class="meta">ID: ' + u.user_id + '</div></div><div class="price">' + formatNum(u.balance) + '₽</div>';
             l.appendChild(d);
         });
     } catch(e) { console.error(e); }
@@ -1147,9 +861,7 @@ async function admUserInfo() {
         const box = document.getElementById('adm-info-result');
         if (d.success) {
             box.innerHTML = '<div class="item-card"><div><div class="number">@' + d.username + '</div><div class="meta">ID: ' + d.user_id + ' • Рег: ' + d.created_at + ' • Номеров: ' + d.items_count + '</div></div><div class="price">' + formatNum(d.balance) + '₽</div></div>';
-        } else {
-            box.innerHTML = '<p style="color:var(--neon-pink);">' + d.message + '</p>';
-        }
+        } else { box.innerHTML = '<p style="color:var(--neon-pink);">' + d.message + '</p>'; }
     } catch(e) { console.error(e); }
 }
 
@@ -1175,9 +887,7 @@ async function admRemoveNumber(uid, invId) {
     try {
         const r = await fetch('/api/admin/remove_number', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, inventory_id: invId }) });
         const d = await r.json();
-        tg.showAlert(d.message);
-        admUserInv();
-        loadAdminStats();
+        tg.showAlert(d.message); admUserInv(); loadAdminStats();
     } catch(e) { console.error(e); }
 }
 
@@ -1199,41 +909,4 @@ async function admGiveNumber() {
 async function admCreatePromo() {
     const code = document.getElementById('adm-promo-code').value;
     const type = document.getElementById('adm-promo-type').value;
-    const value = document.getElementById('adm-promo-value').value;
-    const max = document.getElementById('adm-promo-max').value || 0;
-    if (!code || !value) return tg.showAlert('Заполни код и сумму!');
-    try {
-        const r = await fetch('/api/admin/create_promo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code, type: type, reward_value: parseFloat(value), max_uses: parseInt(max) }) });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        if (d.success) { document.getElementById('adm-promo-code').value = ''; document.getElementById('adm-promo-value').value = ''; document.getElementById('adm-promo-max').value = ''; }
-    } catch(e) { console.error(e); }
-}
-
-async function admDeletePromo() {
-    const code = document.getElementById('adm-del-promo-code').value;
-    if (!code) return tg.showAlert('Введи код!');
-    try {
-        const r = await fetch('/api/admin/delete_promo/' + encodeURIComponent(code), { method: 'POST' });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        if (d.success) document.getElementById('adm-del-promo-code').value = '';
-    } catch(e) { console.error(e); }
-}
-
-async function admBroadcast() {
-    const t = document.getElementById('adm-broadcast-text').value;
-    if (!t) return tg.showAlert('Введи текст!');
-    try {
-        const r = await fetch('/api/admin/broadcast', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: t }) });
-        const d = await r.json();
-        tg.showAlert(d.message);
-        if (d.success) document.getElementById('adm-broadcast-text').value = '';
-    } catch(e) { console.error(e); }
-}
-
-loadData();
-renderIcons();
-</script>
-</body>
-            </html>
+    const value = document.
