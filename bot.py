@@ -350,7 +350,6 @@ def admin_create_promo():
     reward_type = "money" if promo_type == "money" else "case"
     conn = db.get_conn()
     c = conn.cursor()
-    from datetime import datetime, timedelta
     expires = (datetime.now() + timedelta(days=30)).isoformat()
     c.execute("INSERT INTO promo_codes (code, reward_type, reward_value, max_uses, created_at, expires_at) "
               "VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT (code) DO NOTHING",
